@@ -11,6 +11,8 @@ import ProtectedRoute from "../features/auth/components/ProtectedRoute";
 import TransferHistoryPage from "../features/auth/pages/TransferHistoryPage";
 import AdminTransactionHistoryPage from "../features/auth/pages/AdminTransactionHistoryPage";
 import AdminWalletPage from "../features/auth/pages/AdminWalletPage";
+import FaceManagementPage from "../features/auth/pages/FaceManagementPage";
+import FaceRegisterPage from "../features/auth/pages/FaceRegisterPage";
 
 import UserManagement from "../features/auth/pages/UserManagePage";
 import LandingPage from "../features/auth/pages/LandingPage";
@@ -134,6 +136,30 @@ function AppRoutes() {
         element={
           <ProtectedRoute allowedRoles={['ADMIN']}>
             <AdminProductPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/security/face"
+        element={
+          <ProtectedRoute>
+            <FaceManagementPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/security/face-management"
+        element={
+          <ProtectedRoute>
+            <FaceManagementPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/security/face/register"
+        element={
+          <ProtectedRoute>
+            <FaceRegisterPage />
           </ProtectedRoute>
         }
       />
