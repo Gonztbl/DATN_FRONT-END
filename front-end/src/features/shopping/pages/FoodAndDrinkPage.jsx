@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import shoppingService from '../../../services/shoppingService';
-import profileService from '../../../services/profileService';
-import walletService from '../../../services/walletService';
-import productService from '../../../services/productService';
-import vendorService from '../../../services/vendorService';
+import shoppingService from "../api/shoppingService";
+import profileService from "../../profile/api/profileService";
+import walletService from "../../wallet/api/walletService";
+import productService from "../../admin/api/productService";
+import vendorService from "../../admin/api/vendorService";
 import { useAuth } from '../../auth/context/AuthContext';
+import { showSuccess, showError, showWarning } from '../../../utils/swalUtils';
 
 const getSafeImageUrl = (imgData) => {
     if (!imgData) return '';
@@ -191,7 +192,7 @@ const FoodAndDrinkPage = () => {
         if (!selectedProduct) return;
 
         if (!deliveryAddress || !recipientName || !recipientPhone) {
-            alert("Vui lòng nhập đủ thông tin giao hàng!");
+            showWarning("Missing Info", "Vui lòng nhập đủ thông tin giao hàng!");
             return;
         }
 
@@ -214,7 +215,7 @@ const FoodAndDrinkPage = () => {
             };
 
             const result = await shoppingService.createOrder(orderPayload);
-            alert(`Đặt hàng thành công! Mã đơn: ${result.order_id}`);
+            showSuccess("Success", `Đặt hàng thành công! Mã đơn: ${result.order_id}`);
 
             fetchBalance();
             handleCloseModal();
@@ -223,7 +224,7 @@ const FoodAndDrinkPage = () => {
             setRecipientPhone('');
             setNote('');
         } catch (error) {
-            alert("Có lỗi xảy ra khi đặt hàng.");
+            showError("Lỗi", "Có lỗi xảy ra khi đặt hàng.");
             console.error(error);
         } finally {
             setIsSubmitting(false);

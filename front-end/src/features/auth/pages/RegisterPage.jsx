@@ -1,5 +1,5 @@
 import { useState } from "react";
-import RegisterService from "../../../services/register/registerService";
+import RegisterService from "../api/register/registerService";
 import { useNavigate } from "react-router-dom";
 import { useNotification } from "../../../context/NotificationContext";
 export default function RegisterPage() {

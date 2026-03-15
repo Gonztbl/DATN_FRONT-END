@@ -1,25 +1,28 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 import LoginPage from "../features/auth/pages/LoginPage";
 import RegisterPage from "../features/auth/pages/RegisterPage";
-import ProfilePage from "../features/auth/pages/ProfilePage";
-import SpendingSummaryPage from "../features/auth/pages/SpendingSummaryPage";
-import DashboardPage from "../features/auth/pages/DashboardPage";
-import DepositPage from "../features/auth/pages/DepositPage";
-import Withdraw from "../features/withdraw/Withdraw";
-import ReceiveMoneyPage from "../features/auth/pages/ReceiveMoneyPage";
+import ProfilePage from "../features/profile/pages/ProfilePage";
+import SpendingSummaryPage from "../features/wallet/pages/SpendingSummaryPage";
+import DashboardPage from "../features/wallet/pages/DashboardPage";
+import DepositPage from "../features/wallet/pages/DepositPage";
+import Withdraw from "../features/wallet/pages/Withdraw";
+import ReceiveMoneyPage from "../features/wallet/pages/ReceiveMoneyPage";
 import ProtectedRoute from "../features/auth/components/ProtectedRoute";
-import TransferHistoryPage from "../features/auth/pages/TransferHistoryPage";
-import AdminTransactionHistoryPage from "../features/auth/pages/AdminTransactionHistoryPage";
-import AdminWalletPage from "../features/auth/pages/AdminWalletPage";
+import TransferHistoryPage from "../features/wallet/pages/TransferHistoryPage";
+import AdminTransactionHistoryPage from "../features/admin/pages/AdminTransactionHistoryPage";
+import AdminWalletPage from "../features/admin/pages/AdminWalletPage";
 import FaceManagementPage from "../features/auth/pages/FaceManagementPage";
 import FaceRegisterPage from "../features/auth/pages/FaceRegisterPage";
 
-import UserManagement from "../features/auth/pages/UserManagePage";
-import LandingPage from "../features/auth/pages/LandingPage";
+import UserManagement from "../features/admin/pages/UserManagePage";
+import LandingPage from "../features/public/pages/LandingPage";
 import FoodAndDrinkPage from "../features/shopping/pages/FoodAndDrinkPage";
-import VendorManagerPage from "../features/auth/pages/VendorManagerPage";
-import AdminRestaurantPage from "../features/auth/pages/AdminRestaurantPage";
-import AdminProductPage from "../features/auth/pages/AdminProductPage";
+import VendorManagerPage from "../features/admin/pages/VendorManagerPage";
+import AdminRestaurantPage from "../features/admin/pages/AdminRestaurantPage";
+import AdminProductPage from "../features/admin/pages/AdminProductPage";
+import UserDetailPage from "../features/admin/pages/UserDetailPage";
+import AdminVerifyFacePage from "../features/admin/pages/AdminVerifyFacePage";
+import AdminFaceRegisterPage from "../features/admin/pages/AdminFaceRegisterPage";
 
 function AppRoutes() {
   return (
@@ -96,6 +99,30 @@ function AppRoutes() {
         element={
           <ProtectedRoute allowedRoles={['ADMIN']}>
             <UserManagement />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin/users/:id"
+        element={
+          <ProtectedRoute allowedRoles={['ADMIN']}>
+            <UserDetailPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin/users/:id/verify-face"
+        element={
+          <ProtectedRoute allowedRoles={['ADMIN']}>
+            <AdminVerifyFacePage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin/users/:id/register-face"
+        element={
+          <ProtectedRoute allowedRoles={['ADMIN']}>
+            <AdminFaceRegisterPage />
           </ProtectedRoute>
         }
       />

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getSpendingSummary } from "../../../services/summarySpendingApi";
+import transactionService from "../../wallet/api/transactionService";
 
 export default function useSpendingSummary() {
     const [data, setData] = useState(null);
@@ -12,7 +12,7 @@ export default function useSpendingSummary() {
         const fetchSummary = async () => {
             try {
                 setLoading(true);
-                const res = await getSpendingSummary();
+                const res = await transactionService.getSpendingAnalytics();
                 if (isMounted) {
                     setData(res.data);
                 }

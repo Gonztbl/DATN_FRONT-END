@@ -1,4 +1,4 @@
-import apiClient from "../../../services/apiClient";
+import apiClient from "../../../api/apiClient";
 
 const faceService = {
     // Helper để lấy userId từ api /api/me nếu không được truyền vào

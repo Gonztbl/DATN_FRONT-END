@@ -1,4 +1,4 @@
-import apiClient from "../../../services/apiClient";
+import apiClient from "../../../api/apiClient";
 
 /**
  * Auth Service - Xử lý tất cả các tác vụ liên quan đến authentication

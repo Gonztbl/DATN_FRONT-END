@@ -1,7 +1,6 @@
-// FaceRegisterPage.jsx
 import { useEffect, useState, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import Sidebar from "../../../components/Sidebar";
+import Sidebar from "../../../components/layout/Sidebar";
 import faceService from "../services/faceService";
 import { useNotification } from "../../../context/NotificationContext";
 
@@ -94,7 +93,8 @@ export default function FaceRegisterPage() {
             const formData = new FormData();
             formData.append("image", file);
             formData.append("pose", pose);
-            // faceService sẽ tự động thêm userId nếu thiếu
+            
+            // Nếu không, faceService sẽ tự động thêm userId của chính Admin (nếu self-register)
 
             await faceService.registerFace(formData);
             showSuccess(`Đăng ký pose ${pose.toUpperCase()} thành công!`, "Hoàn tất");
@@ -105,7 +105,8 @@ export default function FaceRegisterPage() {
                 // Hoàn tất nếu là pose đơn lẻ hoặc đã xong bước cuối
                 const msg = isSinglePose ? `Đã cập nhật pose ${pose.toUpperCase()}` : "Đăng ký hoàn tất 3 pose!";
                 showSuccess(msg, "Thành công");
-                navigate("/security/face");
+                
+                    navigate("/security/face");
             } else {
                 setCurrentStep(currentStep + 1);
             }
@@ -118,8 +119,18 @@ export default function FaceRegisterPage() {
     };
 
     const getStepTitle = () => {
-        const titles = ["", "Front Pose", "Left Pose", "Right Pose"];
+        const titles = ["", "Chụp Ảnh Chính Diện", "Quay Mặt Sang Trái", "Quay Mặt Sang Phải"];
         return titles[currentStep];
+    };
+
+    const getStepGuidance = () => {
+        const guidance = [
+            "",
+            "Vui lòng nhìn thẳng vào camera, giữ khuôn mặt trong khung hình.",
+            "Vui lòng từ từ quay mặt sang bên trái (góc khoảng 45 độ).",
+            "Vui lòng từ từ quay mặt sang bên phải (góc khoảng 45 độ)."
+        ];
+        return guidance[currentStep];
     };
 
     return (
@@ -131,15 +142,15 @@ export default function FaceRegisterPage() {
                     <div className="w-full max-w-4xl">
                         {/* Progress Stepper */}
                         <div className="flex items-center justify-between mb-12 px-2">
-                            {[1, 2, 3, 4].map(step => (
+                            {[1, 2, 3].map(step => (
                                 <div key={step} className="flex flex-col items-center gap-2 flex-1">
                                     <div className={`size-10 rounded-full flex items-center justify-center text-sm font-bold ${step <= currentStep ? "bg-primary text-background-dark shadow-[0_0_15px_rgba(25,230,107,0.4)]" : "bg-slate-200 dark:bg-slate-800 opacity-50"}`}>
                                         {step}
                                     </div>
                                     <span className={`text-xs ${step <= currentStep ? "font-bold" : "font-medium opacity-50"}`}>
-                                        {step === 1 ? "Prepare" : step === 2 ? "Front" : step === 3 ? "Left" : "Right"}
+                                        {step === 1 ? "Front" : step === 2 ? "Left" : "Right"}
                                     </span>
-                                    {step < 4 && (
+                                    {step < 3 && (
                                         <div className={`h-[2px] flex-1 mx-4 ${step < currentStep ? "bg-primary" : "bg-slate-200 dark:bg-slate-700"}`} />
                                     )}
                                 </div>
@@ -151,10 +162,19 @@ export default function FaceRegisterPage() {
                             {/* Left - Instructions */}
                             <div className="lg:col-span-5 space-y-6">
                                 <div>
-                                    <h1 className="text-4xl font-bold leading-tight mb-4">{getStepTitle()}</h1>
-                                    <p className="text-slate-600 dark:text-slate-400 text-lg leading-relaxed">
-                                        Position your face within the green oval and look directly at the camera. 
-                                        Đảm bảo ánh sáng tốt, mặt rõ nét, không rung tay.
+                                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-bold uppercase tracking-wider mb-4 border border-primary/20">
+                                        <span className="relative flex h-2 w-2">
+                                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+                                            <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+                                        </span>
+                                        Pose {currentStep} of 3
+                                    </div>
+                                    <h1 className="text-4xl font-black leading-tight mb-4 text-slate-900 dark:text-white">{getStepTitle()}</h1>
+                                    <p className="text-slate-600 dark:text-slate-400 text-lg leading-relaxed font-medium">
+                                        {getStepGuidance()}
+                                    </p>
+                                    <p className="text-slate-500 dark:text-slate-500 text-sm mt-2">
+                                        Đảm bảo ánh sáng tốt, mặt rõ nét và không bị che khuất.
                                     </p>
                                 </div>
 

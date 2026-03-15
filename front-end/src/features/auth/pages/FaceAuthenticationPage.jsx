@@ -1,12 +1,11 @@
 import { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import Sidebar from "../../../components/Sidebar"; // Giả định bạn đã có
-import faceService from "../services/faceService"; // Service mới để gọi API face
-import { useNotification } from "../../../context/NotificationContext";
+import Sidebar from "../../../components/layout/Sidebar";
+import faceService from "../services/faceService";
+import { showSuccess, showError, showConfirm } from "../../../utils/swalUtils";
 
 export default function FaceAuthenticationPage() {
     const navigate = useNavigate();
-    const { showSuccess, showError } = useNotification();
     const [loading, setLoading] = useState(true);
     const [embeddings, setEmbeddings] = useState([]); // Danh sách embeddings đã đăng ký
     const [isRegistering, setIsRegistering] = useState(false);
@@ -110,7 +109,8 @@ export default function FaceAuthenticationPage() {
 
     // Xóa một embedding
     const handleDeleteEmbedding = async (embeddingId) => {
-        if (!confirm("Bạn có chắc muốn xóa embedding này?")) return;
+        const result = await showConfirm("Xác nhận xóa", "Bạn có chắc muốn xóa embedding này?");
+        if (!result.isConfirmed) return;
         try {
             await faceService.deleteEmbedding(embeddingId); // DELETE /api/face/{embeddingId}
             showSuccess("Đã xóa thành công", "Thành công");

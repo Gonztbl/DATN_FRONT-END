@@ -1,13 +1,12 @@
 // FaceManagementPage.jsx
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import Sidebar from "../../../components/Sidebar";
-import faceService from "../services/faceService"; // dùng service hiện có
-import { useNotification } from "../../../context/NotificationContext";
+import Sidebar from "../../../components/layout/Sidebar";
+import faceService from "../services/faceService";
+import { showSuccess, showError, showConfirm } from "../../../utils/swalUtils";
 
 export default function FaceManagementPage() {
     const navigate = useNavigate();
-    const { showSuccess, showError } = useNotification();
     const [embeddings, setEmbeddings] = useState([]);
     const [loading, setLoading] = useState(true);
     useEffect(() => {
@@ -33,7 +32,8 @@ export default function FaceManagementPage() {
     };
 
     const handleReRegisterAll = async () => {
-        if (!confirm("Bạn có chắc muốn xóa và đăng ký lại toàn bộ?")) return;
+        const result = await showConfirm("Xác nhận", "Bạn có chắc muốn xóa và đăng ký lại toàn bộ?");
+        if (!result.isConfirmed) return;
         try {
             // Xóa tất cả trước (nếu backend hỗ trợ bulk delete)
             for (const emb of embeddings) {
@@ -50,7 +50,8 @@ export default function FaceManagementPage() {
     };
 
     const handleDelete = async (id) => {
-        if (!confirm("Xóa pose này?")) return;
+        const result = await showConfirm("Xác nhận xóa", "Xóa pose này?");
+        if (!result.isConfirmed) return;
         try {
             await faceService.deleteEmbedding(id);
             showSuccess("Đã xóa pose", "Thành công");
