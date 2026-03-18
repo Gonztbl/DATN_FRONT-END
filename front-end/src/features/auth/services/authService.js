@@ -14,7 +14,7 @@ const authService = {
       // Map username to userName if needed, to match API requirement
       const payload = {
         userName: credentials.userName || credentials.username,
-        password: credentials.password
+        password: credentials.passwordHash || credentials.password
       };
       const response = await apiClient.post('/api/auth/login', payload);
 
@@ -22,12 +22,15 @@ const authService = {
       if (response.data.token) {
         // Kiểm tra role trực tiếp từ response
         const roles = response.data.roles || [];
-        // Allow USER or ADMIN
-        if (roles.length > 0 && !roles.includes('USER') && !roles.includes('ADMIN')) {
+        // Allow defined roles
+        const allowedRoles = ['USER', 'ADMIN', 'SHIPPER', 'RESTAURANT_OWNER'];
+        const hasPermission = roles.some(role => allowedRoles.includes(role));
+
+        if (roles.length > 0 && !hasPermission) {
           throw {
             response: {
               data: {
-                message: 'Tài khoản không có quyền truy cập. Chỉ dành cho Customer hoặc Admin.'
+                message: 'Tài khoản không có quyền truy cập.'
               }
             }
           };
@@ -50,8 +53,9 @@ const authService = {
           avatar: response.data.avatar,
           membership: response.data.membership || 'Free',
           roles: roles,
-          status: response.data.status, // Ensure status is saved if needed for check
-          active: response.data.active
+          status: response.data.status,
+          active: response.data.active !== undefined ? response.data.active : response.data.isActive,
+          isActive: response.data.isActive !== undefined ? response.data.isActive : response.data.active
         };
         localStorage.setItem('user', JSON.stringify(user));
       }

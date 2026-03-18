@@ -47,6 +47,22 @@ const userManageService = {
       throw error;
     }
   },
+  deleteUser: async (userId) => {
+    try {
+      // Reverting to the endpoint verified by user in Swagger
+      // We must match the Swagger call exactly: NO query params, NO body
+      const response = await apiClient.delete(`/api/admin/users/${userId}`, {
+        headers: {
+          'Accept': '*/*',
+          'Content-Type': undefined // Try to prevent axios from sending Content-Type: application/json for an empty DELETE
+        }
+      });
+      return response.data;
+    } catch (error) {
+      console.error(`❌ Error deleting user ${userId}:`, error);
+      throw error;
+    }
+  }
 };
 
 export default userManageService;

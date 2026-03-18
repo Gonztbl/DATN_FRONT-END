@@ -42,7 +42,7 @@ export default function LoginPage() {
 
     try {
       const result = await login({
-        username: formData.username,
+        userName: formData.username,
         password: formData.password,
       });
 
@@ -57,16 +57,19 @@ export default function LoginPage() {
           return; // Stop login process
         }
 
-        if (user && (user.roles?.includes("ADMIN") || user.role === "ADMIN")) {
-          navigate("/admin/transactions");
+        if (user) {
+          const roles = user.roles || [];
+          
+          if (roles.includes("ADMIN")) {
+            navigate("/admin/transactions");
+          } else if (roles.includes("SHIPPER")) {
+            navigate("/shipper/orders");
+          } else if (roles.includes("RESTAURANT_OWNER")) {
+            navigate("/merchant/dashboard");
+          } else {
+            navigate("/dashboard");
+          }
           return;
-        }
-
-        const roles = result.data?.roles || result.roles || [];
-        if (roles.includes("ADMIN")) {
-          navigate("/admin/transactions"); // Consolidate redirect to one place if possible, but keeping logic similar to original flow
-        } else {
-          navigate("/dashboard");
         }
       } else {
         const errorMsg = result.error?.message || "Đăng nhập thất bại";

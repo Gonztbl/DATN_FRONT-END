@@ -4,6 +4,7 @@ import SidebarAdmin from '../../../components/layout/SidebarAdmin';
 import HeaderAdmin from '../../../components/layout/HeaderAdmin';
 import { showSuccess, showError, showConfirm } from '../../../utils/swalUtils';
 import userService from '../../profile/api/userService';
+import userManageService from '../../admin/api/userManageService';
 import faceService from "../../auth/services/faceService";
 import walletService from "../../wallet/api/walletService";
 import transactionService from "../../wallet/api/transactionService";
@@ -62,7 +63,7 @@ export default function UserDetailPage() {
       setLoading(true);
       try {
         // 1. Lấy thông tin user (đã cấu hình list fetch trong service)
-        const foundUser = await userService.getUserById(id);
+        const foundUser = await userManageService.getUserById(id);
         setUser(foundUser);
 
         // 3. Lấy related data
@@ -125,6 +126,27 @@ export default function UserDetailPage() {
   };
 
   // --- Chức năng Edit Profile ---
+  const handleDeleteUser = async () => {
+    if (user.role === 'ADMIN' || user.roles?.some(r => r.name === 'ADMIN')) {
+      showError("Lỗi", "Không thể xóa tài khoản ADMIN");
+      return;
+    }
+
+    const result = await showConfirm("Xác nhận xóa", "Bạn có chắc chắn muốn xóa tài khoản này? Hành động này không thể hoàn tác.");
+    if (!result.isConfirmed) return;
+
+    try {
+      await userManageService.deleteUser(id);
+      showSuccess("Thành công", "Đã xóa người dùng");
+      navigate("/user-manager");
+    } catch (err) {
+      console.error(">>> [DEBUG] DELETE FAILED!");
+      console.error(">>> [DEBUG] Status:", err.response?.status);
+      console.error(">>> [DEBUG] Response Data:", err.response?.data);
+      showError(err.response?.data?.message || "Xóa người dùng thất bại", "Lỗi");
+    }
+  };
+
   const handleOpenEditModal = () => {
     if (user) {
       setEditFormData({
@@ -161,16 +183,25 @@ export default function UserDetailPage() {
     };
     delete payload.isActive; // Loại bỏ biến thừa
 
-    console.log("Saving profile for user:", id, "with data:", payload);
+    console.log(">>> [DEBUG] PRE-SAVE PAYLOAD:", {
+      id: id,
+      originalForm: editFormData,
+      finalPayload: payload
+    });
+    
     setIsSaving(true);
     try {
       const updatedUser = await userManageService.updateUser(id, payload);
-      console.log("Update successful, backend returned:", updatedUser);
+      console.log(">>> [DEBUG] SAVE SUCCESS - Response:", updatedUser);
       setUser(updatedUser); 
       showSuccess("Đã cập nhật thông tin người dùng", "Thành công");
       setIsEditModalOpen(false);
     } catch (err) {
-      console.error("Update failed:", err);
+      console.error(">>> [DEBUG] SAVE FAILED!");
+      console.error(">>> [DEBUG] Error Status:", err.response?.status);
+      console.error(">>> [DEBUG] Error Data:", err.response?.data);
+      console.error(">>> [DEBUG] Error Message:", err.message);
+      
       showError(err.response?.data?.message || err.message || "Cập nhật thất bại", "Lỗi");
     } finally {
       setIsSaving(false);
@@ -253,6 +284,12 @@ export default function UserDetailPage() {
                   className="px-4 py-2 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 rounded-lg text-sm font-semibold hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors shadow-sm"
                 >
                   Edit Profile
+                </button>
+                <button 
+                  onClick={handleDeleteUser}
+                  className="px-4 py-2 border border-red-200 dark:border-red-900 bg-red-50 dark:bg-red-950/30 text-red-600 rounded-lg text-sm font-semibold hover:bg-red-100 transition-colors shadow-sm"
+                >
+                  Delete User
                 </button>
               </div>
             </div>
@@ -422,7 +459,7 @@ export default function UserDetailPage() {
                     <div>
                       <span className="text-sm font-medium text-slate-500 block mb-1">Role</span>
                       <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold leading-none bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400">
-                        {user.roles?.[0]?.name || "USER"}
+                        {user.role || wallets[0]?.role || user.roles?.[0]?.name || "USER"}
                       </span>
                     </div>
                   </div>

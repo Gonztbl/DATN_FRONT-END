@@ -23,6 +23,16 @@ import AdminProductPage from "../features/admin/pages/AdminProductPage";
 import UserDetailPage from "../features/admin/pages/UserDetailPage";
 import AdminVerifyFacePage from "../features/admin/pages/AdminVerifyFacePage";
 import AdminFaceRegisterPage from "../features/admin/pages/AdminFaceRegisterPage";
+import AdminUserCreatePage from "../features/admin/pages/AdminUserCreatePage";
+import OrderListShipperPage from "../features/shipper/pages/OrderListShipperPage";
+import OrderDetailShipperPage from "../features/shipper/pages/OrderDetailShipperPage";
+import ProfileShipperPage from "../features/shipper/pages/ProfileShipperPage";
+import ShipperDashboardPage from "../features/shipper/pages/ShipperDashboardPage";
+import MerchantDashboardPage from "../features/restaurant/pages/MerchantDashboardPage";
+import MerchantOrderPage from "../features/restaurant/pages/MerchantOrderPage";
+import MerchantOrderDetailPage from "../features/restaurant/pages/MerchantOrderDetailPage";
+import MerchantMenuPage from "../features/restaurant/pages/MerchantMenuPage";
+import MerchantSettingsPage from "../features/restaurant/pages/MerchantSettingsPage";
 
 function AppRoutes() {
   return (
@@ -99,6 +109,14 @@ function AppRoutes() {
         element={
           <ProtectedRoute allowedRoles={['ADMIN']}>
             <UserManagement />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin/users/create"
+        element={
+          <ProtectedRoute allowedRoles={['ADMIN']}>
+            <AdminUserCreatePage />
           </ProtectedRoute>
         }
       />
@@ -187,6 +205,78 @@ function AppRoutes() {
         element={
           <ProtectedRoute>
             <FaceRegisterPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/shipper/dashboard"
+        element={
+          <ProtectedRoute allowedRoles={['SHIPPER', 'ADMIN']}>
+            <ShipperDashboardPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/shipper/orders"
+        element={
+          <ProtectedRoute allowedRoles={['SHIPPER', 'ADMIN']}>
+            <OrderListShipperPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/shipper/orders/:id"
+        element={
+          <ProtectedRoute allowedRoles={['SHIPPER', 'ADMIN']}>
+            <OrderDetailShipperPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/shipper/profile"
+        element={
+          <ProtectedRoute allowedRoles={['SHIPPER', 'ADMIN']}>
+            <ProfileShipperPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/merchant/dashboard"
+        element={
+          <ProtectedRoute allowedRoles={['RESTAURANT_OWNER', 'ADMIN']}>
+            <MerchantDashboardPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/merchant/orders"
+        element={
+          <ProtectedRoute allowedRoles={['RESTAURANT_OWNER', 'ADMIN']}>
+            <MerchantOrderPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/merchant/orders/:id"
+        element={
+          <ProtectedRoute allowedRoles={['RESTAURANT_OWNER', 'ADMIN']}>
+            <MerchantOrderDetailPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/merchant/menu"
+        element={
+          <ProtectedRoute allowedRoles={['RESTAURANT_OWNER', 'ADMIN']}>
+            <MerchantMenuPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/merchant/settings"
+        element={
+          <ProtectedRoute allowedRoles={['RESTAURANT_OWNER', 'ADMIN']}>
+            <MerchantSettingsPage />
           </ProtectedRoute>
         }
       />

@@ -18,7 +18,7 @@ export default function UserManagement() {
   const [currentPage, setCurrentPage] = useState(1);
   const [searchText, setSearchText] = useState("");
   const [statusFilter, setStatusFilter] = useState("ALL");
-  const [createdDate, setCreatedDate] = useState("");
+  const [roleFilter, setRoleFilter] = useState("ALL");
   const startIndex = (currentPage - 1) * PAGE_SIZE;
   const endIndex = startIndex + PAGE_SIZE;
   const fetchUsers = async () => {
@@ -50,11 +50,12 @@ export default function UserManagement() {
       (statusFilter === "ACTIVE" && user.active) ||
       (statusFilter === "LOCKED" && !user.active);
 
-    const matchDate =
-      !createdDate ||
-      (user.createdAt && user.createdAt.slice(0, 10) === createdDate);
+    const matchRole =
+      roleFilter === "ALL" ||
+      user.role === roleFilter || 
+      user.roles?.some(r => r.name === roleFilter);
 
-    return matchText && matchStatus && matchDate;
+    return matchText && matchStatus && matchRole;
   });
 
   const totalUsers = filteredUsers.length;
@@ -64,7 +65,7 @@ export default function UserManagement() {
   const handleResetFilter = () => {
     setSearchText("");
     setStatusFilter("ALL");
-    setCreatedDate("");
+    setRoleFilter("ALL");
     setCurrentPage(1);
   };
 
@@ -156,27 +157,30 @@ export default function UserManagement() {
                   </div>
                 </div>
 
-                {/* DATE */}
-                <div className="w-full sm:w-48">
-                  <label className="block mb-1 text-sm font-medium text-gray-600">
-                    Search by Created at
+                {/* ROLE FILTER */}
+                <div className="space-y-1.5 w-full sm:w-48">
+                  <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">
+                    Filter by Role
                   </label>
-
                   <div className="relative">
-                    <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
-                      calendar_today
+                    <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+                      badge
                     </span>
-
-                    <input
-                      type="date"
-                      className="w-full bg-white border border-gray-300 rounded-xl h-12
-                 pl-11 pr-4 focus:ring-1 focus:ring-primary focus:border-primary"
-                      value={createdDate}
+                    <select
+                      className="w-full bg-white border border-gray-300 rounded-lg text-sm focus:ring-primary focus:border-primary h-10 pl-10"
+                      value={roleFilter}
                       onChange={(e) => {
-                        setCreatedDate(e.target.value);
+                        setRoleFilter(e.target.value);
                         setCurrentPage(1);
                       }}
-                    />
+                    >
+                      <option value="ALL">All Roles</option>
+                      <option value="USER">User</option>
+                      <option value="ADMIN">Admin</option>
+                      <option value="SUPPORT">Support</option>
+                      <option value="RESTAURANT_OWNER">Restaurant Owner</option>
+                      <option value="SHIPPER">Shipper</option>
+                    </select>
                   </div>
                 </div>
               </div>
@@ -191,6 +195,16 @@ export default function UserManagement() {
                 </span>
                 Reset
               </button>
+
+              <div className="h-8 w-[1px] bg-gray-200 hidden lg:block mx-2"></div>
+
+              <button
+                onClick={() => navigate("/admin/users/create")}
+                className="bg-primary text-black text-sm font-bold px-4 py-2.5 rounded-xl flex items-center gap-2 hover:shadow-lg hover:shadow-primary/20 transition-all active:scale-95 whitespace-nowrap"
+              >
+                <span className="material-symbols-outlined text-[20px]">person_add</span>
+                Create User
+              </button>
             </div>
 
             {/* TABLE */}
@@ -203,6 +217,7 @@ export default function UserManagement() {
                     <th className="px-6 py-4">Fullname</th>
                     <th className="px-6 py-4">Phone</th>
                     <th className="px-6 py-4">Email</th>
+                    <th className="px-6 py-4 text-center">Role</th>
                     <th className="px-6 py-4">Created At</th>
                     <th className="px-6 py-4">Status</th>
                     <th className="px-6 py-4 text-right">Action</th>
@@ -235,7 +250,34 @@ export default function UserManagement() {
                         </td>
                         <td className="px-6 py-4">{user.fullName || "—"}</td>
                         <td className="px-6 py-4">{user.phone || "—"}</td>
-                        <td className="px-6 py-4">{user.email}</td>
+                        <td className="px-6 py-4 text-sm truncate max-w-[200px]" title={user.email}>{user.email}</td>
+                        <td className="px-6 py-4 text-center">
+                          {(() => {
+                            const roleName = user.role || user.roles?.[0]?.name || "USER";
+                            let icon = "person";
+                            let colorClass = "text-gray-400 bg-gray-100";
+                            
+                            if (roleName === 'ADMIN') {
+                              icon = "shield_person";
+                              colorClass = "text-purple-600 bg-purple-100";
+                            } else if (roleName === 'SHIPPER') {
+                              icon = "local_shipping";
+                              colorClass = "text-blue-600 bg-blue-100";
+                            } else if (roleName === 'RESTAURANT_OWNER') {
+                              icon = "restaurant";
+                              colorClass = "text-orange-600 bg-orange-100";
+                            } else if (roleName === 'SUPPORT') {
+                              icon = "support_agent";
+                              colorClass = "text-emerald-600 bg-emerald-100";
+                            }
+
+                            return (
+                              <div className={`inline-flex items-center justify-center p-1.5 rounded-lg ${colorClass}`} title={roleName}>
+                                <span className="material-symbols-outlined !text-xl">{icon}</span>
+                              </div>
+                            );
+                          })()}
+                        </td>
                         <td className="px-6 py-4">
                           {user.createdAt
                             ? new Date(user.createdAt).toLocaleDateString(
