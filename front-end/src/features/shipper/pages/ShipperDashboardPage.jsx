@@ -1,17 +1,20 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import HeaderShipper from '../../../components/layout/HeaderShipper';
+import shipperService from '../api/shipperApi';
 
 const ShipperDashboardPage = () => {
     const navigate = useNavigate();
     const [timeRange, setTimeRange] = useState('week');
 
-    const stats = [
-        { label: 'Tổng đơn giao', value: '320', trend: '+5.2%', icon: 'package_2', color: 'primary' },
-        { label: 'Quãng đường', value: '1,240', unit: 'km', trend: '+3.1%', icon: 'distance', color: 'blue-500' },
+    const [recentHistory, setRecentHistory] = useState([]);
+    const [stats, setStats] = useState([
+        { label: 'Tổng đơn giao', value: '0', trend: '0%', icon: 'package_2', color: 'primary' },
+        { label: 'Quãng đường', value: '0', unit: 'km', trend: '0%', icon: 'distance', color: 'blue-500' },
         { label: 'Doanh thu', value: '0', unit: 'đ', trend: '0%', icon: 'payments', color: 'amber-500' },
-        { label: 'Đơn hôm nay', value: '12', trend: '+10%', icon: 'today', color: 'primary' }
-    ];
+        { label: 'Đơn hôm nay', value: '0', trend: '0%', icon: 'today', color: 'primary' }
+    ]);
+    const [loading, setLoading] = useState(false);
 
     const chartData = [
         { day: 'T2', height: '65%' },
@@ -23,13 +26,60 @@ const ShipperDashboardPage = () => {
         { day: 'CN', height: '20%' }
     ];
 
-    const recentHistory = [
-        { id: 'SP-44021', time: 'Hôm nay, 14:30', amount: '0 đ', status: 'Hoàn thành' },
-        { id: 'SP-44019', time: 'Hôm nay, 11:15', amount: '0 đ', status: 'Hoàn thành' },
-        { id: 'SP-43988', time: 'Hôm qua, 18:02', amount: '0 đ', status: 'Hoàn thành' },
-        { id: 'SP-43950', time: '21 Th05, 09:45', amount: '0 đ', status: 'Hoàn thành' },
-        { id: 'SP-43942', time: '21 Th05, 08:20', amount: '0 đ', status: 'Hoàn thành' }
-    ];
+    useEffect(() => {
+        const fetchDashboardData = async () => {
+            setLoading(true);
+            try {
+                // Because there is no specific stats API for shipper, we fetch list of orders to infer some data.
+                // In a real scenario, there should be a `getStats` endpoint.
+                const res = await shipperService.getOrders({ limit: 50, sortBy: 'createdAt', sortDir: 'desc' });
+                if (res.data && res.data.data) {
+                    const orders = res.data.data;
+                    
+                    // Recent 5 orders for history
+                    setRecentHistory(orders.slice(0, 5));
+                    
+                    // Mock calc for stats based on fetched orders
+                    const completedOrders = orders.filter(o => o.status === 'COMPLETED');
+                    const totalRevenue = completedOrders.reduce((sum, o) => sum + (o.totalAmount || 0), 0);
+                    
+                    setStats([
+                        { label: 'Tổng đơn', value: orders.length.toString(), trend: '+5.2%', icon: 'package_2', color: 'primary' },
+                        { label: 'Hoàn thành', value: completedOrders.length.toString(), unit: 'đơn', trend: '+3.1%', icon: 'check_circle', color: 'emerald-500' },
+                        { label: 'Doanh thu', value: formatCurrency(totalRevenue).replace('đ', '').trim(), unit: 'đ', trend: '0%', icon: 'payments', color: 'amber-500' },
+                        { label: 'Theo khoảng', value: recentHistory.length.toString(), trend: '+10%', icon: 'today', color: 'primary' }
+                    ]);
+                }
+            } catch (error) {
+                console.error('Error fetching dashboard data:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchDashboardData();
+    }, [timeRange]);
+
+    const formatCurrency = (amount) => {
+        if (!amount && amount !== 0) return '0 đ';
+        return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount);
+    };
+
+    const formatTime = (dateString) => {
+        if (!dateString) return '--:--';
+        const date = new Date(dateString);
+        return date.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }) + ', ' + date.toLocaleDateString('vi-VN');
+    };
+
+    const getStatusTextAndColor = (status) => {
+        switch (status) {
+            case 'PENDING': return { text: 'Chờ nhận', color: 'text-yellow-500 bg-yellow-100 dark:bg-yellow-900/30' };
+            case 'DELIVERING': return { text: 'Đang giao', color: 'text-blue-500 bg-blue-100 dark:bg-blue-900/30' };
+            case 'COMPLETED': return { text: 'Hoàn thành', color: 'text-emerald-500 bg-emerald-100 dark:bg-emerald-900/30' };
+            case 'FAILED': return { text: 'Thất bại', color: 'text-red-500 bg-red-100 dark:bg-red-900/30' };
+            default: return { text: status || 'N/A', color: 'text-slate-500 bg-slate-100' };
+        }
+    };
 
     return (
         <div className="relative flex min-h-screen w-full flex-col overflow-x-hidden bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100">
@@ -111,26 +161,33 @@ const ShipperDashboardPage = () => {
                         <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col">
                             <div className="flex items-center justify-between mb-6">
                                 <h3 className="text-lg font-bold text-slate-900 dark:text-white uppercase tracking-tight">Lịch sử gần đây</h3>
-                                <button className="text-primary text-sm font-bold hover:underline">Xem tất cả</button>
+                                <button onClick={() => navigate('/shipper/orders')} className="text-primary text-sm font-bold hover:underline">Xem tất cả</button>
                             </div>
                             <div className="space-y-4 flex-1">
-                                {recentHistory.map((item, idx) => (
-                                    <div key={idx} className="flex items-center justify-between p-3 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors border border-transparent hover:border-slate-100 dark:hover:border-slate-700">
-                                        <div className="flex items-center gap-3">
-                                            <div className="size-10 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 rounded-lg flex items-center justify-center">
-                                                <span className="material-symbols-outlined text-xl">check_circle</span>
+                                {loading && <div className="flex justify-center p-4"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}
+                                {!loading && recentHistory.length === 0 && <p className="text-center text-slate-500">Chưa có đơn hàng nào.</p>}
+                                {!loading && recentHistory.map((item) => {
+                                    const statusInfo = getStatusTextAndColor(item.status);
+                                    return (
+                                        <div key={item.id} className="flex items-center justify-between p-3 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors border border-transparent hover:border-slate-100 dark:hover:border-slate-700 cursor-pointer" onClick={() => navigate(`/shipper/orders/${item.id}`)}>
+                                            <div className="flex items-center gap-3">
+                                                <div className={`size-10 rounded-lg flex items-center justify-center ${statusInfo.color}`}>
+                                                    <span className="material-symbols-outlined text-xl">
+                                                        {item.status === 'COMPLETED' ? 'check_circle' : item.status === 'FAILED' ? 'cancel' : item.status === 'DELIVERING' ? 'motorcycle' : 'inventory_2'}
+                                                    </span>
+                                                </div>
+                                                <div>
+                                                    <p className="text-sm font-bold text-slate-900 dark:text-white">#{item.orderCode || item.id}</p>
+                                                    <p className="text-xs text-slate-500 font-medium">{formatTime(item.createdAt)}</p>
+                                                </div>
                                             </div>
-                                            <div>
-                                                <p className="text-sm font-bold text-slate-900 dark:text-white">#{item.id}</p>
-                                                <p className="text-xs text-slate-500 font-medium">{item.time}</p>
+                                            <div className="text-right">
+                                                <p className="text-sm font-bold text-slate-900 dark:text-white">{formatCurrency(item.totalAmount)}</p>
+                                                <p className={`text-[10px] uppercase font-bold tracking-wider font-display ${statusInfo.color.split(' ')[0]}`}>{statusInfo.text}</p>
                                             </div>
                                         </div>
-                                        <div className="text-right">
-                                            <p className="text-sm font-bold text-slate-900 dark:text-white">{item.amount}</p>
-                                            <p className="text-[10px] uppercase font-bold text-emerald-500 tracking-wider font-display">{item.status}</p>
-                                        </div>
-                                    </div>
-                                ))}
+                                    );
+                                })}
                             </div>
                             <button 
                                 onClick={() => navigate('/shipper/orders')}

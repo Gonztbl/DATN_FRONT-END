@@ -8,6 +8,9 @@ export const RegisterService = {
   },
   adminRegister(data) {
     return apiClient.post("/api/auth/admin/register", data);
+  },
+  adminCreateUser(data) {
+    return apiClient.post("/api/admin/users", data);
   }
 };
 

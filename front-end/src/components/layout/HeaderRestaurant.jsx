@@ -1,11 +1,13 @@
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../features/auth/context/AuthContext';
 import { useNotification } from '../../context/NotificationContext';
+import { useRestaurant } from '../../features/restaurant/context/RestaurantContext';
 
 export default function HeaderRestaurant({ title }) {
     const navigate = useNavigate();
     const { logout, user } = useAuth();
     const { showSuccess } = useNotification();
+    const { restaurantData } = useRestaurant();
 
     const handleLogout = () => {
         logout();
@@ -20,7 +22,9 @@ export default function HeaderRestaurant({ title }) {
                     <h2 className="text-xl font-bold text-slate-900 dark:text-white leading-tight">
                         {title || "Merchant Portal"}
                     </h2>
-                    <p className="text-xs font-medium text-slate-500 dark:text-slate-400">Restaurant Management</p>
+                    <p className="text-xs font-medium text-slate-500 dark:text-slate-400">
+                        {restaurantData?.name || "Restaurant Management"}
+                    </p>
                 </div>
 
                 <div className="flex items-center gap-4">
@@ -38,7 +42,7 @@ export default function HeaderRestaurant({ title }) {
 
                     <div className="flex items-center gap-3">
                         <div className="flex flex-col items-end hidden sm:flex">
-                            <span className="text-sm font-bold text-slate-900 dark:text-white">{user?.fullName || user?.username || 'Merchant'}</span>
+                            <span className="text-sm font-bold text-slate-900 dark:text-white">{restaurantData?.name || user?.fullName || user?.username || 'Merchant'}</span>
                             <span className="text-[10px] font-black uppercase tracking-tighter text-primary">Store Owner</span>
                         </div>
                         <button 

@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect } from "react";
+import React, { createContext, useContext, useState, useEffect, useMemo } from "react";
 import authService from "../services/authService";
 import { useNavigate } from "react-router-dom";
 
@@ -70,14 +70,14 @@ export function AuthProvider({ children }) {
     localStorage.removeItem("user");
   };
 
-  const value = {
+  const value = useMemo(() => ({
     user,
     loading,
     error,
     login,
     logout,
     isAuthenticated: !!user,
-  };
+  }), [user, loading, error]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

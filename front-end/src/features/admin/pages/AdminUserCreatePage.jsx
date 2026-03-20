@@ -10,6 +10,8 @@ export default function AdminUserCreatePage() {
     const { showSuccess, showError } = useNotification();
     const [loading, setLoading] = useState(false);
     const [errors, setErrors] = useState({});
+    const [showPassword, setShowPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
     const [formData, setFormData] = useState({
         userName: '',
@@ -91,10 +93,15 @@ export default function AdminUserCreatePage() {
                 role: formData.role // Backend nhận trường "role" (string)
             };
 
-            const response = await RegisterService.adminRegister(payload);
-            const { accountNumber } = response.data;
+            let response;
+            if (formData.role === 'USER') {
+                response = await RegisterService.adminCreateUser(payload);
+            } else {
+                response = await RegisterService.adminRegister(payload);
+            }
+            const { accountNumber } = response?.data || {};
             
-            showSuccess(`User account created successfully!\n\nAccount Number: ${accountNumber || formData.phone}`, "Success");
+            showSuccess(`User account created successfully!\n\nAccount Number: ${accountNumber || formData.phone || 'N/A'}`, "Success");
             navigate("/user-manager");
         } catch (err) {
             console.error("Error creating user:", err);
@@ -217,10 +224,19 @@ export default function AdminUserCreatePage() {
                                             name="passwordHash"
                                             value={formData.passwordHash}
                                             onChange={handleChange}
-                                            className={`w-full pl-10 pr-4 py-3 rounded-lg border bg-transparent focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all ${errors.passwordHash ? 'border-red-500' : 'border-slate-200 dark:border-slate-700'}`} 
-                                            placeholder="••••••••" 
-                                            type="password"
+                                            className={`w-full pl-10 pr-12 py-3 rounded-lg border bg-transparent focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all ${errors.passwordHash ? 'border-red-500' : 'border-slate-200 dark:border-slate-700'}`} 
+                                            placeholder="Enter password" 
+                                            type={showPassword ? "text" : "password"}
                                         />
+                                        <button
+                                            type="button"
+                                            onClick={() => setShowPassword(!showPassword)}
+                                            className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 focus:outline-none flex items-center"
+                                        >
+                                            <span className="material-symbols-outlined text-[20px]">
+                                                {showPassword ? "visibility_off" : "visibility"}
+                                            </span>
+                                        </button>
                                     </div>
                                     {errors.passwordHash && <p className="text-red-500 text-xs mt-1">{errors.passwordHash}</p>}
                                 </div>
@@ -232,10 +248,19 @@ export default function AdminUserCreatePage() {
                                             name="confirmPassword"
                                             value={formData.confirmPassword}
                                             onChange={handleChange}
-                                            className={`w-full pl-10 pr-4 py-3 rounded-lg border bg-transparent focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all ${errors.confirmPassword ? 'border-red-500' : 'border-slate-200 dark:border-slate-700'}`} 
-                                            placeholder="••••••••" 
-                                            type="password"
+                                            className={`w-full pl-10 pr-12 py-3 rounded-lg border bg-transparent focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all ${errors.confirmPassword ? 'border-red-500' : 'border-slate-200 dark:border-slate-700'}`} 
+                                            placeholder="Confirm password" 
+                                            type={showConfirmPassword ? "text" : "password"}
                                         />
+                                        <button
+                                            type="button"
+                                            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                            className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 focus:outline-none flex items-center"
+                                        >
+                                            <span className="material-symbols-outlined text-[20px]">
+                                                {showConfirmPassword ? "visibility_off" : "visibility"}
+                                            </span>
+                                        </button>
                                     </div>
                                     {errors.confirmPassword && <p className="text-red-500 text-xs mt-1">{errors.confirmPassword}</p>}
                                 </div>
@@ -247,9 +272,8 @@ export default function AdminUserCreatePage() {
                             <h3 className="text-sm font-bold uppercase tracking-wider text-primary mb-6">Account Role & Access</h3>
                             <div className="space-y-4">
                                 <label className="text-sm font-semibold">Assign System Role</label>
-                                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
+                                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
                                     {[
-                                        { id: 'ADMIN', label: 'ADMIN', icon: 'shield_person' },
                                         { id: 'USER', label: 'USER', icon: 'person' },
                                         { id: 'SHIPPER', label: 'SHIPPER', icon: 'local_shipping' },
                                         { id: 'SUPPORT', label: 'SUPPORT', icon: 'headset_mic' },

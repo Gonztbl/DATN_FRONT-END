@@ -253,6 +253,22 @@ export default function AdminProductPage() {
         }
     };
 
+    const handleToggleStatus = async (product) => {
+        const originalStatus = (product.status || 'available').toLowerCase();
+        const newStatus = originalStatus === 'available' ? 'unavailable' : 'available';
+        
+        // Optimistic update
+        setProducts(prev => prev.map(p => p.id === product.id ? { ...p, status: newStatus } : p));
+
+        try {
+            await productService.updateProductStatus(product.id, newStatus);
+        } catch (error) {
+            // Rollback
+            setProducts(prev => prev.map(p => p.id === product.id ? { ...p, status: originalStatus } : p));
+            showError("Lỗi", "Không thể thay đổi trạng thái sản phẩm.");
+        }
+    };
+
     const totalPages = Math.ceil(total / limit) || 1;
 
     return (
@@ -373,12 +389,18 @@ export default function AdminProductPage() {
                                                     </div>
                                                 </td>
                                                 <td className="px-6 py-4">
-                                                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium 
-                                                        ${product.status === 'available' ? 'bg-primary/20 text-slate-900 dark:text-primary' :
-                                                            product.status === 'unavailable' ? 'bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400' : 'bg-slate-200 text-slate-600'}`
-                                                    }>
-                                                        {product.status === 'available' ? 'Còn hàng' : product.status === 'unavailable' ? 'Ngưng bán' : 'Ẩn'}
-                                                    </span>
+                                                    <div className="flex items-center gap-3">
+                                                        <button 
+                                                            onClick={() => handleToggleStatus(product)}
+                                                            className={`w-10 h-5 rounded-full relative transition-all shadow-inner ${(product.status || '').toLowerCase() === 'available' ? 'bg-primary' : 'bg-slate-300 dark:bg-slate-700'}`}
+                                                            title={(product.status || '').toLowerCase() === 'available' ? 'Nhấn để ngưng bán' : 'Nhấn để mở bán'}
+                                                        >
+                                                            <span className={`absolute top-0.5 size-4 bg-white rounded-full transition-all shadow ${(product.status || '').toLowerCase() === 'available' ? 'right-0.5' : 'left-0.5'}`}></span>
+                                                        </button>
+                                                        <span className={`text-xs font-bold uppercase tracking-wider ${(product.status || '').toLowerCase() === 'available' ? 'text-primary' : 'text-slate-400'}`}>
+                                                            {(product.status || '').toLowerCase() === 'available' ? 'Bật' : 'Tắt'}
+                                                        </span>
+                                                    </div>
                                                 </td>
                                                 <td className="px-6 py-4 text-right">
                                                     <div className="flex justify-end gap-2">
@@ -641,8 +663,8 @@ export default function AdminProductPage() {
                                         <h2 className="text-2xl md:text-3xl font-bold text-slate-900 dark:text-slate-100">{viewingProduct.name}</h2>
                                         <p className="text-primary font-bold text-xl mt-2">{new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(viewingProduct.price)}</p>
                                     </div>
-                                    <div className={`px-4 py-1.5 rounded-full text-sm font-bold whitespace-nowrap border ${viewingProduct.status === 'available' ? 'bg-primary/10 text-primary border-primary/20' : viewingProduct.status === 'unavailable' ? 'bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400 border-red-500/20' : 'bg-slate-200 text-slate-600 border-slate-300'} `}>
-                                        {viewingProduct.status === 'available' ? 'Còn hàng' : viewingProduct.status === 'unavailable' ? 'Ngưng bán' : 'Ẩn'}
+                                    <div className={`px-4 py-1.5 rounded-full text-sm font-bold whitespace-nowrap border ${(viewingProduct.status || '').toLowerCase() === 'available' ? 'bg-primary/10 text-primary border-primary/20' : (viewingProduct.status || '').toLowerCase() === 'unavailable' ? 'bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400 border-red-500/20' : 'bg-slate-200 text-slate-600 border-slate-300'} `}>
+                                        {(viewingProduct.status || '').toLowerCase() === 'available' ? 'Còn hàng' : (viewingProduct.status || '').toLowerCase() === 'unavailable' ? 'Ngưng bán' : 'Ẩn'}
                                     </div>
                                 </div>
                                 <div className="inline-block bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-widest mt-2 mb-4">

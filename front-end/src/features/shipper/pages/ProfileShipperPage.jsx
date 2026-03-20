@@ -1,10 +1,70 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import HeaderShipper from '../../../components/layout/HeaderShipper';
+import shipperService from '../api/shipperApi';
+import Swal from 'sweetalert2';
 
 const ProfileShipperPage = () => {
     const navigate = useNavigate();
     const [isOnline, setIsOnline] = useState(true);
+    
+    const [profile, setProfile] = useState({
+        fullName: '',
+        email: '',
+        phone: '',
+        avatar: '',
+        id: ''
+    });
+    const [loading, setLoading] = useState(false);
+
+    useEffect(() => {
+        const fetchProfile = async () => {
+            setLoading(true);
+            try {
+                // Assuming /api/user/profile returns { data: { ...user } } or { ...user }
+                const res = await shipperService.getProfile();
+                if (res.data) {
+                    const userData = res.data.data || res.data;
+                    setProfile({
+                        fullName: userData.fullName || userData.userName || '',
+                        email: userData.email || '',
+                        phone: userData.phone || '',
+                        avatar: userData.avatar || userData.avatarUrl || '',
+                        id: userData.id || ''
+                    });
+                }
+            } catch (error) {
+                console.error("Error fetching profile", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchProfile();
+    }, []);
+
+    const handleChange = (e) => {
+        setProfile({ ...profile, [e.target.name]: e.target.value });
+    };
+
+    const handleUpdate = async () => {
+        try {
+            await shipperService.updateProfile(profile);
+            Swal.fire({
+                icon: 'success',
+                title: 'Thành công',
+                text: 'Cập nhật thông tin thành công!',
+                timer: 1500,
+                showConfirmButton: false
+            });
+        } catch (error) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Lỗi',
+                text: 'Không thể cập nhật thông tin'
+            });
+        }
+    };
 
     return (
         <div className="relative flex min-h-screen w-full flex-col overflow-x-hidden bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100">
@@ -36,85 +96,92 @@ const ProfileShipperPage = () => {
                             </div>
                         </div>
 
-                        {/* Avatar Section */}
-                        <div className="flex p-6 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 mb-6 shadow-sm">
-                            <div className="flex w-full flex-col gap-4 items-center sm:flex-row sm:justify-start sm:gap-6">
-                                <div className="relative group">
-                                    <div className="bg-center bg-no-repeat aspect-square bg-cover rounded-full h-32 w-32 border-4 border-primary/20" style={{ backgroundImage: 'url("https://lh3.googleusercontent.com/aida-public/AB6AXuDJbHI0g0_tMZ-I9lXdqGBAA5Zm-aCnpDPJBM_CtaT4XSj1fqeUoOrCG3NpszrLl1wy37hbdWBMas8OTe89DCtwpGvuaCHaWkJSQwqp-c-lPpEnnzOaZwSeU9ks9tXCFxJHenebmkpefjc1Di9_RPleUeNuPXn1wOsvr5-9jvEbRuaAnhjFgaVaVazezEIOwVwmmuL5vrvOf7DeDY7ZsEOkr9AVCc5hc0AbdNB3gZ64-tOWR6d-3X6CCsJRrkec6TeW1fNb-fSNz1SG")' }}>
-                                    </div>
-                                    <div className="absolute bottom-0 right-0 bg-primary p-2 rounded-full border-2 border-white dark:border-slate-900 cursor-pointer hover:scale-110 transition-transform">
-                                        <span className="material-symbols-outlined text-slate-900 text-sm">photo_camera</span>
-                                    </div>
-                                </div>
-                                <div className="flex flex-col items-center sm:items-start justify-center grow">
-                                    <p className="text-slate-900 dark:text-slate-100 text-2xl font-bold">Nguyễn Văn A</p>
-                                    <p className="text-slate-500 dark:text-slate-400 text-base font-medium">Mã tài xế: SP-9921</p>
-                                    <button className="mt-3 flex min-w-[120px] cursor-pointer items-center justify-center rounded-lg h-9 px-4 bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-sm font-semibold hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">
-                                        <span className="material-symbols-outlined text-lg mr-2">edit</span>
-                                        Thay đổi ảnh
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Information Form */}
-                        <div className="space-y-6">
-                            {/* Section: Basic Info */}
-                            <div>
-                                <h3 className="text-slate-900 dark:text-slate-100 text-lg font-bold pb-4 flex items-center gap-2">
-                                    <span className="material-symbols-outlined text-primary">person</span>
-                                    Thông tin cơ bản
-                                </h3>
-                                <div className="grid grid-cols-1 gap-4 p-6 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
-                                    <div className="flex flex-col gap-2">
-                                        <label className="text-slate-700 dark:text-slate-300 text-sm font-semibold">Họ và tên</label>
-                                        <input className="form-input rounded-lg border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-primary focus:border-primary h-12 px-4 outline-none" type="text" defaultValue="Nguyễn Văn A"/>
-                                    </div>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                        <div className="flex flex-col gap-2">
-                                            <label className="text-slate-700 dark:text-slate-300 text-sm font-semibold">Số điện thoại</label>
-                                            <input className="form-input rounded-lg border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-primary focus:border-primary h-12 px-4 outline-none" type="tel" defaultValue="0987 654 321"/>
+                        {loading ? (
+                            <div className="flex justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>
+                        ) : (
+                            <>
+                                {/* Avatar Section */}
+                                <div className="flex p-6 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 mb-6 shadow-sm">
+                                    <div className="flex w-full flex-col gap-4 items-center sm:flex-row sm:justify-start sm:gap-6">
+                                        <div className="relative group">
+                                            <div className="bg-center bg-no-repeat aspect-square bg-cover rounded-full h-32 w-32 border-4 border-primary/20 bg-slate-200 dark:bg-slate-800 flex items-center justify-center overflow-hidden" style={profile.avatar ? { backgroundImage: `url(${profile.avatar})` } : {}}>
+                                                {!profile.avatar && <span className="material-symbols-outlined text-4xl text-slate-400">person</span>}
+                                            </div>
+                                            <div className="absolute bottom-0 right-0 bg-primary p-2 rounded-full border-2 border-white dark:border-slate-900 cursor-pointer hover:scale-110 transition-transform">
+                                                <span className="material-symbols-outlined text-slate-900 text-sm">photo_camera</span>
+                                            </div>
                                         </div>
-                                        <div className="flex flex-col gap-2">
-                                            <label className="text-slate-700 dark:text-slate-300 text-sm font-semibold">Email</label>
-                                            <input className="form-input rounded-lg border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-primary focus:border-primary h-12 px-4 outline-none" type="email" defaultValue="shipper@example.com"/>
+                                        <div className="flex flex-col items-center sm:items-start justify-center grow">
+                                            <p className="text-slate-900 dark:text-slate-100 text-2xl font-bold">{profile.fullName || 'Chưa cập nhật'}</p>
+                                            <p className="text-slate-500 dark:text-slate-400 text-base font-medium">Mã tài xế: {profile.id ? `SP-${profile.id}` : 'XXXX'}</p>
+                                            <button className="mt-3 flex min-w-[120px] cursor-pointer items-center justify-center rounded-lg h-9 px-4 bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-sm font-semibold hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">
+                                                <span className="material-symbols-outlined text-lg mr-2">edit</span>
+                                                Thay đổi ảnh
+                                            </button>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
 
-                            {/* Section: Vehicle Info */}
-                            <div>
-                                <h3 className="text-slate-900 dark:text-slate-100 text-lg font-bold pb-4 flex items-center gap-2">
-                                    <span className="material-symbols-outlined text-primary">moped</span>
-                                    Thông tin phương tiện
-                                </h3>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-6 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
-                                    <div className="flex flex-col gap-2">
-                                        <label className="text-slate-700 dark:text-slate-300 text-sm font-semibold">Loại xe</label>
-                                        <select className="form-select rounded-lg border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-primary focus:border-primary h-12 px-4 outline-none">
-                                            <option value="motorcycle">Xe máy</option>
-                                            <option value="truck">Xe tải nhỏ</option>
-                                            <option value="electric">Xe điện</option>
-                                        </select>
+                                {/* Information Form */}
+                                <div className="space-y-6">
+                                    {/* Section: Basic Info */}
+                                    <div>
+                                        <h3 className="text-slate-900 dark:text-slate-100 text-lg font-bold pb-4 flex items-center gap-2">
+                                            <span className="material-symbols-outlined text-primary">person</span>
+                                            Thông tin cơ bản
+                                        </h3>
+                                        <div className="grid grid-cols-1 gap-4 p-6 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
+                                            <div className="flex flex-col gap-2">
+                                                <label className="text-slate-700 dark:text-slate-300 text-sm font-semibold">Họ và tên</label>
+                                                <input name="fullName" value={profile.fullName} onChange={handleChange} className="form-input rounded-lg border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-primary focus:border-primary h-12 px-4 outline-none" type="text" placeholder="Nhập họ và tên"/>
+                                            </div>
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                <div className="flex flex-col gap-2">
+                                                    <label className="text-slate-700 dark:text-slate-300 text-sm font-semibold">Số điện thoại</label>
+                                                    <input name="phone" value={profile.phone} onChange={handleChange} className="form-input rounded-lg border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-primary focus:border-primary h-12 px-4 outline-none" type="tel" placeholder="Nhập số điện thoại"/>
+                                                </div>
+                                                <div className="flex flex-col gap-2">
+                                                    <label className="text-slate-700 dark:text-slate-300 text-sm font-semibold">Email</label>
+                                                    <input name="email" value={profile.email} onChange={handleChange} className="form-input rounded-lg border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-primary focus:border-primary h-12 px-4 outline-none" type="email" placeholder="Nhập email" disabled/>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <div className="flex flex-col gap-2">
-                                        <label className="text-slate-700 dark:text-slate-300 text-sm font-semibold">Biển số xe</label>
-                                        <input className="form-input rounded-lg border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-primary focus:border-primary h-12 px-4 uppercase outline-none" type="text" defaultValue="29A-12345"/>
+
+                                    {/* Section: Vehicle Info */}
+                                    <div>
+                                        <h3 className="text-slate-900 dark:text-slate-100 text-lg font-bold pb-4 flex items-center gap-2">
+                                            <span className="material-symbols-outlined text-primary">moped</span>
+                                            Thông tin phương tiện
+                                        </h3>
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-6 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm opacity-60 pointer-events-none">
+                                            <div className="flex flex-col gap-2">
+                                                <label className="text-slate-700 dark:text-slate-300 text-sm font-semibold">Loại xe</label>
+                                                <select className="form-select rounded-lg border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-primary focus:border-primary h-12 px-4 outline-none">
+                                                    <option value="motorcycle">Xe máy</option>
+                                                    <option value="truck">Xe tải nhỏ</option>
+                                                    <option value="electric">Xe điện</option>
+                                                </select>
+                                            </div>
+                                            <div className="flex flex-col gap-2">
+                                                <label className="text-slate-700 dark:text-slate-300 text-sm font-semibold">Biển số xe</label>
+                                                <input className="form-input rounded-lg border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-primary focus:border-primary h-12 px-4 uppercase outline-none" type="text" defaultValue="29A-12345"/>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Actions */}
+                                    <div className="pt-4 pb-24">
+                                        <button onClick={handleUpdate} className="w-full flex items-center justify-center rounded-xl bg-primary h-14 text-slate-900 text-lg font-bold hover:brightness-105 active:scale-[0.98] transition-all shadow-lg shadow-primary/20">
+                                            Cập nhật thông tin
+                                        </button>
+                                        <p className="text-center text-slate-500 dark:text-slate-400 text-sm mt-4 italic">
+                                            Thông tin cá nhân được bảo mật theo chính sách của hệ thống.
+                                        </p>
                                     </div>
                                 </div>
-                            </div>
-
-                            {/* Actions */}
-                            <div className="pt-6 pb-20">
-                                <button className="w-full flex items-center justify-center rounded-xl bg-primary h-14 text-slate-900 text-lg font-bold hover:brightness-105 active:scale-[0.98] transition-all shadow-lg shadow-primary/20">
-                                    Cập nhật thông tin
-                                </button>
-                                <p className="text-center text-slate-500 dark:text-slate-400 text-sm mt-4 italic">
-                                    Thông tin cá nhân được bảo mật theo chính sách của SmartPay.
-                                </p>
-                            </div>
-                        </div>
+                            </>
+                        )}
                     </div>
                 </main>
 

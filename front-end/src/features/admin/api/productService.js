@@ -57,6 +57,18 @@ const productService = {
         } catch (error) {
             throw error;
         }
+    },
+
+    /**
+     * Update product status (available/unavailable)
+     */
+    updateProductStatus: async (id, status) => {
+        try {
+            const response = await apiClient.put(`/api/admin/products/${id}/status`, { status });
+            return response.data;
+        } catch (error) {
+            throw error;
+        }
     }
 };
 

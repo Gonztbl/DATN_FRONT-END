@@ -32,6 +32,17 @@ export default function SidebarAdmin() {
                     </Link>
 
                     <Link
+                        to="/admin/orders"
+                        className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors ${isActive('/admin/orders')
+                            ? 'bg-primary/10 text-primary font-bold'
+                            : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 font-semibold'
+                            }`}
+                    >
+                        <span className="material-symbols-outlined">shopping_bag</span>
+                        <span className="text-sm font-semibold">Orders</span>
+                    </Link>
+
+                    <Link
                         to="/user-manager"
                         className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors ${isActive('/user-manager')
                             ? 'bg-primary/10 text-primary font-bold'

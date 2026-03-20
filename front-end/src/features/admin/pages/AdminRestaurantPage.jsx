@@ -5,6 +5,7 @@ import HeaderAdmin from '../../../components/layout/HeaderAdmin';
 import { useAuth } from '../../auth/context/AuthContext';
 import { showSuccess, showError, showWarning, showConfirm } from '../../../utils/swalUtils';
 import restaurantService from '../api/restaurantService';
+import userManageService from '../api/userManageService';
 
 const getSafeImageUrl = (url) => {
     if (!url) return '';
@@ -20,6 +21,7 @@ export default function AdminRestaurantPage() {
 
     // Data State
     const [restaurants, setRestaurants] = useState([]);
+    const [owners, setOwners] = useState([]);
     const [loading, setLoading] = useState(true);
 
     // Pagination & Filter State
@@ -39,8 +41,22 @@ export default function AdminRestaurantPage() {
         address: '',
         status: true,
         open_time: '08:00',
-        close_time: '22:00'
+        close_time: '22:00',
+        userId: ''
     });
+
+    const fetchOwners = async () => {
+        try {
+            const allUsers = await userManageService.getAllUsers();
+            if (allUsers && Array.isArray(allUsers)) {
+                const restaurantOwners = allUsers.filter(u => u.role === 'RESTAURANT_OWNER');
+                setOwners(restaurantOwners);
+            }
+        } catch (error) {
+            console.error("Lỗi khi fetch users", error);
+        }
+    };
+
 
     const fetchRestaurants = async () => {
         setLoading(true);
@@ -83,6 +99,11 @@ export default function AdminRestaurantPage() {
         return () => clearTimeout(timeoutId);
     }, [page, limit, searchQuery, statusFilter]);
 
+    useEffect(() => {
+        fetchOwners();
+    }, []);
+
+
     const handleLogout = () => {
         logout();
         navigate('/login');
@@ -98,7 +119,8 @@ export default function AdminRestaurantPage() {
             address: '',
             status: true,
             open_time: '08:00',
-            close_time: '22:00'
+            close_time: '22:00',
+            userId: ''
         });
         setShowModal(true);
     };
@@ -114,13 +136,15 @@ export default function AdminRestaurantPage() {
                 address: details.address || '',
                 status: details.status !== undefined ? details.status : true,
                 open_time: details.open_time || '08:00',
-                close_time: details.close_time || '22:00'
+                close_time: details.close_time || '22:00',
+                userId: details.userId || details.ownerId || ''
             });
             setShowModal(true);
         } catch (error) {
             console.error(error);
         }
     };
+
 
     const handleCloseModal = () => {
         setShowModal(false);
@@ -141,10 +165,11 @@ export default function AdminRestaurantPage() {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        if (!formData.name || !formData.address) {
-            showWarning("Missing Data", "Vui lòng nhập tên và địa chỉ nhà hàng.");
+        if (!formData.name || !formData.address || !formData.userId) {
+            showWarning("Missing Data", "Vui lòng nhập tên, địa chỉ và chọn chủ nhà hàng.");
             return;
         }
+
 
         if (!editingRestaurant || formData.name !== editingRestaurant.name) {
             try {
@@ -482,24 +507,46 @@ export default function AdminRestaurantPage() {
                                     {/* Right Column */}
                                     <div className="space-y-4">
                                         <div>
-                                            <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Giờ mở cửa</label>
-                                            <input
-                                                name="open_time"
-                                                value={formData.open_time}
-                                                onChange={handleChange}
-                                                className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 focus:ring-2 focus:ring-primary focus:border-transparent text-sm outline-none"
-                                                type="time"
-                                            />
+                                            <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Chủ nhà hàng <span className="text-red-500">*</span></label>
+                                            <div className="relative">
+                                                <select
+                                                    name="userId"
+                                                    value={formData.userId}
+                                                    onChange={handleChange}
+                                                    required
+                                                    className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 focus:ring-2 focus:ring-primary focus:border-transparent text-sm outline-none appearance-none"
+                                                >
+                                                    <option value="">-- Chọn chủ nhà hàng --</option>
+                                                    {owners.map(owner => (
+                                                        <option key={owner.id} value={owner.id}>
+                                                            {owner.fullName || owner.userName} (ID: {owner.id})
+                                                        </option>
+                                                    ))}
+                                                </select>
+                                                <span className="material-symbols-outlined absolute right-3 top-2.5 text-slate-400 pointer-events-none">expand_more</span>
+                                            </div>
                                         </div>
-                                        <div>
-                                            <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Giờ đóng cửa</label>
-                                            <input
-                                                name="close_time"
-                                                value={formData.close_time}
-                                                onChange={handleChange}
-                                                className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 focus:ring-2 focus:ring-primary focus:border-transparent text-sm outline-none"
-                                                type="time"
-                                            />
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <div>
+                                                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Giờ mở cửa</label>
+                                                <input
+                                                    name="open_time"
+                                                    value={formData.open_time}
+                                                    onChange={handleChange}
+                                                    className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 focus:ring-2 focus:ring-primary focus:border-transparent text-sm outline-none"
+                                                    type="time"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Giờ đóng cửa</label>
+                                                <input
+                                                    name="close_time"
+                                                    value={formData.close_time}
+                                                    onChange={handleChange}
+                                                    className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 focus:ring-2 focus:ring-primary focus:border-transparent text-sm outline-none"
+                                                    type="time"
+                                                />
+                                            </div>
                                         </div>
                                         <div>
                                             <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Trạng thái hiện tại</label>
@@ -548,6 +595,7 @@ export default function AdminRestaurantPage() {
                     </div>
                 </div>
             )}
+
         </div>
     );
 }

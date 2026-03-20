@@ -17,6 +17,8 @@ import FaceRegisterPage from "../features/auth/pages/FaceRegisterPage";
 import UserManagement from "../features/admin/pages/UserManagePage";
 import LandingPage from "../features/public/pages/LandingPage";
 import FoodAndDrinkPage from "../features/shopping/pages/FoodAndDrinkPage";
+import HistoryOrderByUser from "../features/shopping/pages/historyorderbyuser";
+import ViewOrder from "../features/shopping/pages/vieworder";
 import VendorManagerPage from "../features/admin/pages/VendorManagerPage";
 import AdminRestaurantPage from "../features/admin/pages/AdminRestaurantPage";
 import AdminProductPage from "../features/admin/pages/AdminProductPage";
@@ -26,6 +28,8 @@ import AdminFaceRegisterPage from "../features/admin/pages/AdminFaceRegisterPage
 import AdminUserCreatePage from "../features/admin/pages/AdminUserCreatePage";
 import OrderListShipperPage from "../features/shipper/pages/OrderListShipperPage";
 import OrderDetailShipperPage from "../features/shipper/pages/OrderDetailShipperPage";
+import ListOrderAdmin from "../features/admin/pages/ListOrderAdmin";
+import ViewOrderByAdmin from "../features/admin/pages/ViewOrderByAdmin";
 import ProfileShipperPage from "../features/shipper/pages/ProfileShipperPage";
 import ShipperDashboardPage from "../features/shipper/pages/ShipperDashboardPage";
 import MerchantDashboardPage from "../features/restaurant/pages/MerchantDashboardPage";
@@ -161,10 +165,42 @@ function AppRoutes() {
         }
       />
       <Route
+        path="/shopping/order-history"
+        element={
+          <ProtectedRoute>
+            <HistoryOrderByUser />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/shopping/view-order/:id"
+        element={
+          <ProtectedRoute>
+            <ViewOrder />
+          </ProtectedRoute>
+        }
+      />
+      <Route
         path="/admin/vendor-manager"
         element={
           <ProtectedRoute allowedRoles={['ADMIN']}>
             <VendorManagerPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin/orders"
+        element={
+          <ProtectedRoute allowedRoles={['ADMIN']}>
+            <ListOrderAdmin />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin/orders/:id"
+        element={
+          <ProtectedRoute allowedRoles={['ADMIN']}>
+            <ViewOrderByAdmin />
           </ProtectedRoute>
         }
       />

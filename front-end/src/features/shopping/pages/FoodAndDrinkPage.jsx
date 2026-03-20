@@ -199,7 +199,6 @@ const FoodAndDrinkPage = () => {
         setIsSubmitting(true);
         try {
             const orderPayload = {
-                user_id: user?.id || 1,
                 items: [
                     {
                         product_id: selectedProduct.id,
@@ -215,7 +214,7 @@ const FoodAndDrinkPage = () => {
             };
 
             const result = await shoppingService.createOrder(orderPayload);
-            showSuccess("Success", `Đặt hàng thành công! Mã đơn: ${result.order_id}`);
+            showSuccess("Success", `Đặt hàng thành công! Mã đơn: ${result.id}`);
 
             fetchBalance();
             handleCloseModal();
@@ -224,7 +223,8 @@ const FoodAndDrinkPage = () => {
             setRecipientPhone('');
             setNote('');
         } catch (error) {
-            showError("Lỗi", "Có lỗi xảy ra khi đặt hàng.");
+            const errorMessage = error.response?.data?.message || error.response?.data || "Có lỗi xảy ra khi đặt hàng.";
+            showError("Lỗi", errorMessage);
             console.error(error);
         } finally {
             setIsSubmitting(false);
@@ -296,8 +296,18 @@ const FoodAndDrinkPage = () => {
                         </div>
                         {/* Nav */}
                         <nav className="hidden lg:flex items-center gap-6">
-                            <a onClick={() => navigate('/dashboard')} className="text-slate-600 text-sm font-bold hover:text-emerald-500 transition-all cursor-pointer relative after:content-[''] after:absolute after:bottom-[-4px] after:left-0 after:w-full after:h-0.5 after:bg-emerald-500">Trang Chủ</a>
-                            <a className="text-slate-500 text-sm font-semibold hover:text-emerald-500 transition-all cursor-pointer" href="#">Lịch sử mua</a>
+                            <a 
+                                onClick={() => navigate('/dashboard')} 
+                                className="text-slate-600 text-sm font-bold hover:text-emerald-500 transition-all cursor-pointer"
+                            >
+                                Trang Chủ
+                            </a>
+                            <a 
+                                onClick={() => navigate('/shopping/order-history')} 
+                                className="text-slate-500 text-sm font-semibold hover:text-emerald-500 transition-all cursor-pointer"
+                            >
+                                Lịch sử mua
+                            </a>
                         </nav>
                     </div>
                     <div className="flex items-center gap-3">

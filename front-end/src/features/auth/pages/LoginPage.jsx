@@ -1,7 +1,34 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate, Link } from "react-router-dom";
 import { useNotification } from "../../../context/NotificationContext";
+
+const slides = [
+  {
+    image: "/images/wallet_3d.png",
+    icon: "lock",
+    category: "Authentication",
+    title: "Secure Login",
+    heading: "Welcome Back to E-Wallet",
+    description: "Manage your finances securely and efficiently. Access your dashboard to view transactions and more."
+  },
+  {
+    image: "/images/dashboard_3d.png",
+    icon: "analytics",
+    category: "Management",
+    title: "Smart Dashboard",
+    heading: "Track Your Spending",
+    description: "Real-time analytics and transaction history at your fingertips. Stay on top of your budget."
+  },
+  {
+    image: "/images/security_3d.png",
+    icon: "verified_user",
+    category: "Protection",
+    title: "Bank-Grade Security",
+    heading: "Your Funds Are Safe",
+    description: "Industry-leading encryption protecting your assets 24/7. Peace of mind guaranteed."
+  }
+];
 
 export default function LoginPage() {
   const [formData, setFormData] = useState({
@@ -11,6 +38,14 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [localError, setLocalError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [currentSlide, setCurrentSlide] = useState(0);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % slides.length);
+    }, 5000);
+    return () => clearInterval(timer);
+  }, []);
 
   const { login, error: authError } = useAuth();
   const navigate = useNavigate();
@@ -113,7 +148,7 @@ export default function LoginPage() {
             {/* Title */}
             <div>
               <h1 className="text-3xl lg:text-4xl font-bold">Welcome Back</h1>
-              <p className="text-text-secondary mt-2">
+              <p className="text-base text-text-secondary mt-2">
                 Securely access your wallet to manage your finances.
               </p>
             </div>
@@ -133,18 +168,18 @@ export default function LoginPage() {
             )}
 
             {/* Form */}
-            <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+            <form onSubmit={handleSubmit} className="flex flex-col gap-6">
               {/* Username */}
               <div>
-                <label className="text-sm font-medium">Username</label>
-                <div className="relative mt-1">
+                <label className="text-base font-medium">Username</label>
+                <div className="relative mt-2">
                   <input
                     name="username"
                     value={formData.username}
                     onChange={handleChange}
                     placeholder="Enter your username"
                     disabled={isSubmitting}
-                    className="form-input w-full h-14 rounded-xl px-4 pr-12 border border-border-color dark:border-gray-700 bg-white dark:bg-gray-800 focus:ring-2 focus:ring-primary/50 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="form-input w-full h-14 rounded-xl px-4 pr-12 border border-border-color dark:border-gray-700 bg-white dark:bg-gray-800 focus:ring-2 focus:ring-primary/50 text-lg disabled:opacity-50 disabled:cursor-not-allowed"
                   />
                   <span className="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-text-secondary">
                     person
@@ -154,8 +189,8 @@ export default function LoginPage() {
 
               {/* Password */}
               <div>
-                <label className="text-sm font-medium">Password</label>
-                <div className="relative mt-1">
+                <label className="text-base font-medium">Password</label>
+                <div className="relative mt-2">
                   <input
                     type={showPassword ? "text" : "password"}
                     name="password"
@@ -163,7 +198,7 @@ export default function LoginPage() {
                     onChange={handleChange}
                     placeholder="Enter your password"
                     disabled={isSubmitting}
-                    className="form-input w-full h-14 rounded-xl px-4 pr-12 border border-border-color dark:border-gray-700 bg-white dark:bg-gray-800 focus:ring-2 focus:ring-primary/50 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="form-input w-full h-14 rounded-xl px-4 pr-12 border border-border-color dark:border-gray-700 bg-white dark:bg-gray-800 focus:ring-2 focus:ring-primary/50 text-lg disabled:opacity-50 disabled:cursor-not-allowed"
                   />
                   <span
                     className="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-text-secondary cursor-pointer hover:text-primary transition-colors"
@@ -185,7 +220,7 @@ export default function LoginPage() {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="h-12 rounded-full bg-primary font-bold shadow-lg shadow-primary/20 hover:bg-primary/90 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                className="h-14 rounded-full bg-primary font-bold shadow-lg shadow-primary/20 hover:bg-primary/90 transition-all text-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 mt-2"
               >
                 {isSubmitting ? (
                   <>
@@ -241,12 +276,84 @@ export default function LoginPage() {
       </div>
 
       {/* RIGHT */}
-      <div className="hidden lg:flex w-1/2 items-center justify-center p-12 bg-background-light dark:bg-[#0c1811]">
-        <img
-          src="https://lh3.googleusercontent.com/aida-public/AB6AXuBTuh1Ga3nA_vOowFuw-e2wKQX1G14-TOFvsiMh1PoO3-TLLlMe4bry4HlabGxCsUBgSPpP76XPV8uQUKRN5JF3n_da4WxqPtmKRczUAbjXU9vTyWaTcCd7mMSngeeOC5MtfEnd-WGAqOOKxehIDKMRkonPb_ssLjDvbhOWLW4_RAW3EsmqcosE5HF_ZpkMp4thO1AX3_i7YWUj97jm0mYpnhbTD6u3PxRsRjIv981ekVKGGOGtct04X7TlLTSyxDYL-qQLg6yPNexS"
-          className="w-full h-full object-cover rounded-[3rem]"
-          alt="E-wallet"
-        />
+      <div className="hidden lg:flex flex-1 relative bg-[#e8f5e9] dark:bg-[#1a3324] items-center justify-center p-12 overflow-hidden">
+        {/* Abstract background pattern */}
+        <div className="absolute inset-0 opacity-40" style={{ backgroundImage: "radial-gradient(#36e27b 1px, transparent 1px)", backgroundSize: "32px 32px" }}></div>
+        <div className="absolute top-10 right-10 size-64 bg-primary/20 rounded-full blur-[80px]"></div>
+        <div className="absolute bottom-10 left-10 size-80 bg-blue-400/20 rounded-full blur-[100px]"></div>
+        <div className="relative z-10 max-w-xl text-center w-full">
+          {/* 3D Card Illustration Carousel */}
+          <div className="relative w-full aspect-square max-w-[460px] 2xl:max-w-[560px] mx-auto mb-10 group perspective-1000">
+            {slides.map((slide, index) => (
+              <div
+                key={index}
+                className={`absolute inset-0 transition-all duration-1000 ease-in-out ${
+                  index === currentSlide ? "opacity-100 translate-x-0" : "opacity-0 translate-x-8 pointer-events-none"
+                }`}
+              >
+                <div
+                  className="w-full h-full bg-cover bg-center rounded-2xl shadow-2xl transition-transform duration-700 hover:rotate-y-6 hover:rotate-x-6"
+                  style={{ backgroundImage: `url('${slide.image}')` }}
+                >
+                  {/* Overlay gradient for text readability if needed */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent rounded-2xl"></div>
+                  {/* Floating Badge */}
+                  <div className="absolute -bottom-6 -right-6 bg-white dark:bg-gray-800 p-4 rounded-2xl shadow-xl flex items-center gap-3 animate-bounce" style={{ animationDuration: '3s' }}>
+                    <div className="bg-green-100 dark:bg-green-900/30 p-2 rounded-full">
+                      <span className="material-symbols-outlined text-green-600 dark:text-green-400">{slide.icon}</span>
+                    </div>
+                    <div className="text-left">
+                      <p className="text-xs text-gray-500 dark:text-gray-400 font-medium uppercase">{slide.category}</p>
+                      <p className="text-sm font-bold text-gray-900 dark:text-white">{slide.title}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="relative min-h-[140px] mt-8">
+            {slides.map((slide, index) => (
+              <div
+                key={index}
+                className={`absolute left-0 right-0 transition-all duration-700 ease-in-out ${
+                  index === currentSlide ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4 pointer-events-none"
+                }`}
+              >
+                <h3 className="text-3xl lg:text-4xl font-bold text-text-dark dark:text-white mb-4">{slide.heading}</h3>
+                <p className="text-lg lg:text-xl text-gray-600 dark:text-gray-300 font-medium leading-relaxed">
+                  {slide.description}
+                </p>
+              </div>
+            ))}
+          </div>
+          
+          {/* Carousel Indicators */}
+          <div className="flex justify-center gap-3 mt-8 z-20 relative">
+            {slides.map((_, index) => (
+              <button
+                key={index}
+                onClick={() => setCurrentSlide(index)}
+                className={`h-2 rounded-full transition-all duration-300 ${
+                  index === currentSlide ? "w-8 bg-primary" : "w-2 bg-gray-400/50 hover:bg-gray-400"
+                }`}
+                aria-label={`Go to slide ${index + 1}`}
+              />
+            ))}
+          </div>
+
+          {/* Feature Pills */}
+          <div className="flex flex-wrap justify-center gap-3 mt-4">
+            <span className="px-4 py-2 bg-white/60 dark:bg-black/20 backdrop-blur-sm rounded-full text-sm font-semibold text-gray-700 dark:text-gray-200 border border-white/50 dark:border-white/10 flex items-center gap-2">
+              <span className="material-symbols-outlined text-primary text-[18px]">security</span>
+              Safe & Secure
+            </span>
+            <span className="px-4 py-2 bg-white/60 dark:bg-black/20 backdrop-blur-sm rounded-full text-sm font-semibold text-gray-700 dark:text-gray-200 border border-white/50 dark:border-white/10 flex items-center gap-2">
+              <span className="material-symbols-outlined text-primary text-[18px]">speed</span>
+              Fast Access
+            </span>
+          </div>
+        </div>
       </div>
     </div>
   );
