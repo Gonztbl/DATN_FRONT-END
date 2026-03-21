@@ -30,7 +30,7 @@ const ViewOrderByAdmin = () => {
         try {
             const response = await adminOrderService.getOrderDetail(id);
             if (response && response.data) {
-                const oData = response.data;
+                const oData = response.data.data || response.data;
                 setOrder(oData);
                 setSelectedStatus(oData.status);
                 
@@ -242,7 +242,7 @@ const ViewOrderByAdmin = () => {
                             <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Phương thức thanh toán</label>
                             <div className="flex items-center gap-2">
                                 <span className="material-symbols-outlined text-primary">account_balance_wallet</span>
-                                <div className="text-lg font-bold">{order.payment?.method || order.paymentMethod || 'Ví SmartPay'}</div>
+                                <div className="text-lg font-bold">{order.payment?.method || order.paymentMethod || order.payment_method || 'Ví SmartPay'}</div>
                             </div>
                             <div className="text-xs text-emerald-600 font-bold uppercase tracking-tighter mt-1 flex items-center gap-1">
                                 <span className="material-symbols-outlined text-xs">verified</span>
@@ -264,17 +264,29 @@ const ViewOrderByAdmin = () => {
                                     <div className="space-y-3">
                                         <div>
                                             <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tight mb-0.5">Người đặt đơn</p>
-                                            <p className="font-bold text-slate-900 dark:text-slate-100">{order.fullName || order.userName || customerInfo?.fullName || customerInfo?.userName || 'N/A'}</p>
+                                            <p className="font-bold text-slate-900 dark:text-slate-100">{order.fullName || order.userName || order.full_name || order.user_name || customerInfo?.fullName || customerInfo?.userName || 'N/A'}</p>
                                         </div>
                                         <div>
                                             <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tight mb-0.5">Người nhận hàng</p>
-                                            <p className="font-bold text-slate-900 dark:text-slate-100">{order.recipientName || 'N/A'}</p>
-                                            <p className="text-sm text-slate-500 mt-0.5 whitespace-nowrap overflow-hidden text-ellipsis">{order.recipientPhone || 'N/A'}</p>
+                                            <p className="font-bold text-slate-900 dark:text-slate-100">
+                                                {order.deliveryInfo?.recipientName || order.recipientName || order.recipient_name || order.customer?.name || order.recipient?.name || order.shipping?.name || order.fullName || order.userName || customerInfo?.fullName || 'N/A'}
+                                            </p>
+                                            <p className="text-sm text-slate-500 mt-0.5 whitespace-nowrap overflow-hidden text-ellipsis">
+                                                {order.deliveryInfo?.recipientPhone || order.recipientPhone || order.recipient_phone || order.customer?.phone || order.recipient?.phone || order.shipping?.phone || customerInfo?.phone || 'N/A'}
+                                            </p>
                                         </div>
                                     </div>
                                     <div className="mt-3 pt-3 border-t border-slate-100 dark:border-slate-800">
                                         <p className="text-[10px] font-bold text-slate-400 mb-1 uppercase tracking-tight">Địa chỉ giao hàng</p>
-                                        <p className="text-xs leading-relaxed">{order.deliveryAddress || order.address || customerInfo?.address || 'N/A'}</p>
+                                        <p className="text-xs leading-relaxed">
+                                            {order.deliveryInfo?.deliveryAddress || order.deliveryAddress || order.delivery_address || order.customer?.address || order.recipient?.address || order.shipping?.address || order.address || customerInfo?.address || 'N/A'}
+                                        </p>
+                                    </div>
+                                    <div className="mt-3 pt-3 border-t border-slate-100 dark:border-slate-800">
+                                        <p className="text-[10px] font-bold text-slate-400 mb-1 uppercase tracking-tight">Ghi chú từ khách</p>
+                                        <p className="text-xs italic text-slate-500">
+                                            {order.deliveryInfo?.note || order.note || 'Không có ghi chú'}
+                                        </p>
                                     </div>
                                 </div>
                                 <div className="bg-white dark:bg-slate-900 p-5 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
@@ -282,11 +294,11 @@ const ViewOrderByAdmin = () => {
                                         <span className="material-symbols-outlined">restaurant</span>
                                         <h3 className="font-bold">Nhà hàng</h3>
                                     </div>
-                                    <p className="font-bold text-slate-900 dark:text-slate-100">{restaurantInfo?.name || order.restaurant?.name || order.restaurantName || `Nhà hàng #${order.restaurant?.id || order.restaurantId || 'N/A'}`}</p>
-                                    <p className="text-sm text-slate-500 mt-1">{restaurantOwner ? `${restaurantOwner.fullName} - ${restaurantOwner.phone || 'N/A'}` : (order.restaurant?.phone || order.restaurantPhone || 'N/A')}</p>
+                                    <p className="font-bold text-slate-900 dark:text-slate-100">{restaurantInfo?.name || order.restaurant?.name || order.restaurantName || order.restaurant_name || `Nhà hàng #${order.restaurant?.id || order.restaurantId || order.restaurant_id || 'N/A'}`}</p>
+                                    <p className="text-sm text-slate-500 mt-1">{restaurantOwner ? `${restaurantOwner.fullName} - ${restaurantOwner.phone || 'N/A'}` : (order.restaurant?.phone || order.restaurantPhone || order.restaurant_phone || 'N/A')}</p>
                                     <div className="mt-3 pt-3 border-t border-slate-100 dark:border-slate-800">
                                         <p className="text-[10px] font-bold text-slate-400 mb-1 uppercase tracking-tight">Địa chỉ lấy hàng</p>
-                                        <p className="text-xs leading-relaxed">{order.restaurant?.address || order.restaurantAddress || 'N/A'}</p>
+                                        <p className="text-xs leading-relaxed">{order.restaurant?.address || order.restaurantAddress || order.restaurant_address || 'N/A'}</p>
                                     </div>
                                 </div>
                                 <div className="bg-white dark:bg-slate-900 p-5 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
@@ -305,9 +317,9 @@ const ViewOrderByAdmin = () => {
                                                     )}
                                                 </div>
                                                 <div className="min-w-0">
-                                                    <p className="font-bold text-slate-900 dark:text-slate-100 truncate">{shipperData?.fullName || order.shipperName}</p>
+                                                    <p className="font-bold text-slate-900 dark:text-slate-100 truncate">{shipperData?.fullName || order.shipperName || order.shipper_name}</p>
                                                     <p className="text-[10px] text-slate-500 uppercase font-bold tracking-tighter truncate">
-                                                        ID: {shipperData?.id || order.shipperId || 'N/A'} {shipperData?.phone ? `• ${shipperData.phone}` : ''}
+                                                        ID: {shipperData?.id || order.shipperId || order.shipper_id || 'N/A'} {shipperData?.phone || order.shipper_phone ? `• ${shipperData?.phone || order.shipper_phone}` : ''}
                                                     </p>
                                                 </div>
                                             </div>

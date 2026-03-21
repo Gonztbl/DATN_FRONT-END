@@ -16,7 +16,6 @@ const ViewOrder = () => {
     const [productDetails, setProductDetails] = useState({});
     const [shipper, setShipper] = useState(null);
     const [restaurantInfo, setRestaurantInfo] = useState(null);
-    const [restaurantOwner, setRestaurantOwner] = useState(null);
 
     const fetchOrderDetail = useCallback(async () => {
         if (!id) return;
@@ -70,16 +69,6 @@ const ViewOrder = () => {
                     } catch(e) { console.warn("Lỗi tải Shipper"); }
                 }
 
-                // Fetch Additional Info: Restaurant Owner
-                const rId = orderData.restaurantId || (foundRestaurantInfo ? foundRestaurantInfo.id : null);
-                if (rId) {
-                    try {
-                        const rwRes = await orderService.getRestaurantOwners({ page: 0, size: 200 });
-                        const contents = rwRes?.data?.content || rwRes?.data || rwRes?.content || (Array.isArray(rwRes) ? rwRes : []);
-                        const owner = contents.find(o => o.restaurants?.some(r => String(r.id) === String(rId)));
-                        if (owner) setRestaurantOwner(owner);
-                    } catch(e) { console.warn("Lỗi tải Chủ quán"); }
-                }
 
             } else {
                 throw new Error("No data returned");
@@ -186,17 +175,39 @@ const ViewOrder = () => {
         { status: 'PENDING', label: 'Đã đặt', icon: 'check' },
         { status: 'CONFIRMED', label: 'Xác nhận', icon: 'verified' },
         { status: 'PREPARING', label: 'Đang nấu', icon: 'restaurant' },
+        { status: 'READY_FOR_PICKUP', label: 'Chờ lấy hàng', icon: 'shopping_basket' },
         { status: 'DELIVERING', label: 'Đang giao', icon: 'motorcycle' },
         { status: 'COMPLETED', label: 'Hoàn thành', icon: 'done_all' }
     ];
 
-    const currentStatusIndex = timelineSteps.findIndex(s => s.status === order.status);
+    const statusWeights = {
+        'PENDING': 0,
+        'CONFIRMED': 1,
+        'PREPARING': 2,
+        'READY_FOR_PICKUP': 3,
+        'DELIVERING': 4,
+        'COMPLETED': 5,
+        'CANCELLED': -1
+    };
+
+    const currentWeight = statusWeights[order.status] ?? -1;
     const isCancelled = order.status === 'CANCELLED';
     const orderItems = Array.isArray(order.items) ? order.items : (Array.isArray(order.orderItems) ? order.orderItems : []);
 
     const getHistoryTimestamp = (status) => {
         if (!Array.isArray(order?.statusHistory)) return null;
-        const item = order.statusHistory.find(h => h && h.status === status);
+        
+        // Define which statuses in history satisfy a timeline step
+        const statusAliases = {
+            'PENDING': ['PENDING'],
+            'CONFIRMED': ['CONFIRMED', 'PREPARING', 'READY_FOR_PICKUP', 'DELIVERING', 'COMPLETED'],
+            'PREPARING': ['PREPARING', 'READY_FOR_PICKUP', 'DELIVERING', 'COMPLETED'],
+            'DELIVERING': ['DELIVERING', 'COMPLETED'],
+            'COMPLETED': ['COMPLETED']
+        };
+
+        const searchStatuses = statusAliases[status] || [status];
+        const item = order.statusHistory.find(h => h && searchStatuses.includes(h.status));
         return item ? formatDate(item.timestamp) : null;
     };
 
@@ -237,11 +248,14 @@ const ViewOrder = () => {
                                 <div className="absolute left-0 top-0 bottom-0 w-px bg-slate-100 dark:bg-slate-800 ml-3.5"></div>
                                 {timelineSteps.map((step, idx) => {
                                     const ts = getHistoryTimestamp(step.status);
-                                    const active = !isCancelled && idx <= currentStatusIndex;
+                                    const stepWeight = statusWeights[step.status];
+                                    const active = !isCancelled && stepWeight <= currentWeight;
+                                    const isDone = !isCancelled && stepWeight < currentWeight;
+                                    
                                     return (
                                         <div key={idx} className="relative flex items-center gap-6">
                                             <div className={`z-10 size-8 rounded-full flex items-center justify-center transition-all ${active ? 'bg-emerald-600 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-400'}`}>
-                                                <span className="material-symbols-outlined text-sm">{active ? (idx < currentStatusIndex ? 'check' : step.icon) : step.icon}</span>
+                                                <span className="material-symbols-outlined text-sm">{isDone ? 'check' : step.icon}</span>
                                             </div>
                                             <div className="flex-1">
                                                 <div className="flex justify-between items-center">
@@ -364,12 +378,6 @@ const ViewOrder = () => {
                                     <p className="text-[10px] uppercase text-slate-400 font-bold">Nhà hàng</p>
                                     <p className="text-sm font-bold">{restaurantInfo?.name || order.restaurantName || `Nhà hàng #${order.restaurantId || 'N/A'}`}</p>
                                 </div>
-                                {restaurantOwner && (
-                                    <div>
-                                        <p className="text-[10px] uppercase text-slate-400 font-bold">Liên hệ chủ quán</p>
-                                        <p className="text-xs">{restaurantOwner.fullName} - {restaurantOwner.phone || 'N/A'}</p>
-                                    </div>
-                                )}
                             </div>
                         </section>
 
@@ -408,8 +416,8 @@ const ViewOrder = () => {
                                 {actionLoading ? 'Đang lý...' : 'Đặt lại ngay'}
                             </button>
                             {!isCancelled && order.status !== 'COMPLETED' && (
-                                <button onClick={handleCancel} disabled={actionLoading || currentStatusIndex > 1} className="w-full border border-red-100 dark:border-red-900/30 text-red-600 py-3 rounded-xl font-bold hover:bg-red-50 dark:hover:bg-red-900/10 transition-all disabled:opacity-30 disabled:border-slate-100 disabled:text-slate-300">
-                                    {currentStatusIndex > 1 ? 'Không thể hủy' : 'Hủy đơn hàng'}
+                                <button onClick={handleCancel} disabled={actionLoading || currentWeight > 1} className="w-full border border-red-100 dark:border-red-900/30 text-red-600 py-3 rounded-xl font-bold hover:bg-red-50 dark:hover:bg-red-900/10 transition-all disabled:opacity-30 disabled:border-slate-100 disabled:text-slate-300">
+                                    {currentWeight > 1 ? 'Không thể hủy' : 'Hủy đơn hàng'}
                                 </button>
                             )}
                         </div>

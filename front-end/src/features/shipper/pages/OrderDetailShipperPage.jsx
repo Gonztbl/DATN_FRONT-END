@@ -54,8 +54,21 @@ const OrderDetailShipperPage = () => {
     const handleDelivered = async () => {
         try {
             await shipperService.deliveredOrder(id, { photoBase64: '' });
-            Swal.fire({icon: 'success', title: 'Thành công', text: 'Đã xác nhận giao hàng!', timer: 1500, showConfirmButton: false});
-            fetchOrder();
+            Swal.fire({
+                icon: 'success', 
+                title: 'Thành công', 
+                text: 'Đã xác nhận giao hàng! Sẽ quay lại danh sách sau 5 giây.', 
+                timer: 5000, 
+                showConfirmButton: true,
+                confirmButtonText: 'Quay lại ngay'
+            }).then(() => {
+                navigate('/shipper/orders');
+            });
+
+            // Fallback redirect if user doesn't click
+            setTimeout(() => {
+                navigate('/shipper/orders');
+            }, 5000);
         } catch (error) {
             Swal.fire({icon: 'error', title: 'Lỗi', text: 'Không thể xác nhận giao hàng'});
         }
@@ -69,8 +82,21 @@ const OrderDetailShipperPage = () => {
             const reasonToSubmit = failNote ? `${failReason} - ${failNote}` : failReason;
             await shipperService.failOrder(id, { reason: reasonToSubmit, photoBase64: '' });
             setShowFailModal(false);
-            Swal.fire({icon: 'success', title: 'Thành công', text: 'Đã báo cáo giao hàng thất bại.', timer: 1500, showConfirmButton: false});
-            fetchOrder();
+            Swal.fire({
+                icon: 'success', 
+                title: 'Thành công', 
+                text: 'Đã báo cáo giao hàng thất bại. Sẽ quay lại danh sách sau 5 giây.', 
+                timer: 5000, 
+                showConfirmButton: true,
+                confirmButtonText: 'Quay lại ngay'
+            }).then(() => {
+                navigate('/shipper/orders');
+            });
+
+            // Fallback redirect
+            setTimeout(() => {
+                navigate('/shipper/orders');
+            }, 5000);
         } catch (error) {
             Swal.fire({icon: 'error', title: 'Lỗi', text: 'Không thể báo cáo thất bại'});
         }

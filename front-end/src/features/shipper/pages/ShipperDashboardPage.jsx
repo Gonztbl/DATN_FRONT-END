@@ -8,47 +8,99 @@ const ShipperDashboardPage = () => {
     const [timeRange, setTimeRange] = useState('week');
 
     const [recentHistory, setRecentHistory] = useState([]);
+    const [activeOrder, setActiveOrder] = useState(null);
     const [stats, setStats] = useState([
-        { label: 'Tổng đơn giao', value: '0', trend: '0%', icon: 'package_2', color: 'primary' },
-        { label: 'Quãng đường', value: '0', unit: 'km', trend: '0%', icon: 'distance', color: 'blue-500' },
+        { label: 'Tổng đơn', value: '0', unit: 'đơn', trend: '0%', icon: 'package_2', color: 'primary' },
+        { label: 'Thành công', value: '0', unit: 'đơn', trend: '0%', icon: 'check_circle', color: 'emerald-500' },
         { label: 'Doanh thu', value: '0', unit: 'đ', trend: '0%', icon: 'payments', color: 'amber-500' },
-        { label: 'Đơn hôm nay', value: '0', trend: '0%', icon: 'today', color: 'primary' }
+        { label: 'Đơn hôm nay', value: '0', unit: 'đơn', trend: '0%', icon: 'today', color: 'primary' }
     ]);
     const [loading, setLoading] = useState(false);
 
-    const chartData = [
-        { day: 'T2', height: '65%' },
-        { day: 'T3', height: '40%' },
-        { day: 'T4', height: '85%' },
-        { day: 'T5', height: '55%' },
-        { day: 'T6', height: '95%', active: true },
-        { day: 'T7', height: '30%' },
-        { day: 'CN', height: '20%' }
-    ];
+    const [chartData, setChartData] = useState([
+        { day: 'T2', height: '0%' },
+        { day: 'T3', height: '0%' },
+        { day: 'T4', height: '0%' },
+        { day: 'T5', height: '0%' },
+        { day: 'T6', height: '0%' },
+        { day: 'T7', height: '0%' },
+        { day: 'CN', height: '0%' }
+    ]);
 
     useEffect(() => {
         const fetchDashboardData = async () => {
             setLoading(true);
             try {
-                // Because there is no specific stats API for shipper, we fetch list of orders to infer some data.
-                // In a real scenario, there should be a `getStats` endpoint.
-                const res = await shipperService.getOrders({ limit: 50, sortBy: 'createdAt', sortDir: 'desc' });
+                // Fetch orders assigned to this shipper
+                const res = await shipperService.getOrders({ 
+                    assigned: true,
+                    limit: 100, 
+                    sortBy: 'createdAt', 
+                    sortDir: 'desc' 
+                });
+
                 if (res.data && res.data.data) {
                     const orders = res.data.data;
                     
                     // Recent 5 orders for history
                     setRecentHistory(orders.slice(0, 5));
                     
-                    // Mock calc for stats based on fetched orders
+                    // Identify active order (DELIVERING or READY_FOR_PICKUP)
+                    const active = orders.find(o => ['READY_FOR_PICKUP', 'DELIVERING'].includes(o.status));
+                    setActiveOrder(active);
+                    
+                    // Calculate stats
                     const completedOrders = orders.filter(o => o.status === 'COMPLETED');
                     const totalRevenue = completedOrders.reduce((sum, o) => sum + (o.totalAmount || 0), 0);
                     
+                    const todayDate = new Date();
+                    const todayStr = todayDate.toLocaleDateString('vi-VN');
+                    
+                    // Filter today's completed orders using deliveredAt if available, otherwise fallback to createdAt
+                    const todayOrders = completedOrders.filter(o => {
+                        const dateObj = new Date(o.deliveredAt || o.createdAt);
+                        return dateObj.toLocaleDateString('vi-VN') === todayStr;
+                    });
+                    
                     setStats([
-                        { label: 'Tổng đơn', value: orders.length.toString(), trend: '+5.2%', icon: 'package_2', color: 'primary' },
-                        { label: 'Hoàn thành', value: completedOrders.length.toString(), unit: 'đơn', trend: '+3.1%', icon: 'check_circle', color: 'emerald-500' },
-                        { label: 'Doanh thu', value: formatCurrency(totalRevenue).replace('đ', '').trim(), unit: 'đ', trend: '0%', icon: 'payments', color: 'amber-500' },
-                        { label: 'Theo khoảng', value: recentHistory.length.toString(), trend: '+10%', icon: 'today', color: 'primary' }
+                        { label: 'Tổng đơn', value: orders.length.toString(), unit: 'đơn', trend: '+0%', icon: 'package_2', color: 'primary' },
+                        { label: 'Thành công', value: completedOrders.length.toString(), unit: 'đơn', trend: '+0%', icon: 'check_circle', color: 'emerald-500' },
+                        { label: 'Doanh thu', value: formatCurrency(totalRevenue).replace('₫', '').trim(), unit: 'đ', trend: '+0%', icon: 'payments', color: 'amber-500' },
+                        { label: 'Giao hôm nay', value: todayOrders.length.toString(), unit: 'đơn', trend: '+0%', icon: 'today', color: 'primary' }
                     ]);
+
+                    // Calculate Chart Data (Last 7 days count)
+                    const daysMap = { 1: 'T2', 2: 'T3', 3: 'T4', 4: 'T5', 5: 'T6', 6: 'T7', 0: 'CN' };
+                    // Start on Monday (1)
+                    const orderedDays = ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'];
+                    const counts = { 'T2': 0, 'T3': 0, 'T4': 0, 'T5': 0, 'T6': 0, 'T7': 0, 'CN': 0 };
+                    
+                    // Filter and count completed orders from current week
+                    const startOfWeek = new Date(todayDate);
+                    const dayOfWeek = todayDate.getDay();
+                    const diffToMonday = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
+                    startOfWeek.setDate(todayDate.getDate() + diffToMonday);
+                    startOfWeek.setHours(0, 0, 0, 0);
+
+                    completedOrders.forEach(o => {
+                        // Use deliveredAt for accurate completion date
+                        const completionDate = new Date(o.deliveredAt || o.createdAt);
+                        if (completionDate >= startOfWeek) {
+                            const dayName = daysMap[completionDate.getDay()];
+                            if (counts[dayName] !== undefined) {
+                                counts[dayName]++;
+                            }
+                        }
+                    });
+
+                    const maxCount = Math.max(...Object.values(counts), 1);
+                    const newChartData = orderedDays.map(day => ({
+                        day,
+                        count: counts[day],
+                        height: counts[day] > 0 ? `${(counts[day] / maxCount) * 100}%` : '5%', // 5% minimum height just to show a bump
+                        active: daysMap[todayDate.getDay()] === day
+                    }));
+                    setChartData(newChartData);
                 }
             } catch (error) {
                 console.error('Error fetching dashboard data:', error);
@@ -73,10 +125,10 @@ const ShipperDashboardPage = () => {
 
     const getStatusTextAndColor = (status) => {
         switch (status) {
-            case 'PENDING': return { text: 'Chờ nhận', color: 'text-yellow-500 bg-yellow-100 dark:bg-yellow-900/30' };
+            case 'READY_FOR_PICKUP': return { text: 'Chờ lấy hàng', color: 'text-yellow-600 bg-yellow-100 dark:bg-yellow-900/30' };
             case 'DELIVERING': return { text: 'Đang giao', color: 'text-blue-500 bg-blue-100 dark:bg-blue-900/30' };
             case 'COMPLETED': return { text: 'Hoàn thành', color: 'text-emerald-500 bg-emerald-100 dark:bg-emerald-900/30' };
-            case 'FAILED': return { text: 'Thất bại', color: 'text-red-500 bg-red-100 dark:bg-red-900/30' };
+            case 'DELIVERY_FAILED': return { text: 'Thất bại', color: 'text-red-500 bg-red-100 dark:bg-red-900/30' };
             default: return { text: status || 'N/A', color: 'text-slate-500 bg-slate-100' };
         }
     };
@@ -88,6 +140,35 @@ const ShipperDashboardPage = () => {
                 <HeaderShipper title="Tổng quan" />
 
                 <main className="flex-1 max-w-7xl mx-auto w-full px-4 py-8 pb-24">
+                    {/* Active Order Banner */}
+                    {activeOrder && (
+                        <div className="mb-8 overflow-hidden rounded-2xl bg-primary shadow-xl shadow-primary/20 border-4 border-white dark:border-slate-800">
+                            <div className="relative p-6 md:p-8 flex flex-col md:flex-row items-center justify-between gap-6">
+                                <div className="flex items-center gap-6">
+                                    <div className="flex size-16 items-center justify-center rounded-2xl bg-white shadow-inner animate-bounce">
+                                        <span className="material-symbols-outlined text-4xl text-primary">motorcycle</span>
+                                    </div>
+                                    <div className="text-background-dark">
+                                        <div className="flex items-center gap-2 mb-1">
+                                            <span className="inline-block px-2 py-0.5 bg-background-dark/10 rounded-full text-[10px] font-black uppercase tracking-widest">Đang thực hiện</span>
+                                            <h2 className="text-2xl font-black italic uppercase tracking-tight">#{activeOrder.orderCode || activeOrder.id}</h2>
+                                        </div>
+                                        <p className="font-bold opacity-80">{activeOrder.customerName || 'Khách hàng'}</p>
+                                        <p className="text-sm opacity-60 line-clamp-1">{activeOrder.deliveryAddress || 'Địa chỉ đang được tải...'}</p>
+                                    </div>
+                                </div>
+                                <button 
+                                    onClick={() => navigate(`/shipper/orders/${activeOrder.id}`)}
+                                    className="w-full md:w-auto px-8 py-4 bg-background-dark text-white rounded-xl font-black uppercase italic tracking-widest flex items-center justify-center gap-3 hover:scale-105 transition-transform"
+                                >
+                                    Tiếp tục giao <span className="material-symbols-outlined">arrow_forward</span>
+                                </button>
+                                
+                                <div className="absolute top-0 right-0 -mr-10 -mt-10 size-40 rounded-full bg-white/20 blur-3xl pointer-events-none"></div>
+                            </div>
+                        </div>
+                    )}
+
                     {/* Hero Header Section */}
                     <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8">
                         <div className="space-y-1">
@@ -101,10 +182,8 @@ const ShipperDashboardPage = () => {
                                 onChange={(e) => setTimeRange(e.target.value)}
                                 className="form-select border-none bg-transparent text-slate-900 dark:text-white font-semibold focus:ring-0 cursor-pointer pr-10 outline-none"
                             >
-                                <option value="today">Hôm nay</option>
                                 <option value="week">Tuần này</option>
                                 <option value="month">Tháng này</option>
-                                <option value="year">Năm 2024</option>
                             </select>
                         </div>
                     </div>
@@ -143,13 +222,16 @@ const ShipperDashboardPage = () => {
                             <div className="relative h-64 flex items-end justify-between gap-2 px-2">
                                 {chartData.map((item, idx) => (
                                     <div key={idx} className="flex flex-col items-center flex-1 group">
+                                        <span className="text-xs font-bold text-slate-600 dark:text-slate-300 mb-2">
+                                            {item.count > 0 ? item.count : ''}
+                                        </span>
                                         <div className="w-full bg-slate-100 dark:bg-slate-800 rounded-t-lg relative h-48 overflow-hidden">
                                             <div 
-                                                className={`absolute bottom-0 w-full transition-all ${item.active ? 'bg-primary' : 'bg-primary/40 group-hover:bg-primary'}`} 
+                                                className="absolute bottom-0 w-full bg-emerald-500 transition-all rounded-t-sm" 
                                                 style={{ height: item.height }}
                                             ></div>
                                         </div>
-                                        <span className={`mt-3 text-xs font-bold ${item.active ? 'text-slate-900 dark:text-white' : 'text-slate-500'}`}>
+                                        <span className={`mt-3 text-xs font-bold ${item.active ? 'text-primary' : 'text-slate-500'}`}>
                                             {item.day}
                                         </span>
                                     </div>

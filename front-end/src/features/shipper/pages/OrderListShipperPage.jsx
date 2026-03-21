@@ -11,17 +11,30 @@ const OrderListShipperPage = () => {
     const [loading, setLoading] = useState(false);
 
     const tabs = [
-        { id: 'PENDING', label: 'Chờ nhận', icon: 'notifications_active' },
-        { id: 'DELIVERING', label: 'Đang giao', icon: 'motorcycle' },
-        { id: 'COMPLETED', label: 'Đã giao', icon: 'check_circle' },
-        { id: 'FAILED', label: 'Thất bại', icon: 'cancel' }
+        { id: 'PENDING', label: 'Chờ nhận', icon: 'notifications_active', apiStatus: 'READY_FOR_PICKUP', assigned: false },
+        { id: 'DELIVERING', label: 'Đang giao', icon: 'motorcycle', apiStatus: 'DELIVERING', assigned: true },
+        { id: 'COMPLETED', label: 'Đã giao', icon: 'check_circle', apiStatus: 'COMPLETED', assigned: true },
+        { id: 'FAILED', label: 'Thất bại', icon: 'cancel', apiStatus: 'DELIVERY_FAILED', assigned: true }
     ];
 
     const fetchOrders = async () => {
         setLoading(true);
         try {
-            // Mapping status to API needs depending on your backend
-            const res = await shipperService.getOrders({ status: activeTab, limit: 100 });
+            const currentTab = tabs.find(t => t.id === activeTab);
+            const params = {
+                status: currentTab.apiStatus,
+                assigned: currentTab.assigned,
+                page: 1,
+                limit: 20
+            };
+            
+            // For Pending, we want to see all available orders ready for pickup
+            // For Delivering, we might want to see both READY_FOR_PICKUP (accepted but not picked up) and DELIVERING
+            if (activeTab === 'DELIVERING') {
+                params.status = 'READY_FOR_PICKUP,DELIVERING';
+            }
+
+            const res = await shipperService.getOrders(params);
             if (res.data && res.data.data) {
                 setOrders(res.data.data);
             }
@@ -59,11 +72,11 @@ const OrderListShipperPage = () => {
 
     const getStatusBadge = (status) => {
         switch (status) {
-            case 'PENDING': return <span className="inline-flex items-center rounded-full bg-yellow-100 dark:bg-yellow-900/30 px-2.5 py-0.5 text-xs font-medium text-yellow-800 dark:text-yellow-200">Chờ nhận</span>;
+            case 'READY_FOR_PICKUP': return <span className="inline-flex items-center rounded-full bg-yellow-100 dark:bg-yellow-900/30 px-2.5 py-0.5 text-xs font-medium text-yellow-800 dark:text-yellow-200">Chờ lấy hàng</span>;
             case 'DELIVERING': return <span className="inline-flex items-center rounded-full bg-blue-100 dark:bg-blue-900/30 px-2.5 py-0.5 text-xs font-medium text-blue-800 dark:text-blue-200">Đang giao</span>;
             case 'COMPLETED': return <span className="inline-flex items-center rounded-full bg-emerald-100 dark:bg-emerald-900/30 px-2.5 py-0.5 text-xs font-medium text-emerald-800 dark:text-emerald-200">Đã giao</span>;
-            case 'FAILED': return <span className="inline-flex items-center rounded-full bg-red-100 dark:bg-red-900/30 px-2.5 py-0.5 text-xs font-medium text-red-800 dark:text-red-200">Thất bại</span>;
-            default: return null;
+            case 'DELIVERY_FAILED': return <span className="inline-flex items-center rounded-full bg-red-100 dark:bg-red-900/30 px-2.5 py-0.5 text-xs font-medium text-red-800 dark:text-red-200">Thất bại</span>;
+            default: return <span className="inline-flex items-center rounded-full bg-slate-100 dark:bg-slate-800 px-2.5 py-0.5 text-xs font-medium text-slate-600 dark:text-slate-400">{status}</span>;
         }
     };
 
@@ -113,7 +126,15 @@ const OrderListShipperPage = () => {
                                 <p className="text-slate-500 dark:text-slate-400">Không có đơn hàng nào</p>
                             </div>
                         ) : (
-                            orders.map((order) => (
+                            orders
+                                .filter(order => {
+                                    if (activeTab === 'PENDING') return order.status === 'READY_FOR_PICKUP';
+                                    if (activeTab === 'DELIVERING') return ['READY_FOR_PICKUP', 'DELIVERING'].includes(order.status);
+                                    if (activeTab === 'COMPLETED') return order.status === 'COMPLETED';
+                                    if (activeTab === 'FAILED') return order.status === 'DELIVERY_FAILED';
+                                    return true;
+                                })
+                                .map((order) => (
                                 <div key={order.id} className="group relative overflow-hidden rounded-xl bg-white dark:bg-slate-900 shadow-sm border border-slate-100 dark:border-slate-800 p-4 transition-all hover:shadow-md">
                                     <div className="flex items-start justify-between mb-3">
                                         <div>
@@ -148,12 +169,46 @@ const OrderListShipperPage = () => {
                                                     <p className="text-xs text-slate-400 uppercase font-bold tracking-wider">Tổng cộng</p>
                                                     <p className="text-lg font-bold text-primary">{formatCurrency(order.totalAmount)}</p>
                                                 </div>
-                                                <button 
-                                                    onClick={() => activeTab === 'PENDING' ? handleAcceptOrder(order.id) : navigate(`/shipper/orders/${order.id}`)}
-                                                    className={`flex items-center justify-center rounded-lg px-6 py-2.5 text-sm font-bold transition-transform active:scale-95 ${activeTab === 'PENDING' ? 'bg-primary text-slate-900 shadow-sm' : 'border-2 border-primary bg-transparent text-slate-900 dark:text-primary hover:bg-primary/10'}`}
-                                                >
-                                                    {activeTab === 'PENDING' ? 'Nhận đơn' : 'Chi tiết'}
-                                                </button>
+                                                <div className="flex items-center gap-2">
+                                                    <button 
+                                                        onClick={() => navigate(`/shipper/orders/${order.id}`)}
+                                                        className="flex items-center justify-center rounded-lg border-2 border-slate-200 dark:border-slate-700 px-4 py-2.5 text-sm font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+                                                    >
+                                                        Chi tiết
+                                                    </button>
+                                                    {activeTab === 'PENDING' && (
+                                                        <button 
+                                                            onClick={() => handleAcceptOrder(order.id)}
+                                                            className="flex-1 flex items-center justify-center rounded-lg bg-primary px-6 py-2.5 text-sm font-bold text-slate-900 shadow-sm transition-transform active:scale-95"
+                                                        >
+                                                            Nhận đơn
+                                                        </button>
+                                                    )}
+                                                    {activeTab === 'DELIVERING' && order.status === 'READY_FOR_PICKUP' && (
+                                                        <button 
+                                                            onClick={async () => {
+                                                                try {
+                                                                    await shipperService.pickedUpOrder(order.id);
+                                                                    Swal.fire({ icon: 'success', title: 'Thành công', text: 'Đã xác nhận lấy hàng!', timer: 1500, showConfirmButton: false });
+                                                                    fetchOrders();
+                                                                } catch (error) {
+                                                                    Swal.fire({ icon: 'error', title: 'Lỗi', text: 'Không thể xác nhận lấy hàng' });
+                                                                }
+                                                            }}
+                                                            className="flex-1 flex items-center justify-center rounded-lg bg-primary px-6 py-2.5 text-sm font-bold text-slate-900 shadow-sm transition-transform active:scale-95"
+                                                        >
+                                                            Lấy hàng
+                                                        </button>
+                                                    )}
+                                                    {activeTab === 'DELIVERING' && order.status === 'DELIVERING' && (
+                                                        <button 
+                                                            onClick={() => navigate(`/shipper/orders/${order.id}`)}
+                                                            className="flex-1 flex items-center justify-center rounded-lg bg-orange-500 px-6 py-2.5 text-sm font-bold text-white shadow-sm transition-transform active:scale-95"
+                                                        >
+                                                            Giao hàng
+                                                        </button>
+                                                    )}
+                                                </div>
                                             </div>
                                         </>
                                     )}
