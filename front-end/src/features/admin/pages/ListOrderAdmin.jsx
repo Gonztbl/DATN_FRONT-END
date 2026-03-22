@@ -17,11 +17,18 @@ const ListOrderAdmin = () => {
     const [page, setPage] = useState(0); // API uses 0-based for orders
     const [totalPages, setTotalPages] = useState(0);
     const [totalElements, setTotalElements] = useState(0);
-    const [searchTerm, setSearchTerm] = useState('');
+    const [searchInput, setSearchInput] = useState('');
+    const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
     const [statusFilter, setStatusFilter] = useState('ALL');
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
     const [restaurantsMap, setRestaurantsMap] = useState({});
+    const [restaurantsList, setRestaurantsList] = useState([]);
+    const [shippersMap, setShippersMap] = useState({});
+    const [shippersList, setShippersList] = useState([]);
+    const [selectedRestaurantId, setSelectedRestaurantId] = useState('');
+    const [selectedShipperId, setSelectedShipperId] = useState('');
+    const [loadingFilters, setLoadingFilters] = useState(false);
 
     const fetchOrders = useCallback(async () => {
         setLoading(true);
@@ -30,7 +37,9 @@ const ListOrderAdmin = () => {
                 page: page,
                 size: 10,
                 status: statusFilter === 'ALL' ? undefined : statusFilter,
-                search: searchTerm || undefined,
+                restaurantId: selectedRestaurantId || undefined,
+                shipperId: selectedShipperId || undefined,
+                search: debouncedSearchTerm || undefined,
                 fromDate: startDate || undefined,
                 toDate: endDate || undefined,
                 sortBy: 'createdAt',
@@ -52,7 +61,7 @@ const ListOrderAdmin = () => {
         } finally {
             setLoading(false);
         }
-    }, [page, statusFilter, searchTerm, startDate, endDate, showError]);
+    }, [page, statusFilter, debouncedSearchTerm, startDate, endDate, selectedRestaurantId, selectedShipperId, showError]);
 
     const fetchRestaurantsMapping = useCallback(async () => {
         try {
@@ -69,6 +78,7 @@ const ListOrderAdmin = () => {
             };
 
             const contents = extractList(response);
+            setRestaurantsList(contents);
             
             const mapping = {};
             contents.forEach(r => {
@@ -108,12 +118,82 @@ const ListOrderAdmin = () => {
     };
 
     useEffect(() => {
+        const timer = setTimeout(() => {
+            setDebouncedSearchTerm(searchInput);
+            setPage(0);
+        }, 500);
+        return () => clearTimeout(timer);
+    }, [searchInput]);
+
+    const fetchShippersList = useCallback(async () => {
+        try {
+            const response = await adminOrderService.getShippers({ page: 0, size: 200 });
+            const shippers = response.data?.content || [];
+            setShippersList(shippers);
+            
+            // Also update shippersMap for the table
+            setShippersMap(prev => {
+                const mapping = { ...prev };
+                shippers.forEach(s => {
+                    mapping[s.id] = s.fullName || s.userName;
+                });
+                return mapping;
+            });
+            
+        } catch (error) {
+            console.error("Error fetching shippers list:", error);
+        }
+    }, []);
+
+    useEffect(() => {
         fetchOrders();
     }, [fetchOrders]);
 
     useEffect(() => {
-        fetchRestaurantsMapping();
-    }, [fetchRestaurantsMapping]);
+        const initFilters = async () => {
+            setLoadingFilters(true);
+            await Promise.all([
+                fetchRestaurantsMapping(),
+                fetchShippersList()
+            ]);
+            setLoadingFilters(false);
+        };
+        initFilters();
+    }, [fetchRestaurantsMapping, fetchShippersList]);
+
+    useEffect(() => {
+        const fetchShippersDetails = async () => {
+            const missingIds = orders
+                .map(o => o.shipperId)
+                .filter(id => id != null && shippersMap[id] === undefined);
+            
+            const uniqueMissingIds = [...new Set(missingIds)];
+            
+            if (uniqueMissingIds.length === 0) return;
+
+            const newMappings = {};
+            let hasNew = false;
+            for (const id of uniqueMissingIds) {
+                try {
+                    const response = await adminOrderService.getShipperDetail(id);
+                    newMappings[id] = response.data?.fullName || response.data?.userName || `Shipper #${id}`;
+                    hasNew = true;
+                } catch (error) {
+                    console.error(`Error fetching shipper detail for ID ${id}:`, error);
+                    newMappings[id] = `Shipper #${id}`;
+                    hasNew = true;
+                }
+            }
+            
+            if (hasNew) {
+                setShippersMap(prev => ({ ...prev, ...newMappings }));
+            }
+        };
+
+        if (orders.length > 0) {
+            fetchShippersDetails();
+        }
+    }, [orders]);
 
     const formatCurrency = (amount) => {
         return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount);
@@ -170,16 +250,17 @@ const ListOrderAdmin = () => {
     };
 
     const getOrderShipper = (order) => {
+        const sId = order.shipperId || order.shipper?.id;
+        if (!sId) return "chưa có shiper nhận đơn";
+        
         return order.shipperName || 
                order.shipper?.fullName || 
-               order.shipper?.userName ||
-               (order.shipperId ? `Shipper #${order.shipperId}` : 
-               (order.shipper?.id ? `Shipper #${order.shipper.id}` : null));
+               shippersMap[sId] || 
+               `Shipper #${sId}`;
     };
 
     const handleSearch = (e) => {
-        setSearchTerm(e.target.value);
-        setPage(0);
+        setSearchInput(e.target.value);
     };
 
     const handleStatusChange = (e) => {
@@ -187,11 +268,17 @@ const ListOrderAdmin = () => {
         setPage(0);
     };
 
-    const filteredOrders = orders.filter(order => 
-        order.id.toString().includes(searchTerm) || 
-        order.recipientName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        order.recipientPhone?.includes(searchTerm)
-    );
+    const filteredOrders = orders.filter(order => {
+        if (!debouncedSearchTerm) return true;
+        const search = debouncedSearchTerm.toLowerCase();
+        return (
+            order.id.toString().includes(search) ||
+            order.recipientName?.toLowerCase().includes(search) ||
+            order.recipientPhone?.includes(search) ||
+            order.userName?.toLowerCase().includes(search) ||
+            order.fullName?.toLowerCase().includes(search)
+        );
+    });
 
     return (
         <div className="bg-white text-slate-900 h-screen flex font-display">
@@ -215,7 +302,7 @@ const ListOrderAdmin = () => {
                                             className="w-full pl-10 pr-4 py-2.5 rounded-xl border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 focus:ring-primary focus:border-primary" 
                                             placeholder="Mã đơn, Khách hàng, SĐT..." 
                                             type="text"
-                                            value={searchTerm}
+                                            value={searchInput}
                                             onChange={handleSearch}
                                         />
                                     </div>
@@ -263,15 +350,39 @@ const ListOrderAdmin = () => {
                                     </select>
                                 </div>
                                 <div>
-                                    <label className="text-xs font-semibold text-slate-500 uppercase mb-2 block tracking-wider">Nhà hàng (Mock)</label>
-                                    <select className="w-full px-4 py-2.5 rounded-xl border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm focus:ring-primary focus:border-primary">
-                                        <option>Tất cả nhà hàng</option>
+                                    <label className="text-xs font-semibold text-slate-500 uppercase mb-2 block tracking-wider">Nhà hàng</label>
+                                    <select 
+                                        className="w-full px-4 py-2.5 rounded-xl border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm focus:ring-primary focus:border-primary"
+                                        value={selectedRestaurantId}
+                                        onChange={(e) => {
+                                            setSelectedRestaurantId(e.target.value);
+                                            setPage(0);
+                                        }}
+                                    >
+                                        <option value="">Tất cả nhà hàng</option>
+                                        {restaurantsList.map(res => (
+                                            <option key={res.id} value={res.id}>
+                                                {res.name || res.restaurantName}
+                                            </option>
+                                        ))}
                                     </select>
                                 </div>
                                 <div>
-                                    <label className="text-xs font-semibold text-slate-500 uppercase mb-2 block tracking-wider">Shipper (Mock)</label>
-                                    <select className="w-full px-4 py-2.5 rounded-xl border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm focus:ring-primary focus:border-primary">
-                                        <option>Tất cả Shipper</option>
+                                    <label className="text-xs font-semibold text-slate-500 uppercase mb-2 block tracking-wider">Shipper</label>
+                                    <select 
+                                        className="w-full px-4 py-2.5 rounded-xl border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm focus:ring-primary focus:border-primary"
+                                        value={selectedShipperId}
+                                        onChange={(e) => {
+                                            setSelectedShipperId(e.target.value);
+                                            setPage(0);
+                                        }}
+                                    >
+                                        <option value="">Tất cả Shipper</option>
+                                        {shippersList.map(shipper => (
+                                            <option key={shipper.id} value={shipper.id}>
+                                                {shipper.fullName || shipper.userName}
+                                            </option>
+                                        ))}
                                     </select>
                                 </div>
                             </div>
@@ -286,6 +397,7 @@ const ListOrderAdmin = () => {
                                             <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Mã đơn</th>
                                             <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Khách hàng</th>
                                             <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Nhà hàng</th>
+                                            <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Shipper</th>
                                             <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Tổng tiền</th>
                                             <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Trạng thái</th>
                                             <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Thời gian tạo</th>
@@ -295,7 +407,7 @@ const ListOrderAdmin = () => {
                                     <tbody className="divide-y divide-slate-200 dark:divide-slate-800">
                                         {loading ? (
                                             <tr>
-                                                <td colSpan="7" className="px-6 py-10 text-center text-slate-500">Đang tải danh sách đơn hàng...</td>
+                                                <td colSpan="8" className="px-6 py-10 text-center text-slate-500">Đang tải danh sách đơn hàng...</td>
                                             </tr>
                                         ) : filteredOrders.length > 0 ? (
                                             filteredOrders.map((order) => (
@@ -317,6 +429,16 @@ const ListOrderAdmin = () => {
                                                     </td>
                                                     <td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">
                                                         {getOrderRestaurant(order)}
+                                                    </td>
+                                                    <td className="px-6 py-4">
+                                                        <div className="flex items-center gap-2">
+                                                            <span className={`material-symbols-outlined text-sm ${order.shipperId ? 'text-primary' : 'text-slate-300'}`}>
+                                                                {order.shipperId ? 'local_shipping' : 'pending_actions'}
+                                                            </span>
+                                                            <span className={`text-sm font-medium ${order.shipperId ? 'text-slate-900 dark:text-white' : 'text-slate-400 italic'}`}>
+                                                                {getOrderShipper(order)}
+                                                            </span>
+                                                        </div>
                                                     </td>
                                                     <td className="px-6 py-4 text-sm font-bold text-slate-900 dark:text-white">{formatCurrency(order.totalAmount)}</td>
                                                     <td className="px-6 py-4">
@@ -347,7 +469,7 @@ const ListOrderAdmin = () => {
                                             ))
                                         ) : (
                                             <tr>
-                                                <td colSpan="7" className="px-6 py-10 text-center text-slate-500">Không tìm thấy đơn hàng nào.</td>
+                                                <td colSpan="8" className="px-6 py-10 text-center text-slate-500">Không tìm thấy đơn hàng nào.</td>
                                             </tr>
                                         )}
                                     </tbody>

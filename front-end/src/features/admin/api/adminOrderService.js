@@ -44,6 +44,13 @@ const adminOrderService = {
     },
 
     /**
+     * Get list of all shippers with pagination/filtering
+     */
+    getShippers: (params) => {
+        return apiClient.get('/api/admin/shippers', { params });
+    },
+
+    /**
      * Get restaurant owners (with pagination/search)
      */
     getRestaurantOwners: (params) => {
