@@ -13,18 +13,31 @@ const MerchantSettingsPage = () => {
         name: '',
         phone: '',
         address: '',
-        status: 'OPEN'
+        status: 'OPEN',
+        schedule: [
+            { day: 'Monday', label: 'Thứ 2', isOpen: true, openTime: '08:00', closeTime: '22:00' },
+            { day: 'Tuesday', label: 'Thứ 3', isOpen: true, openTime: '08:00', closeTime: '22:00' },
+            { day: 'Wednesday', label: 'Thứ 4', isOpen: true, openTime: '08:00', closeTime: '22:00' },
+            { day: 'Thursday', label: 'Thứ 5', isOpen: true, openTime: '08:00', closeTime: '22:00' },
+            { day: 'Friday', label: 'Thứ 6', isOpen: true, openTime: '08:00', closeTime: '22:00' },
+            { day: 'Saturday', label: 'Thứ 7', isOpen: true, openTime: '08:00', closeTime: '22:00' },
+            { day: 'Sunday', label: 'Chủ Nhật', isOpen: true, openTime: '08:00', closeTime: '22:00' },
+        ]
     });
     const [isSaving, setIsSaving] = React.useState(false);
 
     React.useEffect(() => {
         if (restaurantData) {
-            setFormData({
+            setFormData(prev => ({
+                ...prev,
                 name: restaurantData.name || '',
                 phone: restaurantData.phone || '',
                 address: restaurantData.address || '',
-                status: restaurantData.status || 'OPEN'
-            });
+                status: restaurantData.status || 'OPEN',
+                schedule: restaurantData.schedule && restaurantData.schedule.length > 0 
+                    ? restaurantData.schedule 
+                    : prev.schedule
+            }));
         }
     }, [restaurantData]);
 
@@ -59,8 +72,8 @@ const MerchantSettingsPage = () => {
     const handleSave = async () => {
         setIsSaving(true);
         try {
-            // Assume there's an update API or just show success for now if BE only supports status
-            // await merchantDashboardService.updateRestaurantInfo(formData);
+            await merchantDashboardService.updateRestaurantInfo(formData);
+            fetchMyRestaurant();
             Swal.fire({
                 icon: 'success',
                 title: 'Đã lưu',
@@ -175,16 +188,54 @@ const MerchantSettingsPage = () => {
                                 <span className="material-symbols-outlined text-primary">schedule</span> Operating Hours
                             </h3>
                             <div className="space-y-4">
-                                {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'].map(day => (
-                                    <div key={day} className="grid grid-cols-12 gap-4 items-center">
-                                        <div className="col-span-3 text-sm font-bold text-slate-700 dark:text-slate-300">{day}</div>
-                                        <div className="col-span-4">
-                                            <input className="w-full rounded-lg border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 focus:ring-primary py-1.5 px-3 text-xs md:text-sm outline-none" type="time" defaultValue="09:00" />
+                                {formData.schedule.map((dayConfig, idx) => (
+                                    <div key={dayConfig.day} className="grid grid-cols-12 gap-2 md:gap-4 items-center">
+                                        <div className="col-span-3 flex items-center gap-2">
+                                            <input 
+                                                type="checkbox" 
+                                                checked={dayConfig.isOpen}
+                                                onChange={(e) => {
+                                                    const newSchedule = [...formData.schedule];
+                                                    newSchedule[idx].isOpen = e.target.checked;
+                                                    setFormData({...formData, schedule: newSchedule});
+                                                }}
+                                                className="size-4 text-primary bg-slate-100 border-slate-300 rounded focus:ring-primary cursor-pointer"
+                                            />
+                                            <span className={`text-sm font-bold select-none ${dayConfig.isOpen ? 'text-slate-700 dark:text-slate-300' : 'text-slate-400 line-through'}`}>{dayConfig.label}</span>
                                         </div>
-                                        <div className="col-span-1 text-center text-slate-400 text-xs font-medium uppercase">to</div>
-                                        <div className="col-span-4">
-                                            <input className="w-full rounded-lg border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 focus:ring-primary py-1.5 px-3 text-xs md:text-sm outline-none" type="time" defaultValue="22:00" />
-                                        </div>
+                                        {dayConfig.isOpen ? (
+                                            <>
+                                                <div className="col-span-4">
+                                                    <input 
+                                                        className="w-full rounded-lg border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 focus:ring-primary py-1.5 px-3 text-xs md:text-sm outline-none" 
+                                                        type="time" 
+                                                        value={dayConfig.openTime}
+                                                        onChange={(e) => {
+                                                            const newSchedule = [...formData.schedule];
+                                                            newSchedule[idx].openTime = e.target.value;
+                                                            setFormData({...formData, schedule: newSchedule});
+                                                        }}
+                                                    />
+                                                </div>
+                                                <div className="col-span-1 text-center text-slate-400 text-[10px] md:text-xs font-black uppercase">Đến</div>
+                                                <div className="col-span-4">
+                                                    <input 
+                                                        className="w-full rounded-lg border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 focus:ring-primary py-1.5 px-3 text-xs md:text-sm outline-none" 
+                                                        type="time" 
+                                                        value={dayConfig.closeTime}
+                                                        onChange={(e) => {
+                                                            const newSchedule = [...formData.schedule];
+                                                            newSchedule[idx].closeTime = e.target.value;
+                                                            setFormData({...formData, schedule: newSchedule});
+                                                        }}
+                                                    />
+                                                </div>
+                                            </>
+                                        ) : (
+                                            <div className="col-span-9 text-slate-400 text-sm italic opacity-70">
+                                                Nghỉ đóng cửa
+                                            </div>
+                                        )}
                                     </div>
                                 ))}
                             </div>

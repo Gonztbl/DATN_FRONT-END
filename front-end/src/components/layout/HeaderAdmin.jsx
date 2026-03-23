@@ -36,7 +36,7 @@ export default function HeaderAdmin({ title }) {
 
                     <div className="flex items-center gap-3">
                         <div className="flex flex-col items-end hidden sm:flex">
-                            <span className="text-sm font-bold text-slate-900 dark:text-white">{user?.fullName || user?.userName || 'Admin'}</span>
+                            <span className="text-sm font-bold text-slate-900 dark:text-white">{user?.fullName || user?.username || 'Admin'}</span>
                             <span className="text-[10px] font-black uppercase tracking-tighter text-primary">System Administrator</span>
                         </div>
                         <button 

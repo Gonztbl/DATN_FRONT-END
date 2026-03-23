@@ -21,14 +21,23 @@ const MerchantDashboardPage = () => {
         newOrders: 0,
         todayRevenue: 0,
         pendingOrders: 0,
-        preparingOrders: 0
+        preparingOrders: 0,
+        walletBalance: 0,
+        walletTrend: 0,
+        revenueTrend: 0,
+        ordersTrend: 0
     });
 
-    const staffPerformance = [
-        { name: "Minh Pham", role: "Trưởng bếp", rating: "4.8★", avatar: "https://lh3.googleusercontent.com/aida-public/AB6AXuAes1N0wwMnzOd1BJ56rOw1iIE44_nV6Hxugu0vJCwSkOR5NeKXHXruBQ6frHKrN1c8W5L3z_1rmbSy-46r6S9DBjZfo_VjMnUbxs4LhV02UiRU983bQQ1NyIhbX3Djg0EzAr3qCUATYBWOcrFbqXmAXHhHWUJ9-j6csR55hfdR6gCfw1REwgtYF8CD03Cjo63Ont_7N_4VHu3ZOYUvYMa4GH8-k_o_Yk7R-pYEraHwrHfBchr9v9trf-n9T1g0vK9GhM6SxohxA_-Z" },
-        { name: "Lan Nguyen", role: "Đóng gói", rating: "4.5★", avatar: "https://lh3.googleusercontent.com/aida-public/AB6AXuBtWStMkk2AeQ26dESrZy6uCdE0E0icXIyYcM_FE4HKAuLIeWmYc5vawh6ZnWIjzdgPp67xY7I6grxoJv_jJL-UjuAP-Zvp9Q4gDrpUaqf-htU8hUspiXEk3fpoM5_gU0ukDalmSTd9ZN0QVvuMZrDtwD096Ly3tbVfzMu7TUh7NOh4ytrHD3hzhEf2xJxIYfL9oCeaomBolLxP01MwAKQc_tXef8DmbSkNCCJwydk4HLqCLroP6YjRSjOW854KIqY8m3veGTtS_6jg" },
-        { name: "Tuan Tran", role: "Giao nhận", rating: "4.9★", avatar: "https://lh3.googleusercontent.com/aida-public/AB6AXuCA-oTiC0mLnYsPTGKY8RSfWgmUTKDqrlEMztNQD18zsIhUH2cL_7NaPazf8CjpUZ_4b47-Y4Ri565gz4-f-hCUM551Q4u3uiR_8Y9lLNvT40IkDybVa289JJ9NvxSG19O_PGQiV4LQralDEw8OgyRKl3elC_964nQ9e9yl2si1mW97IFpkQr20irdsmepoYzSIX36MyRNq2pnrlmEqpNSyuWof0w11qePEUN7FeCsdcwLqB12EzMGA6oY_4vURe2cV5ehyPhjO3H0e" }
-    ];
+    const [chartData, setChartData] = useState([
+        { day: 'T2', height: '0%' },
+        { day: 'T3', height: '0%' },
+        { day: 'T4', height: '0%' },
+        { day: 'T5', height: '0%' },
+        { day: 'T6', height: '0%' },
+        { day: 'T7', height: '0%' },
+        { day: 'CN', height: '0%' }
+    ]);
+
 
     const fetchDashboardData = useCallback(async () => {
         setLoading(true);
@@ -48,37 +57,99 @@ const MerchantDashboardPage = () => {
 
             // Calculate simplistic stats from current list
             const todayStr = new Date().toDateString();
+            const yesterdayDate = new Date();
+            yesterdayDate.setDate(yesterdayDate.getDate() - 1);
+            const yesterdayStr = yesterdayDate.toDateString();
             
             let revenue = 0;
+            let yesterdayRevenue = 0;
             let pendingCount = 0;
             let preparingCount = 0;
             let todayOrdersCount = 0;
+            let yesterdayOrdersCount = 0;
 
             ordersList.forEach(o => {
                 const oDate = new Date(o.createdAt).toDateString();
                 if (oDate === todayStr) {
                     todayOrdersCount++;
                     if (o.status === 'COMPLETED') {
-                        revenue += o.totalAmount || 0;
+                        // Restaurant receives only 95% of totalAmount (5% goes to shipper)
+                        revenue += (o.totalAmount || 0) * 0.95;
+                    }
+                } else if (oDate === yesterdayStr) {
+                    yesterdayOrdersCount++;
+                    if (o.status === 'COMPLETED') {
+                        yesterdayRevenue += (o.totalAmount || 0) * 0.95;
                     }
                 }
+                
                 if (o.status === 'PENDING') pendingCount++;
                 if (o.status === 'CONFIRMED' || o.status === 'READY_FOR_PICKUP') preparingCount++;
             });
 
-            // Try fetching from revenue API specifically if available
-            try {
-                const revRes = await merchantDashboardService.getRevenue({ period: 'today' });
-                if (revRes.data && typeof revRes.data.revenue === 'number') {
-                    revenue = revRes.data.revenue;
+            // Calculate Trends for Revenue and Orders
+            const calculateTrend = (current, previous) => {
+                if (previous === 0) return current > 0 ? 100 : 0;
+                return ((current - previous) / previous) * 100;
+            };
+
+            const revTrend = calculateTrend(revenue, yesterdayRevenue);
+            const ordTrend = calculateTrend(todayOrdersCount, yesterdayOrdersCount);
+
+            // Calculate Chart Data (Revenue from Last 7 days)
+            const daysMap = { 1: 'T2', 2: 'T3', 3: 'T4', 4: 'T5', 5: 'T6', 6: 'T7', 0: 'CN' };
+            const orderedDays = ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'];
+            const revCounts = { 'T2': 0, 'T3': 0, 'T4': 0, 'T5': 0, 'T6': 0, 'T7': 0, 'CN': 0 };
+            
+            const todayDate = new Date();
+            const startOfWeek = new Date(todayDate);
+            const dayOfWeek = todayDate.getDay();
+            const diffToMonday = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
+            startOfWeek.setDate(todayDate.getDate() + diffToMonday);
+            startOfWeek.setHours(0, 0, 0, 0);
+
+            ordersList.filter(o => o.status === 'COMPLETED').forEach(o => {
+                const completionDate = new Date(o.createdAt);
+                if (completionDate >= startOfWeek) {
+                    const dayName = daysMap[completionDate.getDay()];
+                    if (revCounts[dayName] !== undefined) {
+                        revCounts[dayName] += (o.totalAmount || 0) * 0.95;
+                    }
                 }
-            } catch (ignored) {}
+            });
+
+            const maxRev = Math.max(...Object.values(revCounts), 1);
+            const newChartData = orderedDays.map(day => ({
+                day,
+                revenue: revCounts[day],
+                height: revCounts[day] > 0 ? `${(revCounts[day] / maxRev) * 100}%` : '5%',
+                active: daysMap[todayDate.getDay()] === day
+            }));
+            
+            setChartData(newChartData);
+
+            // Fetch Wallet Balance
+            let walletBalance = 0;
+            let walletTrend = 0;
+            try {
+                const walletRes = await merchantDashboardService.getWalletBalance();
+                if (walletRes.data) {
+                    if (typeof walletRes.data.balance === 'number') walletBalance = walletRes.data.balance;
+                    if (typeof walletRes.data.monthlyChangePercent === 'number') walletTrend = walletRes.data.monthlyChangePercent;
+                }
+            } catch (error) {
+                console.error('Lỗi khi tải số dư ví:', error);
+            }
 
             setDashboardStats({
                 newOrders: todayOrdersCount,
                 todayRevenue: revenue,
                 pendingOrders: pendingCount,
-                preparingOrders: preparingCount
+                preparingOrders: preparingCount,
+                walletBalance: walletBalance,
+                walletTrend: walletTrend,
+                revenueTrend: revTrend,
+                ordersTrend: ordTrend
             });
             
         } catch (error) {
@@ -154,11 +225,16 @@ const MerchantDashboardPage = () => {
         }
     };
 
+    const formatTrend = (trend) => {
+        if (trend === 0) return '0%';
+        return (trend > 0 ? '+' : '') + trend.toFixed(1) + '%';
+    };
+
     const statsConfig = [
-        { label: "Đơn hàng mới", value: dashboardStats.newOrders.toString(), icon: "shopping_cart", color: "blue", trend: "+5%", trendIcon: "trending_up" },
-        { label: "Doanh thu hôm nay", value: formatCurrency(dashboardStats.todayRevenue), icon: "payments", color: "primary", trend: "+12%", trendIcon: "trending_up", isPrimary: true },
-        { label: "Chờ xác nhận", value: dashboardStats.pendingOrders.toString(), icon: "pending_actions", color: "amber", trend: "-2%", trendIcon: "trending_down" },
-        { label: "Đang chuẩn bị", value: dashboardStats.preparingOrders.toString(), icon: "outdoor_grill", color: "purple", trend: "0%", trendIcon: "" }
+        { label: "Số dư Ví hiện tại", value: formatCurrency(dashboardStats.walletBalance), icon: "account_balance_wallet", color: "emerald", trend: formatTrend(dashboardStats.walletTrend), trendIcon: dashboardStats.walletTrend >= 0 ? "trending_up" : "trending_down", isPrimary: true },
+        { label: "Doanh thu (95%)", value: formatCurrency(dashboardStats.todayRevenue), icon: "payments", color: "primary", trend: formatTrend(dashboardStats.revenueTrend), trendIcon: dashboardStats.revenueTrend >= 0 ? "trending_up" : "trending_down" },
+        { label: "Đơn hàng mới", value: dashboardStats.newOrders.toString(), icon: "shopping_cart", color: "blue", trend: formatTrend(dashboardStats.ordersTrend), trendIcon: dashboardStats.ordersTrend >= 0 ? "trending_up" : "trending_down" },
+        { label: "Đang xử lý", value: (dashboardStats.pendingOrders + dashboardStats.preparingOrders).toString(), icon: "pending_actions", color: "amber", trend: "Trong ngày", trendIcon: "timer" }
     ];
 
     if (contextError?.isNotFound) {
@@ -227,7 +303,13 @@ const MerchantDashboardPage = () => {
                         {statsConfig.map((stat, idx) => (
                             <div key={idx} className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-md transition-shadow">
                                 <div className="flex items-center justify-between mb-4">
-                                    <div className={`p-3 rounded-xl ${stat.isPrimary ? 'bg-primary/20 text-primary' : stat.color === 'blue' ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-600' : stat.color === 'amber' ? 'bg-amber-100 dark:bg-amber-900/30 text-amber-600' : 'bg-purple-100 dark:bg-purple-900/30 text-purple-600'}`}>
+                                    <div className={`p-3 rounded-xl ${
+                                        stat.isPrimary ? 'bg-primary/20 text-primary' : 
+                                        stat.color === 'blue' ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-600' : 
+                                        stat.color === 'amber' ? 'bg-amber-100 dark:bg-amber-900/30 text-amber-600' : 
+                                        stat.color === 'emerald' ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600' :
+                                        'bg-purple-100 dark:bg-purple-900/30 text-purple-600'
+                                    }`}>
                                         <span className="material-symbols-outlined text-xl">{stat.icon}</span>
                                     </div>
                                     <span className={`text-xs font-bold flex items-center gap-1 ${stat.trend.startsWith('+') ? 'text-emerald-500' : stat.trend.startsWith('-') ? 'text-red-500' : 'text-slate-400'}`}>
@@ -240,54 +322,37 @@ const MerchantDashboardPage = () => {
                         ))}
                     </div>
 
-                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <div className="grid grid-cols-1 gap-8">
                         {/* Chart Area */}
-                        <div className="lg:col-span-2 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 shadow-sm">
+                        <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
                             <div className="flex items-center justify-between mb-8">
-                                <h4 className="text-lg font-bold">Thống kê doanh thu tuần</h4>
-                                <select className="bg-slate-50 dark:bg-slate-800 border-none text-sm font-bold rounded-lg px-3 py-2 text-slate-600 dark:text-slate-400 focus:ring-primary outline-none">
-                                    <option>7 ngày gần nhất</option>
-                                    <option>30 ngày</option>
-                                </select>
+                                <h3 className="text-lg font-bold text-slate-900 dark:text-white uppercase tracking-tight">Thống kê doanh thu tuần</h3>
+                                <div className="flex gap-2">
+                                    <div className="flex items-center gap-1 text-xs font-bold text-slate-500">
+                                        <span className="size-2 bg-primary rounded-full"></span> Doanh thu
+                                    </div>
+                                </div>
                             </div>
-                            <div className="relative h-[300px] w-full flex items-end justify-between gap-3">
-                                {[60, 45, 80, 65, 55, 90, 40].map((h, i) => (
-                                    <div key={i} style={{ height: `${h}%` }} className={`w-full rounded-t-lg relative group transition-all cursor-pointer ${h === 90 ? 'bg-primary shadow-lg shadow-primary/20' : 'bg-primary/20 hover:bg-primary/40'}`}>
-                                        <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-slate-900 dark:bg-slate-800 text-white font-bold text-xs px-2 py-1.5 rounded opacity-0 group-hover:opacity-100 transition-opacity shadow-lg backdrop-blur-sm whitespace-nowrap z-10">
-                                            {(h/40).toFixed(1)}M VNĐ
-                                            <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-slate-900 dark:bg-slate-800 rotate-45"></div>
+                            <div className="relative h-64 flex items-end justify-between gap-2 px-2">
+                                {chartData.map((item, idx) => (
+                                    <div key={idx} className="flex flex-col items-center flex-1 group">
+                                        <span className="text-[10px] md:text-xs font-bold text-slate-600 dark:text-slate-300 mb-2 truncate w-full text-center" title={formatCurrency(item.revenue)}>
+                                            {item.revenue > 0 ? (item.revenue >= 1000000 ? (item.revenue/1000000).toFixed(1) + 'M' : (item.revenue/1000).toFixed(0) + 'K') : ''}
+                                        </span>
+                                        <div className="w-full bg-slate-100 dark:bg-slate-800 rounded-t-lg relative h-48 overflow-hidden">
+                                            <div 
+                                                className="absolute bottom-0 w-full bg-primary transition-all rounded-t-sm" 
+                                                style={{ height: item.height }}
+                                            ></div>
                                         </div>
+                                        <span className={`mt-3 text-xs font-bold ${item.active ? 'text-primary' : 'text-slate-500'}`}>
+                                            {item.day}
+                                        </span>
                                     </div>
                                 ))}
-                            </div>
-                            <div className="flex justify-between mt-4 text-xs font-bold text-slate-400 px-2">
-                                {['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'].map(day => <span key={day}>{day}</span>)}
                             </div>
                         </div>
 
-                        {/* Staff Performance */}
-                        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 shadow-sm flex flex-col">
-                            <h4 className="text-lg font-bold mb-6">Hiệu suất nhân viên</h4>
-                            <div className="space-y-6 flex-1">
-                                {staffPerformance.map((staff, idx) => (
-                                    <div key={idx} className="flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-800/50 p-2 -mx-2 rounded-lg transition-colors">
-                                        <div className="flex items-center gap-3">
-                                            <div className="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden ring-2 ring-transparent hover:ring-primary transition-all">
-                                                <img src={staff.avatar} alt={staff.name} className="w-full h-full object-cover" />
-                                            </div>
-                                            <div>
-                                                <p className="text-sm font-bold text-slate-800 dark:text-slate-200">{staff.name}</p>
-                                                <p className="text-xs font-semibold text-slate-400">{staff.role}</p>
-                                            </div>
-                                        </div>
-                                        <span className="text-sm font-black text-amber-500 bg-amber-50 dark:bg-amber-900/20 px-2.5 py-1 rounded-full">{staff.rating}</span>
-                                    </div>
-                                ))}
-                            </div>
-                            <button className="w-full mt-6 py-3 rounded-xl border border-slate-200 dark:border-slate-800 text-sm font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors active:scale-95">
-                                Xem báo cáo chi tiết
-                            </button>
-                        </div>
                     </div>
 
                     {/* Recent Orders Table */}

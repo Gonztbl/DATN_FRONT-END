@@ -64,6 +64,43 @@ const shipperService = {
      */
     updateProfile: (data) => {
         return apiClient.put('/api/user/profile', data);
+    },
+
+    /**
+     * Get shipper's wallet balance
+     */
+    getWalletBalance: () => {
+        return apiClient.get('/api/shipper/wallet/balance');
+    },
+
+    /**
+     * Get shipper's online status
+     */
+    getShipperStatus: () => {
+        return apiClient.get('/api/shipper/status');
+    },
+
+    /**
+     * Update shipper's online status
+     * @param {Object} payload - { online: boolean }
+     */
+    updateShipperStatus: (payload) => {
+        return apiClient.put('/api/shipper/status', payload);
+    },
+
+    /**
+     * Get shipper's vehicle information
+     */
+    getShipperVehicle: () => {
+        return apiClient.get('/api/shipper/vehicle');
+    },
+
+    /**
+     * Update shipper's vehicle information
+     * @param {Object} payload - { vehicleType: string, vehiclePlate: string }
+     */
+    updateShipperVehicle: (payload) => {
+        return apiClient.put('/api/shipper/vehicle', payload);
     }
 };
 

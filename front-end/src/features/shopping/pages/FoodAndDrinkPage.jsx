@@ -191,6 +191,12 @@ const FoodAndDrinkPage = () => {
     const handleCheckout = async () => {
         if (!selectedProduct) return;
 
+        const isRestaurantClosed = selectedProduct.restaurant?.is_open === false || selectedProduct.restaurant?.status === 'CLOSED';
+        if (isRestaurantClosed) {
+            showWarning("Nhà hàng đóng cửa", "Nhà hàng hiện đang đóng cửa, vui lòng quay lại sau!");
+            return;
+        }
+
         if (!deliveryAddress || !recipientName || !recipientPhone) {
             showWarning("Missing Info", "Vui lòng nhập đủ thông tin giao hàng!");
             return;
@@ -223,8 +229,22 @@ const FoodAndDrinkPage = () => {
             setRecipientPhone('');
             setNote('');
         } catch (error) {
-            const errorMessage = error.response?.data?.message || error.response?.data || "Có lỗi xảy ra khi đặt hàng.";
-            showError("Lỗi", errorMessage);
+            const errData = error.response?.data;
+            let title = "Lỗi đặt hàng";
+            let errorMessage = "Có lỗi xảy ra khi đặt hàng. Vui lòng thử lại.";
+
+            if (errData) {
+                if (errData.details && errData.details.includes("Restaurant is currently unavailable")) {
+                    title = "Nhà hàng đóng cửa";
+                    errorMessage = "Nhà hàng hiện đang đóng cửa hoặc không khả dụng lúc này. Vui lòng quay lại sau!";
+                } else if (errData.message) {
+                    errorMessage = errData.message;
+                } else if (typeof errData === 'string') {
+                    errorMessage = errData;
+                }
+            }
+
+            showError(title, errorMessage);
             console.error(error);
         } finally {
             setIsSubmitting(false);
@@ -236,6 +256,7 @@ const FoodAndDrinkPage = () => {
     };
 
     const totalPrice = selectedProduct ? selectedProduct.price * quantity : 0;
+    const isRestaurantClosed = selectedProduct?.restaurant?.is_open === false || selectedProduct?.restaurant?.status === 'CLOSED';
 
     // Category icon color map
     const iconColors = {
@@ -498,8 +519,8 @@ const FoodAndDrinkPage = () => {
                                         <h2 className="text-3xl font-black text-slate-900 leading-tight">{selectedProduct.name}</h2>
                                         <p className="text-emerald-500 font-black text-3xl mt-2">{formatCurrency(selectedProduct.price)}</p>
                                     </div>
-                                    <div className="bg-green-100 text-green-700 px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-widest border border-green-200">
-                                        {selectedProduct.restaurant?.is_open === false ? 'Đóng cửa' : 'Đang bán'}
+                                    <div className={`${isRestaurantClosed ? 'bg-red-100 text-red-700 border-red-200' : 'bg-green-100 text-green-700 border-green-200'} px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-widest border`}>
+                                        {isRestaurantClosed ? 'Đóng cửa' : 'Đang bán'}
                                     </div>
                                 </div>
                                 <p className="text-slate-500 text-base leading-relaxed mb-8">
@@ -691,12 +712,17 @@ const FoodAndDrinkPage = () => {
 
                                 {/* Submit */}
                                 <button
-                                    className="w-full bg-emerald-500 hover:bg-emerald-600 text-white text-lg font-black py-5 rounded-2xl transition-all shadow-[0_10px_30px_rgb(16,185,129,0.3)] flex items-center justify-center gap-3 active:scale-[0.98] disabled:bg-slate-300 disabled:shadow-none"
+                                    className={`w-full text-white text-lg font-black py-5 rounded-2xl transition-all shadow-[0_10px_30px_rgb(16,185,129,0.3)] flex items-center justify-center gap-3 active:scale-[0.98] ${isRestaurantClosed ? 'bg-slate-400 cursor-not-allowed shadow-none' : 'bg-emerald-500 hover:bg-emerald-600'} disabled:bg-slate-300 disabled:shadow-none`}
                                     onClick={handleCheckout}
-                                    disabled={isSubmitting}
+                                    disabled={isSubmitting || isRestaurantClosed}
                                 >
                                     {isSubmitting ? (
                                         <span className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></span>
+                                    ) : isRestaurantClosed ? (
+                                        <>
+                                            <span className="material-symbols-outlined text-2xl">store_closed</span>
+                                            Nhà hàng đang đóng cửa
+                                        </>
                                     ) : (
                                         <>
                                             <span className="material-symbols-outlined text-2xl">shopping_bag</span>

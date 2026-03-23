@@ -16,6 +16,7 @@ const ShipperDashboardPage = () => {
         { label: 'Đơn hôm nay', value: '0', unit: 'đơn', trend: '0%', icon: 'today', color: 'primary' }
     ]);
     const [loading, setLoading] = useState(false);
+    const [walletInfo, setWalletInfo] = useState({ balance: 0, monthlyChangePercent: 0 });
 
     const [chartData, setChartData] = useState([
         { day: 'T2', height: '0%' },
@@ -31,16 +32,26 @@ const ShipperDashboardPage = () => {
         const fetchDashboardData = async () => {
             setLoading(true);
             try {
-                // Fetch orders assigned to this shipper
-                const res = await shipperService.getOrders({ 
-                    assigned: true,
-                    limit: 100, 
-                    sortBy: 'createdAt', 
-                    sortDir: 'desc' 
-                });
+                // Fetch dashboard data in parallel
+                const [ordersRes, walletRes] = await Promise.all([
+                    shipperService.getOrders({ 
+                        assigned: true,
+                        limit: 100, 
+                        sortBy: 'createdAt', 
+                        sortDir: 'desc' 
+                    }),
+                    shipperService.getWalletBalance().catch(err => {
+                        console.error('Error fetching wallet balance:', err);
+                        return { data: { balance: 0, monthlyChangePercent: 0 } };
+                    })
+                ]);
 
-                if (res.data && res.data.data) {
-                    const orders = res.data.data;
+                if (walletRes && walletRes.data) {
+                    setWalletInfo(walletRes.data);
+                }
+
+                if (ordersRes.data && ordersRes.data.data) {
+                    const orders = ordersRes.data.data;
                     
                     // Recent 5 orders for history
                     setRecentHistory(orders.slice(0, 5));
@@ -175,16 +186,37 @@ const ShipperDashboardPage = () => {
                             <h1 className="text-3xl md:text-4xl font-black tracking-tight text-slate-900 dark:text-white uppercase italic">Thống kê của tôi</h1>
                             <p className="text-slate-500 dark:text-slate-400 font-medium">Theo dõi hiệu suất giao hàng và doanh thu của bạn.</p>
                         </div>
-                        <div className="flex items-center gap-3 bg-white dark:bg-slate-900 p-2 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800">
-                            <span className="material-symbols-outlined text-slate-400 ml-2">calendar_today</span>
-                            <select 
-                                value={timeRange}
-                                onChange={(e) => setTimeRange(e.target.value)}
-                                className="form-select border-none bg-transparent text-slate-900 dark:text-white font-semibold focus:ring-0 cursor-pointer pr-10 outline-none"
+                        
+                        <div className="flex flex-col sm:flex-row items-center gap-4">
+                            {/* Wallet Balance Display */}
+                            <div 
+                                onClick={() => navigate('/dashboard')}
+                                className="bg-gradient-to-r from-indigo-500 to-purple-600 text-white px-5 py-3 rounded-2xl shadow-lg shadow-indigo-500/30 flex items-center gap-4 w-full sm:w-auto transform hover:scale-105 transition-transform duration-300 cursor-pointer group"
                             >
-                                <option value="week">Tuần này</option>
-                                <option value="month">Tháng này</option>
-                            </select>
+                                <div className="p-2 bg-white/20 rounded-xl backdrop-blur-sm">
+                                    <span className="material-symbols-outlined text-2xl group-hover:animate-pulse">account_balance_wallet</span>
+                                </div>
+                                <div>
+                                    <p className="text-white/80 text-[10px] font-black uppercase tracking-widest mb-0.5 flex items-center gap-1">
+                                        Ví hoa hồng <span className="material-symbols-outlined text-[10px] opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all">arrow_forward</span>
+                                    </p>
+                                    <div className="flex items-end gap-2">
+                                        <p className="text-xl font-black tabular-nums">{formatCurrency(walletInfo.balance)}</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div className="flex items-center w-full sm:w-auto gap-3 bg-white dark:bg-slate-900 p-2 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800">
+                                <span className="material-symbols-outlined text-slate-400 ml-2">calendar_today</span>
+                                <select 
+                                    value={timeRange}
+                                    onChange={(e) => setTimeRange(e.target.value)}
+                                    className="form-select border-none bg-transparent text-slate-900 dark:text-white font-semibold focus:ring-0 cursor-pointer pr-10 outline-none w-full"
+                                >
+                                    <option value="week">Tuần này</option>
+                                    <option value="month">Tháng này</option>
+                                </select>
+                            </div>
                         </div>
                     </div>
 

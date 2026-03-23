@@ -10,6 +10,14 @@ const merchantDashboardService = {
     },
 
     /**
+     * Update restaurant details including schedule
+     */
+    updateRestaurantInfo: (data) => {
+        return apiClient.put('/api/restaurant-owner/restaurant/info', data);
+    },
+
+
+    /**
      * Get the current owner's restaurant details
      */
     getMyRestaurant: () => {
@@ -17,10 +25,10 @@ const merchantDashboardService = {
     },
 
     /**
-     * Get revenue statistics (if available)
+     * Get restaurant owner's wallet balance
      */
-    getRevenue: (params) => {
-        return apiClient.get('/api/admin/statistics/revenue', { params });
+    getWalletBalance: () => {
+        return apiClient.get('/api/restaurant-owner/wallet/balance');
     }
 };
 
