@@ -1,0 +1,76 @@
+@startuml UC21_AdminQuanLyNguoiDung
+title UC21 - Admin quản lý người dùng
+
+autonumber "<b>[00]</b>"
+skinparam sequenceArrowThickness 2
+skinparam roundcorner 10
+skinparam defaultFontSize 20
+skinparam titleFontSize 26
+skinparam sequenceFontSize 19
+skinparam sequenceMessageFontSize 20
+skinparam sequenceActorFontSize 20
+skinparam sequenceParticipantFontSize 20
+skinparam noteFontSize 18
+skinparam sequenceArrowFontSize 20
+skinparam sequence {
+    ParticipantPadding 30
+    LifeLinePadding 20
+    MessagePadding 10
+}
+
+actor "Admin" as Admin
+boundary ":UserManageUI" as UI
+control ":UserAdminController" as CTRL
+entity ":Account" as ENT
+database ":CSDL" as DB
+
+Admin -> UI : Truy cập quản lý người dùng
+activate UI
+
+UI -> CTRL : Tải toàn bộ danh sách users
+activate CTRL
+CTRL -> ENT : GET /api/admin/users
+activate ENT
+ENT -> DB : Truy vấn All Users từ bảng Account
+activate DB
+DB --> ENT : Danh sách Account[] (ID, Role, Status)
+deactivate DB
+ENT --> CTRL : Trả về dữ liệu
+deactivate ENT
+CTRL --> UI : Hiển thị bảng người dùng
+deactivate CTRL
+
+Admin -> UI : Nhấn "Khóa/Mở khóa" tài khoản
+UI -> UI : Hiển thị xác nhận thay đổi trạng thái
+Admin -> UI : Xác nhận (Khóa/Mở)
+
+UI -> CTRL : Gửi yêu cầu thay đổi Active status
+activate CTRL
+CTRL -> ENT : PUT /api/admin/users/{id}/toggle-status
+activate ENT
+ENT -> DB : Cập nhật trường 'active' theo ID
+activate DB
+DB --> ENT : Thành công
+deactivate DB
+ENT --> CTRL : Updated
+deactivate ENT
+CTRL --> UI : Cập nhật lại UI linh hoạt
+deactivate CTRL
+
+Admin -> UI : Nhấn "Xóa người dùng"
+UI -> CTRL : DELETE /api/admin/users/{id}
+activate CTRL
+CTRL -> ENT : Gửi lệnh xóa (Soft or Hard Delete)
+activate ENT
+ENT -> DB : Thực hiện xóa dữ liệu
+activate DB
+DB --> ENT : OK
+deactivate DB
+ENT --> CTRL : Deleted
+deactivate ENT
+CTRL --> UI : Reload danh sách
+deactivate CTRL
+
+deactivate UI
+
+@enduml

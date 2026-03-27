@@ -4,9 +4,11 @@ import Sidebar from "../../../components/layout/Sidebar";
 import userService from "../api/userService";
 import faceService from "../../auth/services/faceService";
 import { useNotification } from "../../../context/NotificationContext";
+import { useTheme } from "../../../context/ThemeContext";
 
 export default function ProfilePage() {
   const { showSuccess, showError } = useNotification();
+  const { isDarkMode, toggleDarkMode } = useTheme();
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [avatar, setAvatar] = useState("");
@@ -154,19 +156,30 @@ export default function ProfilePage() {
   if (!user) return <div className="flex items-center justify-center min-h-screen">Đang tải...</div>;
 
   return (
-    <div className="relative flex min-h-screen w-full flex-col bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100">
+    <div className="relative flex min-h-screen w-full flex-col bg-slate-50 dark:bg-slate-900 font-display text-slate-900 dark:text-slate-100">
       <div className="flex flex-1 overflow-hidden">
         {/* Sidebar */}
         <Sidebar activeRoute="profile" />
 
         {/* Main Content */}
-        <main className="flex-1 overflow-y-auto p-6 md:p-10 bg-background-light dark:bg-background-dark">
+        <main className="flex-1 overflow-y-auto p-6 md:p-10 bg-slate-50 dark:bg-slate-900">
           <div className="max-w-4xl mx-auto space-y-8">
-            <div className="flex flex-col gap-2">
-              <h1 className="text-3xl font-black tracking-tight">Personal Information</h1>
-              <p className="text-lg text-slate-500 dark:text-slate-400">
-                Quản lý thông tin cá nhân và bảo mật tài khoản của bạn.
-              </p>
+            <div className="flex items-start justify-between gap-2">
+              <div className="flex flex-col gap-2">
+                <h1 className="text-3xl font-black tracking-tight">Personal Information</h1>
+                <p className="text-lg text-slate-500 dark:text-slate-400">
+                  Quản lý thông tin cá nhân và bảo mật tài khoản của bạn.
+                </p>
+              </div>
+              <button
+                onClick={toggleDarkMode}
+                className="size-10 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-primary/10 hover:text-primary transition-all flex items-center justify-center shrink-0"
+                title={isDarkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}
+              >
+                <span className="material-symbols-outlined transition-all">
+                  {isDarkMode ? "light_mode" : "dark_mode"}
+                </span>
+              </button>
             </div>
 
             {/* Profile Header Card */}

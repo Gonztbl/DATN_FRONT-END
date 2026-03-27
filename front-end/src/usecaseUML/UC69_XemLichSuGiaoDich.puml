@@ -1,0 +1,29 @@
+@startuml UC69_XemLichSuGiaoDich
+actor User
+boundary ":TransferHistoryUI" as UI
+control ":HistoryController" as CTRL
+entity ":Transaction" as ENT
+entity ":CSDL" as DB
+
+User -> UI : 1: Truy cập trang Lịch sử / Trang chính Ví
+activate UI
+
+UI -> CTRL : 2: getTransactionHistory(filters)
+activate CTRL
+
+CTRL -> DB : 3: GET /api/wallets/transactions?range=...&type=...
+activate DB
+DB --> CTRL : 4: 200 OK {transactions: [...], pagination}
+deactivate DB
+
+CTRL -> ENT : 5: Mapping danh sách giao dịch
+activate ENT
+ENT --> CTRL : 6: Trả về list
+deactivate ENT
+
+CTRL --> UI : 7: Hiển thị danh sách kết quả
+deactivate CTRL
+
+UI --> User : 8: Xem bảng giao dịch, nhấn vào item để xem chi tiết
+deactivate UI
+@enduml

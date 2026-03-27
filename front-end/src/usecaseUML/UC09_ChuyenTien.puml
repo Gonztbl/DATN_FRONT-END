@@ -1,0 +1,78 @@
+@startuml UC09_ChuyenTien
+title UC09 - Chuyển tiền P2P (Transfer Money)
+
+autonumber "<b>[00]</b>"
+skinparam sequenceArrowThickness 2
+skinparam roundcorner 10
+skinparam defaultFontSize 20
+skinparam titleFontSize 26
+skinparam sequenceFontSize 19
+skinparam sequenceMessageFontSize 20
+skinparam sequenceActorFontSize 20
+skinparam sequenceParticipantFontSize 20
+skinparam noteFontSize 18
+skinparam sequenceArrowFontSize 20
+skinparam sequence {
+    ParticipantPadding 30
+    LifeLinePadding 20
+    MessagePadding 10
+}
+
+actor "Người gửi" as Sender
+boundary ":TransferUI" as UI
+control ":WalletController" as CTRL
+entity ":Transaction" as API
+database ":CSDL" as DB
+
+Sender -> UI : Truy cập trang chuyển tiền/liên hệ
+activate UI
+
+UI -> CTRL : Lấy số dư hiện có
+activate CTRL
+CTRL -> API : GET /api/wallet/balance
+activate API
+API -> DB : Truy vấn số dư người gửi
+activate DB
+DB --> API : Số dư hiện tại
+deactivate DB
+API --> CTRL : Trả về số dư
+deactivate API
+CTRL --> UI : Hiển thị form chuyển tiền
+deactivate CTRL
+
+Sender -> UI : Nhập ID người nhận, số tiền & ghi chú
+Sender -> UI : Nhấn nút "Chuyển tiền ngay"
+
+UI -> UI : Hiển thị giao dịch Pending (Optimistic)
+
+UI -> CTRL : Yêu cầu thực hiện lệnh chuyển
+activate CTRL
+
+CTRL -> API : POST /api/wallet/transfer
+activate API
+
+API -> DB : Kiểm tra người nhận & Số dư người gửi
+activate DB
+DB --> API : Kết quả kiểm tra hợp lệ
+deactivate DB
+
+API -> DB : Khấu trừ tiền người gửi & Cộng tiền người nhận
+activate DB
+DB --> API : Giao dịch thành công
+deactivate DB
+
+API -> DB : Ghi nhận 2 bản ghi giao dịch (Gửi/Nhận)
+activate DB
+DB --> API : Đã lưu
+deactivate DB
+
+API --> CTRL : Trả về thông tin giao dịch thành công
+deactivate API
+
+CTRL --> UI : Cập nhật trạng thái giao dịch: Hoàn thành
+deactivate CTRL
+
+UI --> Sender : "Chuyển tiền thành công!"
+deactivate UI
+
+@enduml

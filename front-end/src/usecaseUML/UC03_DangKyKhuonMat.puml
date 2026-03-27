@@ -1,0 +1,65 @@
+@startuml UC03_DangKyKhuonMat
+title UC03 - Đăng ký khuôn mặt sinh trắc học
+
+autonumber "<b>[00]</b>"
+skinparam sequenceArrowThickness 2
+skinparam roundcorner 10
+skinparam defaultFontSize 20
+skinparam titleFontSize 26
+skinparam sequenceFontSize 19
+skinparam sequenceMessageFontSize 20
+skinparam sequenceActorFontSize 20
+skinparam sequenceParticipantFontSize 20
+skinparam noteFontSize 18
+skinparam sequenceArrowFontSize 20
+skinparam sequence {
+    ParticipantPadding 30
+    LifeLinePadding 20
+    MessagePadding 10
+}
+
+actor "Người dùng" as User
+boundary ":FaceRegisterUI" as UI
+control ":FaceController" as CTRL
+entity ":FaceEmbedding" as API
+database ":CSDL" as DB
+
+User -> UI : Truy cập trang đăng ký khuôn mặt
+activate UI
+
+UI -> UI : Khởi tạo Camera (Webcam)
+UI --> User : Hiển thị luồng video trực tiếp
+
+User -> UI : Chụp ảnh tư thế Trực diện (Front)
+UI -> CTRL : Gửi ảnh chụp Base64 (Front)
+activate CTRL
+
+CTRL -> API : POST /api/face/register (pose: front)
+activate API
+API -> DB : Lưu embedding khuôn mặt Front
+activate DB
+DB --> API : Hoàn tất lưu trữ
+deactivate DB
+API --> CTRL : Kết quả thành công
+deactivate API
+CTRL --> UI : Hoàn thành ảnh trực diện
+deactivate CTRL
+
+User -> UI : Chụp ảnh tư thế Left & Right
+UI -> CTRL : Gửi ảnh Left/Right
+activate CTRL
+CTRL -> API : POST /api/face/register (pose: left/right)
+activate API
+API -> DB : Lưu các tư thế bổ sung
+activate DB
+DB --> API : Thành công
+deactivate DB
+API --> CTRL : Trả về kết quả
+deactivate API
+CTRL --> UI : Cập nhật trạng thái (3/3 tư thế)
+deactivate CTRL
+
+UI --> User : Thông báo đăng ký khuôn mặt thành công
+deactivate UI
+
+@enduml

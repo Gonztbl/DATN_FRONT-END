@@ -1,0 +1,69 @@
+@startuml UC04_XacThucKhuonMat
+title UC04 - Xác thực khuôn mặt (Face ID)
+
+autonumber "<b>[00]</b>"
+skinparam sequenceArrowThickness 2
+skinparam roundcorner 10
+skinparam defaultFontSize 20
+skinparam titleFontSize 26
+skinparam sequenceFontSize 19
+skinparam sequenceMessageFontSize 20
+skinparam sequenceActorFontSize 20
+skinparam sequenceParticipantFontSize 20
+skinparam noteFontSize 18
+skinparam sequenceArrowFontSize 20
+skinparam sequence {
+    ParticipantPadding 30
+    LifeLinePadding 20
+    MessagePadding 10
+}
+
+actor "Người dùng" as User
+boundary ":FaceAuthUI" as UI
+control ":FaceController" as CTRL
+entity ":FaceEmbedding" as API
+database ":CSDL" as DB
+
+User -> UI : Truy cập trang xác thực
+activate UI
+
+UI -> CTRL : Lấy danh sách mẫu đã đăng ký
+activate CTRL
+CTRL -> API : GET /api/face/embeddings
+activate API
+API -> DB : Truy vấn các mẫu hiện có
+activate DB
+DB --> API : Danh sách mẫu (Front, Left, Right)
+deactivate DB
+API --> CTRL : Trả về dữ liệu mẫu
+deactivate API
+CTRL --> UI : Hiển thị trạng thái sẵn sàng
+deactivate CTRL
+
+User -> UI : Nhấn "Xác thực khuôn mặt"
+UI -> UI : Chụp ảnh thực tế từ Camera
+UI -> CTRL : Gửi ảnh yêu cầu xác thực
+activate CTRL
+
+CTRL -> API : POST /api/face/verify
+activate API
+API -> DB : So sánh với các mẫu trong DB
+activate DB
+DB --> API : Kết quả tương đồng (Similarity Score)
+deactivate DB
+
+alt Xác thực khớp
+    API --> CTRL : Kết quả: Verified (Thành công)
+    CTRL --> UI : Thông báo xác thực thành công
+    UI --> User : "Chào mừng [Tên người dùng]"
+else Xác thực không khớp
+    API --> CTRL : Kết quả: Failed (Thất bại)
+    deactivate API
+    CTRL --> UI : Hiển thị thông báo lỗi
+    deactivate CTRL
+    UI --> User : "Khuôn mặt không khớp, thử lại"
+end
+
+deactivate UI
+
+@enduml

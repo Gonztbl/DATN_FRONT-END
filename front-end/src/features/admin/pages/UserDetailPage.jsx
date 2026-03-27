@@ -269,10 +269,10 @@ export default function UserDetailPage() {
                   <span className="material-symbols-outlined !text-4xl text-primary">account_circle</span>
                 </div>
                 <div>
-                  <h2 className="text-2xl font-bold">{user.fullName || user.userName}</h2>
-                  <p className="text-slate-500 text-sm flex items-center gap-2">
-                    ID: SP-{user.id} <span className="inline-block w-1 h-1 rounded-full bg-slate-300"></span>
-                    <span className={`${isUserActive ? "text-emerald-600" : "text-red-500"} font-medium`}>
+                  <h2 className="text-2xl font-bold text-slate-900 dark:text-white">{user.fullName || user.userName}</h2>
+                  <p className="text-slate-500 dark:text-slate-400 text-sm flex items-center gap-2">
+                    ID: SP-{user.id} <span className="inline-block w-1 h-1 rounded-full bg-slate-300 dark:bg-slate-700"></span>
+                    <span className={`${isUserActive ? "text-emerald-600 dark:text-emerald-400" : "text-red-500 font-semibold"}`}>
                       {isUserActive ? "Active" : "Locked"}
                     </span>
                   </p>
@@ -318,15 +318,15 @@ export default function UserDetailPage() {
           {activeTab === "biometrics" && (
             <div className="p-6 animate-in fade-in duration-300">
               {/* Summary Card */}
-              <div className="bg-slate-50 dark:bg-slate-800/50 rounded-xl p-5 mb-8 border border-slate-100 dark:border-slate-700/50">
+              <div className="bg-slate-50 dark:bg-slate-800/50 rounded-xl p-5 mb-8 border border-slate-100 dark:border-slate-800/50">
                 <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
                   <div className="flex gap-4 items-center">
                     <div className="h-12 w-12 rounded-full bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
                       <span className="material-symbols-outlined !text-2xl">face</span>
                     </div>
                     <div>
-                      <h3 className="font-bold text-lg leading-tight">Biometric Face Authentication</h3>
-                      <p className="text-slate-500 text-sm">
+                      <h3 className="font-bold text-lg leading-tight text-slate-900 dark:text-white">Biometric Face Authentication</h3>
+                      <p className="text-slate-500 dark:text-slate-400 text-sm">
                         Last verified: {lastVerifiedDate ? lastVerifiedDate.toLocaleString("vi-VN") : "Never"}
                       </p>
                     </div>
@@ -352,7 +352,7 @@ export default function UserDetailPage() {
                     </button>
                     <button 
                       onClick={handleResetAll}
-                      className="flex-1 lg:flex-none flex items-center justify-center gap-2 px-4 py-2 bg-red-50 text-red-600 border border-red-100 rounded-lg text-sm font-bold hover:bg-red-100 transition-colors"
+                      className="flex-1 lg:flex-none flex items-center justify-center gap-2 px-4 py-2 bg-red-50 dark:bg-red-950/30 text-red-600 dark:text-red-400 border border-red-100 dark:border-red-900 rounded-lg text-sm font-bold hover:bg-red-100 dark:hover:bg-red-900/50 transition-colors"
                     >
                       <span className="material-symbols-outlined">delete_sweep</span> Reset All
                     </button>
@@ -370,7 +370,7 @@ export default function UserDetailPage() {
                 {embeddings.length > 0 ? (
                   <div className="overflow-x-auto border border-slate-200 dark:border-slate-800 rounded-xl">
                     <table className="w-full text-left border-collapse">
-                      <thead className="bg-slate-50 dark:bg-slate-800/80 text-slate-500 text-xs uppercase font-bold">
+                      <thead className="bg-slate-50 dark:bg-slate-800/80 text-slate-500 dark:text-slate-400 text-xs uppercase font-bold">
                         <tr>
                           <th className="px-6 py-4">Embedding ID</th>
                           <th className="px-6 py-4">Pose</th>
@@ -382,16 +382,16 @@ export default function UserDetailPage() {
                       <tbody className="divide-y divide-slate-100 dark:divide-slate-800 text-sm">
                         {embeddings.map((emb) => (
                           <tr key={emb.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors">
-                            <td className="px-6 py-4 font-medium font-mono text-xs">#{emb.id}</td>
+                            <td className="px-6 py-4 font-medium font-mono text-xs text-slate-600 dark:text-slate-400">#{emb.id}</td>
                             <td className="px-6 py-4">
-                              <div className="flex items-center gap-2">
+                              <div className="flex items-center gap-2 text-slate-700 dark:text-slate-300">
                                 <span className="material-symbols-outlined text-slate-400">
                                   {emb.pose === "front" ? "person" : emb.pose === "left" ? "turn_right" : "turn_left"}
                                 </span>
                                 <span className="capitalize">{emb.pose}</span>
                               </div>
                             </td>
-                            <td className="px-6 py-4 text-slate-500">
+                            <td className="px-6 py-4 text-slate-500 dark:text-slate-400">
                               {new Date(emb.createdAt).toLocaleString("vi-VN", {
                                 month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit'
                               })}
@@ -438,26 +438,26 @@ export default function UserDetailPage() {
             <div className="p-6 animate-in fade-in duration-300">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Account Details */}
-                <div className="bg-slate-50 dark:bg-slate-800/50 rounded-xl p-6 border border-slate-100 dark:border-slate-700/50">
-                  <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
+                <div className="bg-slate-50 dark:bg-slate-800/50 rounded-xl p-6 border border-slate-100 dark:border-slate-800/50">
+                  <h3 className="text-lg font-bold mb-4 flex items-center gap-2 text-slate-900 dark:text-white">
                     <span className="material-symbols-outlined text-primary">badge</span>
                     Account Details
                   </h3>
                   <div className="space-y-4">
                     <div>
-                      <span className="text-sm font-medium text-slate-500 block mb-1">Username</span>
-                      <p className="font-semibold">{user.userName}</p>
+                      <span className="text-sm font-medium text-slate-500 dark:text-slate-400 block mb-1">Username</span>
+                      <p className="font-semibold text-slate-900 dark:text-white">{user.userName}</p>
                     </div>
                     <div>
-                      <span className="text-sm font-medium text-slate-500 block mb-1">Email</span>
-                      <p className="font-semibold">{user.email || "Not provided"}</p>
+                      <span className="text-sm font-medium text-slate-500 dark:text-slate-400 block mb-1">Email</span>
+                      <p className="font-semibold text-slate-900 dark:text-white">{user.email || "Not provided"}</p>
                     </div>
                     <div>
-                      <span className="text-sm font-medium text-slate-500 block mb-1">Phone Number</span>
-                      <p className="font-semibold">{user.phone || "Not provided"}</p>
+                      <span className="text-sm font-medium text-slate-500 dark:text-slate-400 block mb-1">Phone Number</span>
+                      <p className="font-semibold text-slate-900 dark:text-white">{user.phone || "Not provided"}</p>
                     </div>
                     <div>
-                      <span className="text-sm font-medium text-slate-500 block mb-1">Role</span>
+                      <span className="text-sm font-medium text-slate-500 dark:text-slate-400 block mb-1">Role</span>
                       <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold leading-none bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400">
                         {user.role || wallets[0]?.role || user.roles?.[0]?.name || "USER"}
                       </span>
@@ -466,33 +466,33 @@ export default function UserDetailPage() {
                 </div>
 
                 {/* System Info */}
-                <div className="bg-slate-50 dark:bg-slate-800/50 rounded-xl p-6 border border-slate-100 dark:border-slate-700/50">
-                  <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
+                <div className="bg-slate-50 dark:bg-slate-800/50 rounded-xl p-6 border border-slate-100 dark:border-slate-800/50">
+                  <h3 className="text-lg font-bold mb-4 flex items-center gap-2 text-slate-900 dark:text-white">
                     <span className="material-symbols-outlined text-primary">info</span>
                     System Information
                   </h3>
                   <div className="space-y-4">
                     <div>
-                      <span className="text-sm font-medium text-slate-500 block mb-1">Account Created</span>
-                      <p className="font-semibold">
+                      <span className="text-sm font-medium text-slate-500 dark:text-slate-400 block mb-1">Account Created</span>
+                      <p className="font-semibold text-slate-900 dark:text-white">
                         {user.createdAt ? new Date(user.createdAt).toLocaleString("vi-VN", {
                           dateStyle: "medium", timeStyle: "short"
                         }) : "Unknown"}
                       </p>
                     </div>
                     <div>
-                      <span className="text-sm font-medium text-slate-500 block mb-1">Account Status</span>
-                      <p className={`font-semibold ${isUserActive ? "text-emerald-600" : "text-red-500"}`}>
+                      <span className="text-sm font-medium text-slate-500 dark:text-slate-400 block mb-1">Account Status</span>
+                      <p className={`font-semibold ${isUserActive ? "text-emerald-600 dark:text-emerald-400" : "text-red-500"}`}>
                         {isUserActive ? "Active" : "Locked"}
                       </p>
                     </div>
                     <div>
-                      <span className="text-sm font-medium text-slate-500 block mb-1">Number of Wallets</span>
-                      <p className="font-semibold">{wallets.length} wallet(s)</p>
+                      <span className="text-sm font-medium text-slate-500 dark:text-slate-400 block mb-1">Number of Wallets</span>
+                      <p className="font-semibold text-slate-900 dark:text-white">{wallets.length} wallet(s)</p>
                     </div>
                     <div>
-                      <span className="text-sm font-medium text-slate-500 block mb-1">Total Transactions</span>
-                      <p className="font-semibold">{transactions.length} transaction(s)</p>
+                      <span className="text-sm font-medium text-slate-500 dark:text-slate-400 block mb-1">Total Transactions</span>
+                      <p className="font-semibold text-slate-900 dark:text-white">{transactions.length} transaction(s)</p>
                     </div>
                   </div>
                 </div>
@@ -524,7 +524,7 @@ export default function UserDetailPage() {
                           </div>
                           <div>
                             <p className="font-mono text-lg font-bold tracking-tight">{wallet.accountNumber}</p>
-                            <p className="text-xs text-slate-400 font-medium tracking-wider uppercase">Wallet ID: {wallet.id}</p>
+                            <p className="text-xs text-slate-400 font-medium tracking-wider uppercase">Wallet ID: {wallet.walletId || wallet.id}</p>
                           </div>
                         </div>
                         <span className={`px-2.5 py-1 text-xs font-bold rounded-full ${wallet.status === 'ACTIVE' ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'}`}>
@@ -596,9 +596,9 @@ export default function UserDetailPage() {
                     <tbody className="divide-y divide-slate-100 dark:divide-slate-800 text-sm">
                       {transactions.slice(0, 10).map((txn) => ( // Show only top 10 recent
                         <tr key={txn.transactionId} className="hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors">
-                          <td className="px-6 py-4 font-medium font-mono text-xs">{txn.transactionId}</td>
-                          <td className="px-6 py-4 font-semibold">{txn.type}</td>
-                          <td className={`px-6 py-4 font-extrabold text-right ${txn.direction === 'OUT' ? 'text-red-500' : 'text-emerald-500'}`}>
+                          <td className="px-6 py-4 font-medium font-mono text-xs text-slate-600 dark:text-slate-400">{txn.transactionId}</td>
+                          <td className="px-6 py-4 font-semibold text-slate-700 dark:text-slate-200">{txn.type}</td>
+                          <td className={`px-6 py-4 font-extrabold text-right ${txn.direction === 'OUT' ? 'text-red-500' : 'text-emerald-500 dark:text-emerald-400'}`}>
                             {txn.direction === 'OUT' ? '-' : '+'}{new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(txn.amount)}
                           </td>
                           <td className="px-6 py-4">
@@ -610,10 +610,10 @@ export default function UserDetailPage() {
                               {txn.status}
                             </span>
                           </td>
-                          <td className="px-6 py-4 text-slate-500">
-                            {new Date(txn.createdAt).toLocaleString("vi-VN", {
-                              month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit'
-                            })}
+                          <td className="px-6 py-4 text-slate-500 dark:text-slate-400">
+                             {new Date(txn.createdAt).toLocaleString("vi-VN", {
+                               month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit'
+                             })}
                           </td>
                         </tr>
                       ))}
@@ -713,18 +713,18 @@ export default function UserDetailPage() {
                 />
               </div>
               
-              <label className="flex items-center gap-3 p-3 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-lg cursor-pointer hover:bg-slate-100 transition-colors">
+              <label className="flex items-center gap-3 p-3 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-lg cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
                 <input 
                   type="checkbox" 
                   name="isActive"
                   checked={editFormData.isActive}
                   onChange={handleFormChange}
-                  className="size-5 rounded border-slate-300 text-emerald-600 focus:ring-emerald-600"
+                  className="size-5 rounded border-slate-300 dark:border-slate-600 text-emerald-600 focus:ring-emerald-600 dark:bg-slate-700"
                 />
                 <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">
                   Account is Active
                 </span>
-                <span className={`ml-auto text-xs font-bold px-2 py-0.5 rounded-full ${editFormData.isActive ? 'bg-emerald-100 text-emerald-600' : 'bg-slate-200 text-slate-600'}`}>
+                <span className={`ml-auto text-xs font-bold px-2 py-0.5 rounded-full ${editFormData.isActive ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400' : 'bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-400'}`}>
                   {editFormData.isActive ? 'ON' : 'LOCKED'}
                 </span>
               </label>

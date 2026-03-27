@@ -171,7 +171,7 @@ export default function AdminTransactionHistoryPage() {
     };
 
     return (
-        <div className="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 min-h-screen flex font-display">
+        <div className="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 min-h-screen flex font-display">
             <SidebarAdmin />
 
             {/* Main Content Area */}
@@ -190,7 +190,7 @@ export default function AdminTransactionHistoryPage() {
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                             <div className="space-y-1.5">
-                                <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Search ID</label>
+                                <label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Search ID</label>
                                 <div className="relative">
                                     <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-lg">search</span>
                                     <input
@@ -203,9 +203,9 @@ export default function AdminTransactionHistoryPage() {
                                 </div>
                             </div>
                             <div className="space-y-1.5">
-                                <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Status</label>
+                                <label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Status</label>
                                 <select
-                                    className="w-full bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 rounded-lg text-sm focus:ring-primary focus:border-primary h-10"
+                                    className="w-full bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 rounded-lg text-sm focus:ring-primary focus:border-primary h-10 text-slate-900 dark:text-slate-200"
                                     value={statusFilter}
                                     onChange={(e) => setStatusFilter(e.target.value)}
                                 >
@@ -216,9 +216,9 @@ export default function AdminTransactionHistoryPage() {
                                 </select>
                             </div>
                             <div className="space-y-1.5">
-                                <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Type</label>
+                                <label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Type</label>
                                 <select
-                                    className="w-full bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 rounded-lg text-sm focus:ring-primary focus:border-primary h-10"
+                                    className="w-full bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 rounded-lg text-sm focus:ring-primary focus:border-primary h-10 text-slate-900 dark:text-slate-200"
                                     value={typeFilter}
                                     onChange={(e) => setTypeFilter(e.target.value)}
                                 >
@@ -335,7 +335,7 @@ export default function AdminTransactionHistoryPage() {
                                 <button
                                     onClick={() => currentPage > 1 && paginate(currentPage - 1)}
                                     disabled={currentPage === 1}
-                                    className="size-8 flex items-center justify-center rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-400 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-50"
+                                    className="size-8 flex items-center justify-center rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-400 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-50 dark:hover:bg-slate-800"
                                 >
                                     <span className="material-symbols-outlined text-lg">chevron_left</span>
                                 </button>
@@ -369,7 +369,7 @@ export default function AdminTransactionHistoryPage() {
                                 <button
                                     onClick={() => currentPage < totalPages && paginate(currentPage + 1)}
                                     disabled={currentPage === totalPages || totalPages === 0}
-                                    className="size-8 flex items-center justify-center rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 hover:bg-slate-50 disabled:opacity-50"
+                                    className="size-8 flex items-center justify-center rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-50"
                                 >
                                     <span className="material-symbols-outlined text-lg">chevron_right</span>
                                 </button>

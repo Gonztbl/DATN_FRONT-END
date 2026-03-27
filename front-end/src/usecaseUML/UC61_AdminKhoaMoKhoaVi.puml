@@ -1,0 +1,36 @@
+@startuml UC61_AdminKhoaMoKhoaVi
+actor Admin
+boundary ":AdminWalletUI" as UI
+control ":WalletController" as CTRL
+entity ":Wallet" as ENT
+entity ":CSDL" as DB
+
+Admin -> UI : 1: Nhấn Toggle khóa/mở khóa ví
+activate UI
+
+UI -> CTRL : 2: toggleWalletStatus(walletId)
+activate CTRL
+
+alt Ví đang ACTIVE -> Khóa
+    CTRL -> DB : 3a: PUT /api/admin/wallets/{id}/lock
+    activate DB
+    DB --> CTRL : 4a: 200 OK
+    deactivate DB
+else Ví đang LOCKED -> Mở khóa
+    CTRL -> DB : 3b: PUT /api/admin/wallets/{id}/unlock
+    activate DB
+    DB --> CTRL : 4b: 200 OK
+    deactivate DB
+end
+
+CTRL -> ENT : 5: Cập nhật trạng thái ví
+activate ENT
+ENT --> CTRL : 6: Đã cập nhật
+deactivate ENT
+
+CTRL --> UI : 7: Thành công
+deactivate CTRL
+
+UI --> Admin : 8: Cập nhật UI trạng thái mới
+deactivate UI
+@enduml

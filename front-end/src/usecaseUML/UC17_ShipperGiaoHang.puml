@@ -1,0 +1,70 @@
+@startuml UC17_ShipperGiaoHang
+title UC17 - Shipper hoàn tất giao hàng (Order Completion)
+
+autonumber "<b>[00]</b>"
+skinparam sequenceArrowThickness 2
+skinparam roundcorner 10
+skinparam defaultFontSize 20
+skinparam titleFontSize 26
+skinparam sequenceFontSize 19
+skinparam sequenceMessageFontSize 20
+skinparam sequenceActorFontSize 20
+skinparam sequenceParticipantFontSize 20
+skinparam noteFontSize 18
+skinparam sequenceArrowFontSize 20
+skinparam sequence {
+    ParticipantPadding 30
+    LifeLinePadding 20
+    MessagePadding 10
+}
+
+actor "Shipper" as SP
+boundary ":OrderDetailUI" as UI
+control ":ShipperController" as CTRL
+entity ":Order" as API
+database ":CSDL" as DB
+
+SP -> UI : Di chuyển tới địa chỉ khách hàng
+activate UI
+
+SP -> UI : Nhấn nút "Đã đến nơi"
+UI -> CTRL : Cập nhật trạng thái ARRIVED
+activate CTRL
+CTRL -> API : PUT /api/shipper/orders/{id}/arrived
+activate API
+API -> DB : Ghi nhận thời điểm đến
+activate DB
+DB --> API : Thành công
+deactivate DB
+API --> CTRL : Status updated
+deactivate API
+CTRL --> UI : Hiển thị form xác nhận giao
+deactivate CTRL
+
+SP -> UI : Nhấn "Hoàn tất giao hàng" (Giao thành công)
+UI -> CTRL : Yêu cầu kết thúc đơn #{id}
+activate CTRL
+
+CTRL -> API : PUT /api/shipper/orders/{id}/delivered
+activate API
+
+API -> DB : Cập nhật Trạng thái: DELIVERED
+activate DB
+DB --> API : Đã cập nhật
+deactivate DB
+
+API -> DB : Giải ngân tiền (Shipper 5% / Merchant 95%)
+activate DB
+DB --> API : Hoàn tất chia tiền tự động
+deactivate DB
+
+API --> CTRL : Xác nhận giao hàng hoàn tất
+deactivate API
+
+CTRL --> UI : Hiển thị thông báo "Giao thành công"
+deactivate CTRL
+
+UI --> SP : "Tiền thù lao đã được cộng vào ví."
+deactivate UI
+
+@enduml

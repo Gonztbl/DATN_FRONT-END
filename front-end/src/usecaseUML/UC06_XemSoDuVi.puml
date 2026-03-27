@@ -1,0 +1,66 @@
+@startuml UC06_XemSoDuVi
+title UC06 - Xem số dư & Tổng quan ví
+
+autonumber "<b>[00]</b>"
+skinparam sequenceArrowThickness 2
+skinparam roundcorner 10
+skinparam defaultFontSize 20
+skinparam titleFontSize 26
+skinparam sequenceFontSize 19
+skinparam sequenceMessageFontSize 20
+skinparam sequenceActorFontSize 20
+skinparam sequenceParticipantFontSize 20
+skinparam noteFontSize 18
+skinparam sequenceArrowFontSize 20
+skinparam sequence {
+    ParticipantPadding 30
+    LifeLinePadding 20
+    MessagePadding 10
+}
+
+actor "Người dùng" as User
+boundary ":DashboardUI" as UI
+control ":WalletController" as CTRL
+entity ":Account" as API
+database ":CSDL" as DB
+
+User -> UI : Truy cập trang Dashboard/Ví
+activate UI
+
+UI -> CTRL : Yêu cầu thông tin tổng quan
+activate CTRL
+
+CTRL -> API : GET /api/wallet/balance (Số dư)
+activate API
+API -> DB : Truy vấn số dư ví
+activate DB
+DB --> API : Số dư hiện tại
+deactivate DB
+API --> CTRL : Trả về số dư
+deactivate API
+
+CTRL -> API : GET /api/wallet/cards (Thẻ liên kết)
+activate API
+API -> DB : Truy vấn danh sách thẻ
+activate DB
+DB --> API : Danh sách thẻ ngân hàng
+deactivate DB
+API --> CTRL : Trả về CardInfo[]
+deactivate API
+
+CTRL -> API : GET /api/wallet/transactions (Lịch sử)
+activate API
+API -> DB : Truy vấn 5 giao dịch gần nhất
+activate DB
+DB --> API : Danh sách giao dịch
+deactivate DB
+API --> CTRL : Trả về Transaction history
+deactivate API
+
+CTRL --> UI : Tổng hợp dữ liệu hiển thị
+deactivate CTRL
+
+UI --> User : Hiển thị Số dư, Thẻ và Giao dịch gần đây
+deactivate UI
+
+@enduml

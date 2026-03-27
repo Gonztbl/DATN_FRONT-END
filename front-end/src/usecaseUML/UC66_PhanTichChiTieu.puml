@@ -1,0 +1,23 @@
+@startuml UC66_PhanTichChiTieu
+actor User
+boundary ":SpendingSummaryUI" as UI
+control ":HistoryController" as CTRL
+entity ":CSDL" as DB
+
+User -> UI : 1: Truy cập trang Spending Summary
+activate UI
+
+UI -> CTRL : 2: getSpendingSummary()
+activate CTRL
+
+CTRL -> DB : 3: GET /api/users/me/spending-summary
+activate DB
+DB --> CTRL : 4: 200 OK {summary, chartData}
+deactivate DB
+
+CTRL --> UI : 5: Data (Balance, Monthly Spending, Chart)
+deactivate CTRL
+
+UI --> User : 6: Hiển thị biểu đồ cột, các chỉ số tài chính
+deactivate UI
+@enduml

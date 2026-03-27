@@ -1,0 +1,80 @@
+@startuml UC13_DatMonAn
+title UC13 - Đặt món ăn (Order Food)
+
+autonumber "<b>[00]</b>"
+skinparam sequenceArrowThickness 2
+skinparam roundcorner 10
+skinparam defaultFontSize 20
+skinparam titleFontSize 26
+skinparam sequenceFontSize 19
+skinparam sequenceMessageFontSize 20
+skinparam sequenceActorFontSize 20
+skinparam sequenceParticipantFontSize 20
+skinparam noteFontSize 18
+skinparam sequenceArrowFontSize 20
+skinparam sequence {
+    ParticipantPadding 30
+    LifeLinePadding 20
+    MessagePadding 10
+}
+
+actor "Người dùng" as User
+boundary ":FoodOrderingUI" as UI
+control ":OrderController" as CTRL
+entity ":Order" as API
+database ":CSDL" as DB
+
+User -> UI : Truy cập danh sách món ăn
+activate UI
+
+UI -> CTRL : Lấy danh sách sản phẩm & cửa hàng
+activate CTRL
+CTRL -> API : GET /api/products
+activate API
+API -> DB : Truy vấn món ăn đang kinh doanh
+activate DB
+DB --> API : Danh sách món ăn
+deactivate DB
+API --> CTRL : Trả về dữ liệu sản phẩm
+deactivate API
+CTRL --> UI : Hiển thị Menu cho người dùng
+deactivate CTRL
+
+User -> UI : Chọn món và thêm vào giỏ hàng
+UI -> UI : Tính toán tổng tiền (Client-side)
+
+User -> UI : Nhấn nút "Thanh toán"
+UI -> UI : Chọn địa chỉ và phương thức thanh toán
+
+User -> UI : Nhấn "Xác nhận đặt hàng"
+UI -> CTRL : Gửi yêu cầu đặt hàng
+activate CTRL
+
+CTRL -> API : POST /api/orders/place
+activate API
+
+API -> DB : Kiểm tra số dư ví người dùng
+activate DB
+DB --> API : Số dư hợp lệ
+deactivate DB
+
+API -> DB : Tạo đơn hàng (Trạng thái: PENDING)
+activate DB
+DB --> API : Đã tạo {orderId}
+deactivate DB
+
+API -> DB : Trừ tiền tạm ứng (Giữ tiền)
+activate DB
+DB --> API : Hoàn tất tạm thu
+deactivate DB
+
+API --> CTRL : Trả về thông tin đơn hàng mới
+deactivate API
+
+CTRL --> UI : Thông báo đặt hàng thành công
+deactivate CTRL
+
+UI --> User : "Đơn hàng của bạn đang được xử lý!"
+deactivate UI
+
+@enduml

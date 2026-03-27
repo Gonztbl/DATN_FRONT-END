@@ -1,0 +1,29 @@
+@startuml UC78_PhanPhoiDoanhThu
+actor Admin
+control ":OrderController" as CTRL
+entity ":Wallet" as WALT
+entity ":CSDL" as DB
+
+NOTE over CTRL, DB: Tự động chạy khi Shipper nhấn "Delivered"
+
+CTRL -> DB : 1: PUT /api/shipper/orders/{id}/delivered
+activate DB
+
+alt Giao hàng thành công
+    DB -> DB : 2: Update Order Status = COMPLETED
+    
+    DB -> WALT : 3: Cộng 95% vào Ví Nhà hàng (Restaurant)
+    activate WALT
+    WALT --> DB : 4: Cập nhật xong
+    deactivate WALT
+    
+    DB -> WALT : 5: Cộng 5% vào Ví Shipper
+    activate WALT
+    WALT --> DB : 6: Cập nhật xong
+    deactivate WALT
+    
+    DB --> CTRL : 7: 200 OK {payout: SUCCESS}
+end
+deactivate DB
+
+@enduml

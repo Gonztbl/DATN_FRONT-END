@@ -184,7 +184,7 @@ export default function AdminWalletPage() {
     };
 
     return (
-        <div className="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 min-h-screen flex font-display">
+        <div className="bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 min-h-screen flex font-display transition-colors duration-300">
             <SidebarAdmin />
 
             <main className="flex-1 flex flex-col min-w-0 bg-slate-50 dark:bg-slate-950 h-screen overflow-y-auto w-full">
@@ -202,11 +202,11 @@ export default function AdminWalletPage() {
                                     Search by ID, UserID, Account
                                 </label>
                                 <div className="relative">
-                                    <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
+                                    <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500">
                                         search
                                     </span>
                                     <input
-                                        className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl h-12 pl-11 pr-4 focus:ring-1 focus:ring-primary focus:border-primary text-slate-900 dark:text-white"
+                                        className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl h-12 pl-11 pr-4 focus:ring-1 focus:ring-primary focus:border-primary text-slate-900 dark:text-white transition-all placeholder:text-slate-400 dark:placeholder:text-slate-500"
                                         placeholder="Enter ID, User ID or Account Number..."
                                         value={searchText}
                                         onChange={(e) => {
@@ -220,9 +220,9 @@ export default function AdminWalletPage() {
                             {/* STATUS FILTER */}
                             {/* STATUS FILTER - Copy style từ phần không lỗi */}
                             <div className="space-y-1.5 w-full sm:w-48">
-                                <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Status</label>
+                                <label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Status</label>
                                 <select
-                                    className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-sm focus:ring-primary focus:border-primary h-10"
+                                    className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-sm text-slate-900 dark:text-white focus:ring-primary focus:border-primary h-10 transition-colors"
                                     value={statusFilter}
                                     onChange={(e) => {
                                         setStatusFilter(e.target.value);
@@ -267,16 +267,16 @@ export default function AdminWalletPage() {
                                 <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                                     {loading ? (
                                         <tr>
-                                            <td colSpan="7" className="px-6 py-12 text-center text-slate-500">Loading...</td>
+                                            <td colSpan="7" className="px-6 py-12 text-center text-slate-500 dark:text-slate-400">Loading...</td>
                                         </tr>
                                     ) : currentWallets.length === 0 ? (
                                         <tr>
-                                            <td colSpan="7" className="px-6 py-12 text-center text-slate-500">No wallets found matching your criteria.</td>
+                                            <td colSpan="7" className="px-6 py-12 text-center text-slate-500 dark:text-slate-400">No wallets found matching your criteria.</td>
                                         </tr>
                                     ) : (
                                         currentWallets.map((wallet) => (
                                             <tr key={wallet.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
-                                                <td className="px-6 py-4 text-sm text-slate-500">{wallet.id}</td>
+                                                <td className="px-6 py-4 text-sm text-slate-500 dark:text-slate-400">{wallet.walletId || wallet.id}</td>
                                                 <td className="px-6 py-4 text-sm font-mono font-semibold text-slate-900 dark:text-slate-200">{wallet.accountNumber}</td>
                                                 <td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">{wallet.userId}</td>
                                                 <td className="px-6 py-4 text-sm font-bold text-right text-slate-900 dark:text-white">
@@ -294,7 +294,7 @@ export default function AdminWalletPage() {
                                                     <div className="flex items-center gap-2 justify-end">
                                                         <button
                                                             onClick={() => handleTopupClick(wallet)}
-                                                            className="px-3 py-1.5 rounded-lg text-xs font-bold transition-colors bg-blue-50 text-blue-600 hover:bg-blue-100 border border-blue-200"
+                                                            className="px-3 py-1.5 rounded-lg text-xs font-bold transition-colors bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/30 border border-blue-200 dark:border-blue-800"
                                                         >
                                                             Topup
                                                         </button>
@@ -319,19 +319,19 @@ export default function AdminWalletPage() {
                             </table>
                         </div>
                         {/* Pagination controls */}
-                        <div className="px-6 py-4 border-t border-slate-200 dark:border-slate-800 bg-slate-50/50 flex items-center justify-between">
+                        <div className="px-6 py-4 border-t border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 flex items-center justify-between">
                             <button
                                 onClick={() => setCurrentPage(p => Math.max(0, p - 1))}
                                 disabled={currentPage === 0}
-                                className="px-3 py-1 rounded border disabled:opacity-50"
+                                className="px-3 py-1 rounded border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-50 transition-colors"
                             >
                                 Previous
                             </button>
-                            <span className="text-sm">Page {currentPage + 1} of {pageCount || 1}</span>
+                            <span className="text-sm text-slate-600 dark:text-slate-400">Page {currentPage + 1} of {pageCount || 1}</span>
                             <button
                                 onClick={() => setCurrentPage(p => p + 1)}
                                 disabled={currentPage >= pageCount - 1}
-                                className="px-3 py-1 rounded border disabled:opacity-50"
+                                className="px-3 py-1 rounded border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-50 transition-colors"
                             >
                                 Next
                             </button>
@@ -370,7 +370,7 @@ export default function AdminWalletPage() {
                             <div className="bg-slate-50 dark:bg-slate-800 rounded-lg p-4 space-y-2">
                                 <div className="flex justify-between">
                                     <span className="text-sm text-slate-600 dark:text-slate-400">Wallet ID:</span>
-                                    <span className="text-sm font-semibold text-slate-900 dark:text-white">{selectedWallet.id}</span>
+                                    <span className="text-sm font-semibold text-slate-900 dark:text-white">{selectedWallet.walletId || selectedWallet.id}</span>
                                 </div>
                                 <div className="flex justify-between">
                                     <span className="text-sm text-slate-600 dark:text-slate-400">Account Number:</span>

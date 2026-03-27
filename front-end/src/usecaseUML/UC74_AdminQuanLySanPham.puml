@@ -1,0 +1,46 @@
+@startuml UC74_AdminQuanLySanPham
+actor Admin
+boundary ":AdminProductUI" as UI
+control ":ProductController" as CTRL
+entity ":Product" as ENT
+entity ":CSDL" as DB
+
+Admin -> UI : 1: Truy cập trang "Product Management"
+activate UI
+
+UI -> CTRL : 2: getAllProducts(filters)
+activate CTRL
+CTRL -> DB : 3: GET /api/admin/products?...
+activate DB
+DB --> CTRL : 4: 200 OK {products: [...]}
+deactivate DB
+CTRL --> UI : 5: Hiển thị danh sách sản phẩm
+deactivate CTRL
+
+== Thêm món mới ==
+Admin -> UI : 6: Nhấn "Thêm món mới"
+UI --> Admin : 7: Mở form (Tên, Giá, Danh mục, Nhà hàng...)
+Admin -> UI : 8: Nhập thông tin, tải ảnh (Base64), nhấn "Save"
+UI -> CTRL : 9: createProduct(data)
+activate CTRL
+CTRL -> DB : 10: POST /api/admin/products
+activate DB
+DB --> CTRL : 11: 201 Created
+deactivate DB
+CTRL --> UI : 12: Thành công
+deactivate CTRL
+UI --> Admin : 13: Đóng modal, refresh danh sách
+
+== Thay đổi trạng thái (Toggle) ==
+Admin -> UI : 14: Nhấn nút gạt Status (Available/Unavailable)
+UI -> CTRL : 15: toggleProductAvailability(id)
+activate CTRL
+CTRL -> DB : 16: PATCH /api/admin/products/{id}/status
+activate DB
+DB --> CTRL : 17: 200 OK
+deactivate DB
+CTRL --> UI : 18: Thành công (Optimistic already updated)
+deactivate CTRL
+
+deactivate UI
+@enduml

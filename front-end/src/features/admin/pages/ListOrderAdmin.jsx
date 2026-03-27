@@ -281,10 +281,10 @@ const ListOrderAdmin = () => {
     });
 
     return (
-        <div className="bg-white text-slate-900 h-screen flex font-display">
+        <div className="bg-white dark:bg-slate-900 text-slate-900 dark:text-white h-screen flex font-display transition-colors duration-300">
             <SidebarAdmin />
 
-            <main className="flex-1 flex flex-col min-w-0 bg-[#f8fafc] dark:bg-background-dark h-screen overflow-y-auto w-full">
+            <main className="flex-1 flex flex-col min-w-0 bg-slate-50 dark:bg-slate-950 h-screen overflow-y-auto w-full">
                 <HeaderAdmin title="Quản lý đơn hàng" />
 
                 <div className="p-6 lg:p-8">
@@ -295,11 +295,11 @@ const ListOrderAdmin = () => {
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
                                 {/* Search */}
                                 <div className="col-span-1 md:col-span-2">
-                                    <label className="text-xs font-semibold text-slate-500 uppercase mb-2 block tracking-wider">Tìm kiếm nhanh</label>
+                                    <label className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase mb-2 block tracking-wider">Tìm kiếm nhanh</label>
                                     <div className="relative">
-                                        <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">search</span>
+                                        <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500">search</span>
                                         <input 
-                                            className="w-full pl-10 pr-4 py-2.5 rounded-xl border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 focus:ring-primary focus:border-primary" 
+                                            className="w-full pl-10 pr-4 py-2.5 rounded-xl border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:ring-primary focus:border-primary transition-colors" 
                                             placeholder="Mã đơn, Khách hàng, SĐT..." 
                                             type="text"
                                             value={searchInput}
@@ -309,20 +309,20 @@ const ListOrderAdmin = () => {
                                 </div>
                                 {/* Date Range */}
                                 <div className="col-span-1 md:col-span-2">
-                                    <label className="text-xs font-semibold text-slate-500 uppercase mb-2 block tracking-wider">Thời gian (Từ ngày - Đến ngày)</label>
+                                    <label className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase mb-2 block tracking-wider">Thời gian (Từ ngày - Đến ngày)</label>
                                     <div className="flex items-center gap-2">
                                         <div className="relative flex-1">
                                             <input 
-                                                className="w-full pl-4 pr-4 py-2.5 rounded-xl border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm focus:ring-primary focus:border-primary" 
+                                                className="w-full pl-4 pr-4 py-2.5 rounded-xl border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm text-slate-900 dark:text-white focus:ring-primary focus:border-primary transition-colors" 
                                                 type="date"
                                                 value={startDate}
                                                 onChange={(e) => setStartDate(e.target.value)}
                                             />
                                         </div>
-                                        <span className="text-slate-400">to</span>
+                                        <span className="text-slate-400 dark:text-slate-600">to</span>
                                         <div className="relative flex-1">
                                             <input 
-                                                className="w-full pl-4 pr-4 py-2.5 rounded-xl border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm focus:ring-primary focus:border-primary" 
+                                                className="w-full pl-4 pr-4 py-2.5 rounded-xl border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm text-slate-900 dark:text-white focus:ring-primary focus:border-primary transition-colors" 
                                                 type="date"
                                                 value={endDate}
                                                 onChange={(e) => setEndDate(e.target.value)}
@@ -333,9 +333,9 @@ const ListOrderAdmin = () => {
                             </div>
                             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                                 <div>
-                                    <label className="text-xs font-semibold text-slate-500 uppercase mb-2 block tracking-wider">Trạng thái</label>
+                                    <label className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase mb-2 block tracking-wider">Trạng thái</label>
                                     <select 
-                                        className="w-full px-4 py-2.5 rounded-xl border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm focus:ring-primary focus:border-primary"
+                                        className="w-full px-4 py-2.5 rounded-xl border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 text-sm text-slate-900 dark:text-white focus:ring-primary focus:border-primary transition-colors"
                                         value={statusFilter}
                                         onChange={handleStatusChange}
                                     >
@@ -350,9 +350,9 @@ const ListOrderAdmin = () => {
                                     </select>
                                 </div>
                                 <div>
-                                    <label className="text-xs font-semibold text-slate-500 uppercase mb-2 block tracking-wider">Nhà hàng</label>
+                                    <label className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase mb-2 block tracking-wider">Nhà hàng</label>
                                     <select 
-                                        className="w-full px-4 py-2.5 rounded-xl border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm focus:ring-primary focus:border-primary"
+                                        className="w-full px-4 py-2.5 rounded-xl border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm text-slate-900 dark:text-white focus:ring-primary focus:border-primary transition-colors"
                                         value={selectedRestaurantId}
                                         onChange={(e) => {
                                             setSelectedRestaurantId(e.target.value);
@@ -368,9 +368,9 @@ const ListOrderAdmin = () => {
                                     </select>
                                 </div>
                                 <div>
-                                    <label className="text-xs font-semibold text-slate-500 uppercase mb-2 block tracking-wider">Shipper</label>
+                                    <label className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase mb-2 block tracking-wider">Shipper</label>
                                     <select 
-                                        className="w-full px-4 py-2.5 rounded-xl border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm focus:ring-primary focus:border-primary"
+                                        className="w-full px-4 py-2.5 rounded-xl border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm text-slate-900 dark:text-white focus:ring-primary focus:border-primary transition-colors"
                                         value={selectedShipperId}
                                         onChange={(e) => {
                                             setSelectedShipperId(e.target.value);
@@ -393,21 +393,21 @@ const ListOrderAdmin = () => {
                             <div className="overflow-x-auto">
                                 <table className="w-full text-left border-collapse">
                                     <thead>
-                                        <tr className="border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50">
-                                            <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Mã đơn</th>
-                                            <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Khách hàng</th>
-                                            <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Nhà hàng</th>
-                                            <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Shipper</th>
-                                            <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Tổng tiền</th>
-                                            <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Trạng thái</th>
-                                            <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Thời gian tạo</th>
+                                        <tr className="border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50">
+                                            <th className="px-6 py-4 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Mã đơn</th>
+                                            <th className="px-6 py-4 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Khách hàng</th>
+                                            <th className="px-6 py-4 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Nhà hàng</th>
+                                            <th className="px-6 py-4 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Shipper</th>
+                                            <th className="px-6 py-4 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Tổng tiền</th>
+                                            <th className="px-6 py-4 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Trạng thái</th>
+                                            <th className="px-6 py-4 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Thời gian tạo</th>
                                             <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-right">Hành động</th>
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-slate-200 dark:divide-slate-800">
                                         {loading ? (
                                             <tr>
-                                                <td colSpan="8" className="px-6 py-10 text-center text-slate-500">Đang tải danh sách đơn hàng...</td>
+                                                <td colSpan="8" className="px-6 py-10 text-center text-slate-500 dark:text-slate-400 transition-colors">Đang tải danh sách đơn hàng...</td>
                                             </tr>
                                         ) : filteredOrders.length > 0 ? (
                                             filteredOrders.map((order) => (
@@ -417,10 +417,10 @@ const ListOrderAdmin = () => {
                                                         <div className="group/tooltip relative">
                                                             <p className="text-sm font-bold text-slate-900 dark:text-white">{order.fullName || order.userName || 'Khách lẻ'}</p>
                                                             <div className="flex items-center gap-1 mt-0.5">
-                                                                <span className="material-symbols-outlined text-[10px] text-slate-400">person</span>
-                                                                <p className="text-[10px] font-medium text-slate-500">Người nhận: {order.recipientName}</p>
+                                                                <span className="material-symbols-outlined text-[10px] text-slate-400 dark:text-slate-500">person</span>
+                                                                <p className="text-[10px] font-medium text-slate-500 dark:text-slate-400">Người nhận: {order.recipientName}</p>
                                                             </div>
-                                                            <p className="text-[10px] text-slate-400 font-medium ml-3.5">{order.recipientPhone}</p>
+                                                            <p className="text-[10px] text-slate-400 dark:text-slate-500 font-medium ml-3.5">{order.recipientPhone}</p>
                                                             <div className="absolute bottom-full left-0 mb-2 hidden group-hover/tooltip:block z-50 w-64 p-3 bg-slate-800 text-white text-xs rounded-lg shadow-xl border border-slate-700">
                                                                 <p className="font-bold border-b border-slate-700 pb-1 mb-1">Địa chỉ giao hàng:</p>
                                                                 {order.deliveryAddress}
@@ -432,10 +432,10 @@ const ListOrderAdmin = () => {
                                                     </td>
                                                     <td className="px-6 py-4">
                                                         <div className="flex items-center gap-2">
-                                                            <span className={`material-symbols-outlined text-sm ${order.shipperId ? 'text-primary' : 'text-slate-300'}`}>
+                                                            <span className={`material-symbols-outlined text-sm ${order.shipperId ? 'text-primary' : 'text-slate-300 dark:text-slate-700'}`}>
                                                                 {order.shipperId ? 'local_shipping' : 'pending_actions'}
                                                             </span>
-                                                            <span className={`text-sm font-medium ${order.shipperId ? 'text-slate-900 dark:text-white' : 'text-slate-400 italic'}`}>
+                                                            <span className={`text-sm font-medium ${order.shipperId ? 'text-slate-900 dark:text-white' : 'text-slate-400 dark:text-slate-600 italic'}`}>
                                                                 {getOrderShipper(order)}
                                                             </span>
                                                         </div>
@@ -446,7 +446,7 @@ const ListOrderAdmin = () => {
                                                             {order.status}
                                                         </span>
                                                     </td>
-                                                    <td className="px-6 py-4 text-xs text-slate-500">{formatDate(order.createdAt)}</td>
+                                                    <td className="px-6 py-4 text-xs text-slate-500 dark:text-slate-400">{formatDate(order.createdAt)}</td>
                                                     <td className="px-6 py-4 text-right">
                                                         <div className="flex items-center justify-end gap-2">
                                                             <button 
@@ -458,7 +458,7 @@ const ListOrderAdmin = () => {
                                                             </button>
                                                             <button 
                                                                 onClick={() => handleDeleteOrder(order.id)}
-                                                                className="size-8 rounded-lg flex items-center justify-center bg-slate-100 dark:bg-slate-800 text-red-500 hover:bg-red-100 transition-colors" 
+                                                                className="size-8 rounded-lg flex items-center justify-center bg-slate-100 dark:bg-slate-800 text-red-500 hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors" 
                                                                 title="Xóa đơn hàng"
                                                             >
                                                                 <span className="material-symbols-outlined text-[18px]">delete</span>
@@ -469,7 +469,7 @@ const ListOrderAdmin = () => {
                                             ))
                                         ) : (
                                             <tr>
-                                                <td colSpan="8" className="px-6 py-10 text-center text-slate-500">Không tìm thấy đơn hàng nào.</td>
+                                                <td colSpan="8" className="px-6 py-10 text-center text-slate-500 dark:text-slate-400">Không tìm thấy đơn hàng nào.</td>
                                             </tr>
                                         )}
                                     </tbody>
@@ -478,12 +478,12 @@ const ListOrderAdmin = () => {
 
                             {/* Pagination */}
                             <div className="px-6 py-4 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between">
-                                <p className="text-sm text-slate-500">Hiển thị {page * 10 + 1}-{Math.min((page + 1) * 10, totalElements)} trên tổng số {totalElements} đơn hàng</p>
+                                <p className="text-sm text-slate-500 dark:text-slate-400">Hiển thị {page * 10 + 1}-{Math.min((page + 1) * 10, totalElements)} trên tổng số {totalElements} đơn hàng</p>
                                 <div className="flex items-center gap-1">
                                     <button 
                                         disabled={page === 0}
                                         onClick={() => setPage(p => Math.max(0, p - 1))}
-                                        className="size-9 rounded-lg flex items-center justify-center border border-slate-200 dark:border-slate-700 text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-50"
+                                        className="size-9 rounded-lg flex items-center justify-center border border-slate-200 dark:border-slate-700 text-slate-400 dark:text-slate-500 bg-white dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors disabled:opacity-50"
                                     >
                                         <span className="material-symbols-outlined">chevron_left</span>
                                     </button>
@@ -499,7 +499,7 @@ const ListOrderAdmin = () => {
                                     <button 
                                         disabled={page === totalPages - 1}
                                         onClick={() => setPage(p => Math.min(totalPages - 1, p + 1))}
-                                        className="size-9 rounded-lg flex items-center justify-center border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-50"
+                                        className="size-9 rounded-lg flex items-center justify-center border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 bg-white dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors disabled:opacity-50"
                                     >
                                         <span className="material-symbols-outlined">chevron_right</span>
                                     </button>

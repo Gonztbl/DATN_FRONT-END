@@ -1,0 +1,63 @@
+@startuml UC05_QuanLyKhuonMat
+title UC05 - Quản lý khuôn mặt
+
+autonumber "<b>[00]</b>"
+skinparam sequenceArrowThickness 2
+skinparam roundcorner 10
+skinparam defaultFontSize 20
+skinparam titleFontSize 26
+skinparam sequenceFontSize 19
+skinparam sequenceMessageFontSize 20
+skinparam sequenceActorFontSize 20
+skinparam sequenceParticipantFontSize 20
+skinparam noteFontSize 18
+skinparam sequenceArrowFontSize 20
+skinparam sequence {
+    ParticipantPadding 30
+    LifeLinePadding 20
+    MessagePadding 10
+}
+
+actor "Người dùng" as User
+boundary ":FaceManageUI" as UI
+control ":FaceController" as CTRL
+entity ":FaceEmbedding" as API
+database ":CSDL" as DB
+
+User -> UI : Truy cập trang quản lý khuôn mặt
+activate UI
+
+UI -> CTRL : Lấy danh sách mẫu đã đăng ký
+activate CTRL
+CTRL -> API : GET /api/face/embeddings
+activate API
+API -> DB : Truy vấn danh sách mẫu khuôn mặt
+activate DB
+DB --> API : Thông tin các mẫu (Front, Left, Right)
+deactivate DB
+API --> CTRL : Trả về dữ liệu chi tiết
+deactivate API
+CTRL --> UI : Hiển thị danh sách mẫu lên màn hình
+deactivate CTRL
+
+User -> UI : Nhấn "Xóa" một mẫu khuôn mặt
+UI -> UI : Hiển thị hộp thoại xác nhận xóa
+User -> UI : Xác nhận đồng ý xóa
+
+UI -> CTRL : Gửi yêu cầu xóa mẫu ID
+activate CTRL
+CTRL -> API : DELETE /api/face/embeddings/{id}
+activate API
+API -> DB : Xóa dữ liệu mẫu tương ứng
+activate DB
+DB --> API : Thành công
+deactivate DB
+API --> CTRL : Thông báo đã xóa thành công
+deactivate API
+CTRL --> UI : Cập nhật lại danh sách hiển thị
+deactivate CTRL
+
+UI --> User : Thông báo mẫu đã được xóa
+deactivate UI
+
+@enduml

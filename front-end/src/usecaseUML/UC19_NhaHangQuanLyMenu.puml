@@ -1,0 +1,76 @@
+@startuml UC19_NhaHangQuanLyMenu
+title UC19 - Nhà hàng quản lý thực đơn (Menu Management)
+
+autonumber "<b>[00]</b>"
+skinparam sequenceArrowThickness 2
+skinparam roundcorner 10
+skinparam defaultFontSize 20
+skinparam titleFontSize 26
+skinparam sequenceFontSize 19
+skinparam sequenceMessageFontSize 20
+skinparam sequenceActorFontSize 20
+skinparam sequenceParticipantFontSize 20
+skinparam noteFontSize 18
+skinparam sequenceArrowFontSize 20
+skinparam sequence {
+    ParticipantPadding 30
+    LifeLinePadding 20
+    MessagePadding 10
+}
+
+actor "Chủ nhà hàng" as Merchant
+boundary ":MenuManageUI" as UI
+control ":ProductController" as CTRL
+entity ":Product" as API
+database ":CSDL" as DB
+
+Merchant -> UI : Truy cập trang quản lý món ăn
+activate UI
+
+UI -> CTRL : Lấy thực đơn hiện tại
+activate CTRL
+CTRL -> API : GET /api/merchant/products
+activate API
+API -> DB : Truy vấn danh sách món ăn của nhà hàng
+activate DB
+DB --> API : Danh sách Product[]
+deactivate DB
+API --> CTRL : Dữ liệu Menu
+deactivate API
+CTRL --> UI : Hiển thị lưới món ăn
+deactivate CTRL
+
+Merchant -> UI : Nhấn "Thêm Món Mới"
+UI -> UI : Hiển thị Form nhập liệu
+
+Merchant -> UI : Nhấn "Lưu Sản Phẩm"
+UI -> CTRL : Gửi dữ liệu món mới (kèm Ảnh Base64)
+activate CTRL
+CTRL -> API : POST /api/merchant/products
+activate API
+API -> DB : INSERT Sản phẩm mới
+activate DB
+DB --> API : Thành công {id}
+deactivate DB
+API --> CTRL : Product Created
+deactivate API
+CTRL --> UI : Thông báo thành công & Tải lại Menu
+deactivate CTRL
+
+Merchant -> UI : Nhấn "Sửa" hoặc "Xóa" món
+UI -> CTRL : Gửi yêu cầu PUT/DELETE món #{id}
+activate CTRL
+CTRL -> API : Gửi Request tương ứng
+activate API
+API -> DB : Thực hiện cập nhật DB
+activate DB
+DB --> API : Kết quả
+deactivate DB
+API --> CTRL : Phản hồi thành công
+deactivate API
+CTRL --> UI : Sync lại giao diện
+deactivate CTRL
+
+deactivate UI
+
+@enduml

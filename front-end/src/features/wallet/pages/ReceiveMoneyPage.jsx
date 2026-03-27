@@ -6,9 +6,10 @@ import walletService from "../api/walletService";
 import qrService from "../../../api/qrService";
 import transactionService from "../api/transactionService";
 import { showSuccess, showError, showWarning, showAlert } from "../../../utils/swalUtils";
+import { useTheme } from "../../../context/ThemeContext";
 
 export default function ReceiveMoneyPage() {
-    const [isDark, setIsDark] = useState(false);
+    const { isDarkMode, toggleDarkMode } = useTheme();
     const { user, logout } = useAuth();
 
     const [profile, setProfile] = useState(null);
@@ -186,17 +187,17 @@ export default function ReceiveMoneyPage() {
 
     if (loading) {
         return (
-            <div className="min-h-screen bg-background-light dark:bg-background-dark flex items-center justify-center">
+            <div className="min-h-screen bg-background-light dark:bg-slate-900 flex items-center justify-center">
                 <div className="text-center">
                     <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
-                    <p className="mt-4 text-text-sub dark:text-gray-400">Loading...</p>
+                    <p className="mt-4 text-text-sub dark:text-slate-400">Loading...</p>
                 </div>
             </div>
         );
     }
 
     return (
-        <div className={`min-h-screen bg-background-light ${isDark ? "dark bg-background-dark" : ""} font-display text-text-main dark:text-white overflow-hidden`}>
+        <div className="min-h-screen bg-background-light dark:bg-slate-900 font-display text-text-main dark:text-white overflow-hidden">
             {/* Tailwind CDN + Config */}
             <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
             <script
@@ -236,9 +237,9 @@ export default function ReceiveMoneyPage() {
                 <Sidebar activeRoute="receive" />
 
                 {/* Main Content */}
-                <main className="flex-1 flex flex-col h-full overflow-y-auto bg-background-light dark:bg-background-dark">
+                <main className="flex-1 flex flex-col h-full overflow-y-auto bg-background-light dark:bg-slate-900">
                     {/* Mobile Header */}
-                    <div className="lg:hidden flex items-center justify-between p-4 bg-white dark:bg-[#1a2c22] border-b border-[#e6ece9] dark:border-[#2a3c32]">
+                    <div className="lg:hidden flex items-center justify-between p-4 bg-white dark:bg-slate-800 border-b border-[#e6ece9] dark:border-slate-800">
                         <div className="flex items-center gap-2">
                             <span className="material-symbols-outlined text-primary">qr_code_2</span>
                             <span className="font-bold text-lg">Receive</span>
@@ -256,16 +257,17 @@ export default function ReceiveMoneyPage() {
                                 <h2 className="text-[#111714] dark:text-white text-3xl md:text-4xl font-black leading-tight tracking-[-0.02em]">
                                     Receive Money
                                 </h2>
-                                <p className="text-[#648772] dark:text-[#93b3a2] text-base font-normal">
+                                <p className="text-[#648772] dark:text-slate-400 text-base font-normal">
                                     Share your QR code to receive payments instantly.
                                 </p>
                             </div>
                             <button
-                                onClick={() => setIsDark(!isDark)}
-                                className="flex items-center justify-center size-10 rounded-full bg-white dark:bg-[#1a2c22] border border-gray-200 dark:border-[#2a3c32] hover:bg-gray-50 dark:hover:bg-[#25382e] transition-colors"
+                                onClick={toggleDarkMode}
+                                className="size-10 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-primary/10 hover:text-primary transition-all flex items-center justify-center"
+                                title={isDarkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}
                             >
-                                <span className="material-symbols-outlined text-text-sub dark:text-gray-400">
-                                    {isDark ? "light_mode" : "dark_mode"}
+                                <span className="material-symbols-outlined transition-all">
+                                    {isDarkMode ? "light_mode" : "dark_mode"}
                                 </span>
                             </button>
                         </div>
@@ -274,9 +276,9 @@ export default function ReceiveMoneyPage() {
                             {/* LEFT COLUMN: QR Card & Actions */}
                             <div className="w-full xl:flex-1 flex flex-col items-center xl:items-start gap-8">
                                 {/* The QR Card */}
-                                <div className="group relative flex flex-col items-center w-full max-w-[420px] bg-white dark:bg-[#1a2c22] rounded-2xl shadow-[0_8px_30px_rgba(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgba(0,0,0,0.2)] border border-[#e6ece9] dark:border-[#2a3c32] overflow-hidden">
+                                <div className="group relative flex flex-col items-center w-full max-w-[420px] bg-white dark:bg-slate-800 rounded-2xl shadow-[0_8px_30px_rgba(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgba(0,0,0,0.2)] border border-[#e6ece9] dark:border-slate-800 overflow-hidden">
                                     {/* Card Decoration Top */}
-                                    <div className="absolute top-0 w-full h-32 bg-gradient-to-b from-[#f0fdf4] to-transparent dark:from-[#112117] dark:to-transparent opacity-80 z-0"></div>
+                                    <div className="absolute top-0 w-full h-32 bg-gradient-to-b from-[#f0fdf4] to-transparent dark:from-slate-900 dark:to-transparent opacity-80 z-0"></div>
 
                                     <div className="relative z-10 flex flex-col items-center w-full p-8 pb-10">
                                         {/* Profile Badge */}
@@ -294,7 +296,7 @@ export default function ReceiveMoneyPage() {
                                                 <h3 className="text-xl font-bold text-[#111714] dark:text-white tracking-tight">
                                                     {wallet?.accountName || profile?.fullName || 'User'}
                                                 </h3>
-                                                <p className="text-sm text-[#648772] dark:text-[#93b3a2]">
+                                                <p className="text-sm text-[#648772] dark:text-slate-400">
                                                     Wallet ID: {wallet?.walletId || '@wallet'}
                                                 </p>
                                             </div>
@@ -321,10 +323,10 @@ export default function ReceiveMoneyPage() {
 
                                         {/* Copy Address Field */}
                                         <div className="w-full">
-                                            <label className="block text-xs font-bold text-[#648772] dark:text-[#93b3a2] mb-1.5 ml-1 uppercase tracking-wider">
+                                            <label className="block text-xs font-bold text-[#648772] dark:text-slate-400 mb-1.5 ml-1 uppercase tracking-wider">
                                                 Account Number
                                             </label>
-                                            <div className="flex items-center justify-between gap-3 p-3 bg-[#f6f8f7] dark:bg-[#24362c] rounded-xl border border-transparent hover:border-primary/30 transition-colors">
+                                            <div className="flex items-center justify-between gap-3 p-3 bg-[#f6f8f7] dark:bg-slate-800 rounded-xl border border-transparent hover:border-primary/30 transition-colors">
                                                 <div className="flex items-center gap-3 overflow-hidden">
                                                     <div className="bg-primary/10 p-2 rounded-lg text-primary shrink-0">
                                                         <span className="material-symbols-outlined text-[20px]">wallet</span>
@@ -335,7 +337,7 @@ export default function ReceiveMoneyPage() {
                                                 </div>
                                                 <button
                                                     onClick={handleCopyAddress}
-                                                    className="p-2 text-[#648772] dark:text-[#93b3a2] hover:text-[#111714] dark:hover:text-white hover:bg-white dark:hover:bg-[#2a3c32] rounded-lg transition-all"
+                                                    className="p-2 text-[#648772] dark:text-slate-400 hover:text-[#111714] dark:hover:text-white hover:bg-white dark:hover:bg-slate-700 rounded-lg transition-all"
                                                     title="Copy Address"
                                                 >
                                                     <span className="material-symbols-outlined text-[20px]">content_copy</span>
@@ -356,14 +358,14 @@ export default function ReceiveMoneyPage() {
                                     </button>
                                     <button
                                         onClick={handleShare}
-                                        className="flex items-center justify-center gap-2 h-12 px-4 rounded-xl bg-white dark:bg-[#1a2c22] border border-[#e6ece9] dark:border-[#2a3c32] text-[#111714] dark:text-white font-bold text-sm hover:bg-[#f6f8f7] dark:hover:bg-[#24362c] transition-all"
+                                        className="flex items-center justify-center gap-2 h-12 px-4 rounded-xl bg-white dark:bg-slate-800 border border-[#e6ece9] dark:border-slate-800 text-[#111714] dark:text-white font-bold text-sm hover:bg-[#f6f8f7] dark:hover:bg-slate-700 transition-all"
                                     >
                                         <span className="material-symbols-outlined text-[20px]">share</span>
                                         Share
                                     </button>
                                     <button
                                         onClick={() => setShowAmountModal(true)}
-                                        className="flex items-center justify-center gap-2 h-12 px-4 rounded-xl bg-white dark:bg-[#1a2c22] border border-[#e6ece9] dark:border-[#2a3c32] text-[#111714] dark:text-white font-bold text-sm hover:bg-[#f6f8f7] dark:hover:bg-[#24362c] transition-all"
+                                        className="flex items-center justify-center gap-2 h-12 px-4 rounded-xl bg-white dark:bg-slate-800 border border-[#e6ece9] dark:border-slate-800 text-[#111714] dark:text-white font-bold text-sm hover:bg-[#f6f8f7] dark:hover:bg-slate-700 transition-all"
                                     >
                                         <span className="material-symbols-outlined text-[20px]">edit</span>
                                         Set Amount
@@ -374,7 +376,7 @@ export default function ReceiveMoneyPage() {
                             {/* RIGHT COLUMN: Recent Transactions Widget */}
                             <div className="w-full xl:w-[380px] flex flex-col gap-6">
                                 {/* Transaction List Widget */}
-                                <div className="bg-white dark:bg-[#1a2c22] rounded-2xl p-6 shadow-[0_2px_12px_rgba(0,0,0,0.03)] border border-[#e6ece9] dark:border-[#2a3c32]">
+                                <div className="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-[0_2px_12px_rgba(0,0,0,0.03)] border border-[#e6ece9] dark:border-slate-800">
                                     <div className="flex items-center justify-between mb-6">
                                         <h3 className="text-lg font-bold text-[#111714] dark:text-white">Recent Incoming</h3>
                                         <a className="text-xs font-bold text-primary hover:text-[#2bc465] flex items-center gap-1" href="#">
@@ -386,7 +388,7 @@ export default function ReceiveMoneyPage() {
                                             transactions.map((tx, index) => (
                                                 <div
                                                     key={tx.id || index}
-                                                    className="flex items-center justify-between p-3 -mx-3 rounded-xl hover:bg-[#f6f8f7] dark:hover:bg-[#24362c] transition-colors group cursor-pointer"
+                                                    className="flex items-center justify-between p-3 -mx-3 rounded-xl hover:bg-[#f6f8f7] dark:hover:bg-slate-700 transition-colors group cursor-pointer"
                                                 >
                                                     <div className="flex items-center gap-3">
                                                         <div className={`size-10 rounded-full ${tx.type === 'TRANSFER_IN' ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 border-blue-100 dark:border-blue-900/30' :
@@ -399,7 +401,7 @@ export default function ReceiveMoneyPage() {
                                                             <span className="text-sm font-bold text-[#111714] dark:text-white">
                                                                 {tx.description || 'Incoming Money'}
                                                             </span>
-                                                            <span className="text-xs text-[#648772] dark:text-[#93b3a2]">
+                                                            <span className="text-xs text-[#648772] dark:text-slate-400">
                                                                 {formatDate(tx.date)}
                                                             </span>
                                                         </div>
@@ -418,7 +420,7 @@ export default function ReceiveMoneyPage() {
                                                 </div>
                                             ))
                                         ) : (
-                                            <p className="text-center text-[#648772] dark:text-[#93b3a2] py-8">
+                                            <p className="text-center text-[#648772] dark:text-slate-400 py-8">
                                                 No recent incoming transactions
                                             </p>
                                         )}
@@ -426,14 +428,14 @@ export default function ReceiveMoneyPage() {
                                 </div>
 
                                 {/* Help / Tip Widget */}
-                                <div className="relative overflow-hidden bg-gradient-to-br from-primary/10 to-blue-500/5 dark:from-primary/5 dark:to-blue-500/5 rounded-2xl p-6 border border-primary/20">
+                                <div className="relative overflow-hidden bg-gradient-to-br from-primary/10 to-blue-500/5 dark:from-primary/10 dark:to-blue-500/5 rounded-2xl p-6 border border-primary/20">
                                     <div className="relative z-10 flex gap-4">
-                                        <div className="bg-white dark:bg-[#1a2c22] p-2.5 rounded-xl text-primary shadow-sm h-fit">
+                                        <div className="bg-white dark:bg-slate-800 p-2.5 rounded-xl text-primary shadow-sm h-fit">
                                             <span className="material-symbols-outlined text-[24px]">contact_support</span>
                                         </div>
                                         <div className="flex flex-col gap-2">
                                             <h4 className="text-[#111714] dark:text-white font-bold text-sm">Scan trouble?</h4>
-                                            <p className="text-[#648772] dark:text-[#93b3a2] text-xs leading-relaxed">
+                                            <p className="text-[#648772] dark:text-slate-400 text-xs leading-relaxed">
                                                 Ensure you are in a well-lit environment and the camera lens is clean.
                                             </p>
                                             <button className="text-left text-xs font-bold text-[#111714] dark:text-white underline decoration-primary decoration-2 underline-offset-2 hover:text-primary transition-colors">
@@ -453,14 +455,14 @@ export default function ReceiveMoneyPage() {
             {/* Set Amount Modal */}
             {showAmountModal && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-                    <div className="bg-white dark:bg-[#1a2c22] rounded-2xl w-full max-w-md p-6 shadow-2xl border border-gray-100 dark:border-[#2a3c32]">
+                    <div className="bg-white dark:bg-slate-800 rounded-2xl w-full max-w-md p-6 shadow-2xl border border-gray-100 dark:border-slate-800">
                         <h3 className="text-xl font-bold mb-4 text-text-main dark:text-white">Set Amount</h3>
-                        <p className="text-sm text-text-sub dark:text-gray-400 mb-4">
+                        <p className="text-sm text-text-sub dark:text-slate-400 mb-4">
                             Generate a QR code with a specific amount for easy payment collection.
                         </p>
                         <div className="mb-6">
                             <label className="block text-sm font-medium mb-2 text-text-main dark:text-white">Amount</label>
-                            <div className="flex items-center gap-2 bg-gray-50 dark:bg-[#25382e] rounded-xl px-4 py-3 border border-gray-200 dark:border-[#2a3c32]">
+                            <div className="flex items-center gap-2 bg-gray-50 dark:bg-slate-800 rounded-xl px-4 py-3 border border-gray-200 dark:border-slate-800">
                                 <span className="text-text-main dark:text-white font-medium">$</span>
                                 <input
                                     type="number"

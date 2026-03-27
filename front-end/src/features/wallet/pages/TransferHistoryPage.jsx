@@ -5,7 +5,10 @@ import TransferService from "../api/transfer/transferService";
 import walletService from "../api/walletService";
 import qrService from "../../../api/qrService";
 import userService from "../../profile/api/userService";
+import { formatVND } from "../utils";
 import { showSuccess, showError, showWarning, showAlert } from "../../../utils/swalUtils";
+import { useTheme } from "../../../context/ThemeContext";
+import Sidebar from "../../../components/layout/Sidebar";
 const HISTORY_CACHE_KEY = "transfer_history_cache";
 const PAGE_SIZE = 10;
 
@@ -18,6 +21,7 @@ const STATUS_STYLE = {
 export default function TransferHistoryPage() {
     const navigate = useNavigate();
     const { user } = useAuth();
+    const { isDarkMode, toggleDarkMode } = useTheme();
 
     /* WALLET */
     const [wallet, setWallet] = useState(null);
@@ -101,11 +105,34 @@ export default function TransferHistoryPage() {
         }
     };
 
+    const extractNumericId = (str) => {
+        const match = str?.match(/\d+/);
+        return match ? parseInt(match[0], 10) : null;
+    };
+
     const refreshWallet = async () => {
         try {
-            const user = await userService.getCurrentUser();
-            if (user && user.wallet) {
-                setWallet(user.wallet);
+            const [userData, walletMe, walletBalance] = await Promise.all([
+                userService.getCurrentUser().catch(() => null),
+                walletService.getWalletInfo().catch(() => null),
+                walletService.getBalance().catch(() => null),
+            ]);
+
+            const numericIdFromUser = userData?.wallet?.id;
+            const numericIdFromWalletMe = typeof walletMe?.id === 'number' ? walletMe.id : null;
+            const numericIdFromExtraction = extractNumericId(walletMe?.walletId);
+            const finalWalletId = numericIdFromUser ?? numericIdFromWalletMe ?? numericIdFromExtraction;
+
+            const walletData = {
+                ...(walletMe || {}),
+                id: finalWalletId,
+                availableBalance: walletBalance?.availableBalance ?? walletBalance?.balance ?? userData?.wallet?.availableBalance ?? walletMe?.balance ?? 0,
+                accountNumber: walletMe?.accountNumber ?? userData?.wallet?.accountNumber,
+                accountName: walletMe?.accountName ?? userData?.wallet?.accountName,
+            };
+
+            if (walletData.id) {
+                setWallet(walletData);
             }
         } catch (error) {
             console.error("Failed to load wallet info", error);
@@ -282,39 +309,44 @@ export default function TransferHistoryPage() {
     };
 
     return (
-        <div className="dark bg-background-white min-h-screen font-display text-white">
-            {/*  TOP NAV  */}
-            <header className="sticky top-0 z-50 w-full bg-white backdrop-blur-md border-b border-border-dark pt-8 pb-5">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <section className="flex-1 flex flex-col gap-6">
-                        <div>
-                            <button
-                                onClick={() => navigate("/dashboard")}
-                                className="flex items-center gap-2 text-[#648772] hover:text-primary transition-colors mb-4"
-                            >
-                                <span className="material-symbols-outlined">arrow_back</span>
-                                <span className="font-medium">Back to Dashboard</span>
-                            </button>
-                        </div>
-                    </section>
+        <div className="min-h-screen bg-[#f6f8f7] dark:bg-slate-900 font-display text-[#111714] dark:text-white overflow-hidden">
+            <div className="flex h-screen w-full">
+                {/* Sidebar */}
+                <Sidebar activeRoute="transactions" />
+
+                {/* Main Content */}
+                <main className="flex-1 flex flex-col h-full overflow-y-auto bg-[#f6f8f7] dark:bg-slate-900">
+                {/* Mobile Header */}
+                <div className="lg:hidden flex items-center justify-between p-4 bg-white dark:bg-slate-800 border-b border-gray-200 dark:border-slate-800">
+                    <div className="flex items-center gap-2">
+                        <span className="material-symbols-outlined text-primary">swap_horiz</span>
+                        <span className="font-bold text-lg">Transactions</span>
+                    </div>
+                    <button
+                        onClick={toggleDarkMode}
+                        className="size-10 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-primary/10 hover:text-primary transition-all flex items-center justify-center"
+                    >
+                        <span className="material-symbols-outlined transition-all">
+                            {isDarkMode ? "light_mode" : "dark_mode"}
+                        </span>
+                    </button>
                 </div>
-            </header>
 
 
-            {/*  MAIN  */}
-            <main className="flex-grow w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                {/*  MAIN CONTENT  */}
+                <div className="flex-grow w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                 {/* PAGE HEADING */}
                 <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
                     <div className="flex flex-col gap-2">
-                        <h1 className="text-4xl font-black tracking-tight text-black">
+                        <h1 className="text-4xl font-black tracking-tight text-[#111714] dark:text-white">
                             Transfer &amp; Receive
                         </h1>
-                        <p className="text-black text-base">
+                        <p className="text-[#648772] dark:text-slate-400 text-base">
                             Manage your transactions securely and instantly.
                         </p>
                     </div>
                     <div className="flex gap-3">
-                        <button className="flex items-center gap-2 px-4 py-2 rounded-full bg-surface-dark border border-border-dark text-white hover:bg-[#232e27] transition-all">
+                        <button className="flex items-center gap-2 px-4 py-2 rounded-full bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-800 text-[#111714] dark:text-white hover:bg-[#f6f8f7] dark:hover:bg-slate-700 transition-all">
                             <span className="material-symbols-outlined text-sm">
                                 settings
                             </span>
@@ -327,40 +359,48 @@ export default function TransferHistoryPage() {
                 {/*  SEND / RECEIVE  */}
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-10">
                     {/* SEND MONEY PANEL */}
-                    <div className="lg:col-span-7 flex flex-col bg-white border border-gray-200 rounded-xl overflow-hidden shadow-lg">
+                    <div className="lg:col-span-7 flex flex-col bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-800 rounded-xl overflow-hidden shadow-lg">
                         {/* Tabs Header */}
-                        <div className="flex border-b border-gray-200 bg-white">
-                            <button className="flex-1 py-4 text-center border-b-2 border-primary bg-white">
-                                <span className="text-black text-sm font-bold tracking-wide">
+                        <div className="flex border-b border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-800">
+                            <button className="flex-1 py-4 text-center border-b-2 border-primary bg-white dark:bg-slate-800">
+                                <span className="text-[#111714] dark:text-white text-sm font-bold tracking-wide">
                                     Send Money
                                 </span>
                             </button>
-                            <button className="flex-1 py-4 text-center border-b-2 border-transparent hover:bg-gray-100 transition-colors group">
-                                <span className="text-black group-hover:text-black text-sm font-bold tracking-wide">
+                            <button className="flex-1 py-4 text-center border-b-2 border-transparent hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors group">
+                                <span className="text-[#111714] dark:text-white text-sm font-bold tracking-wide">
                                     Request
                                 </span>
                             </button>
                         </div>
 
-
                         <div className="p-6 md:p-8 flex flex-col gap-6">
                             {/* Select Receiver Wallet */}
-                            <label className="text-black text-base font-medium">
+                            <label className="text-[#111714] dark:text-white text-base font-medium">
                                 Receiver Wallet
                             </label>
-                            <input
-                                type="text"
-                                placeholder="Enter phone number..."
-                                value={searchPhone}
-                                onChange={(e) => setSearchPhone(e.target.value)}
-                                className="w-full h-14 border border-gray-300 rounded-xl px-4 text-black disabled:bg-gray-100"
-                                onKeyDown={(e) => {
-                                    if (e.key === "Enter") {
-                                        e.preventDefault();
-                                        handleSearchNow();
-                                    }
-                                }}
-                            />
+                            <div className="flex gap-2">
+                                <input
+                                    type="text"
+                                    placeholder="Enter phone number..."
+                                    value={searchPhone}
+                                    onChange={(e) => setSearchPhone(e.target.value)}
+                                    className="flex-1 h-14 border border-gray-300 dark:border-slate-800 rounded-xl px-4 text-[#111714] dark:text-white bg-white dark:bg-slate-800 disabled:bg-gray-100"
+                                    onKeyDown={(e) => {
+                                        if (e.key === "Enter") {
+                                            e.preventDefault();
+                                            handleSearchNow();
+                                        }
+                                    }}
+                                />
+                                <button
+                                    onClick={handleSearchNow}
+                                    className="px-6 bg-primary hover:bg-primary/90 text-white rounded-xl font-bold transition-all flex items-center gap-2"
+                                >
+                                    <span className="material-symbols-outlined text-sm">search</span>
+                                    <span>Search</span>
+                                </button>
+                            </div>
                             {selectedWallet && (
                                 <div className="flex items-center justify-between p-3 rounded-xl border bg-green-50">
                                     <div>
@@ -409,41 +449,40 @@ export default function TransferHistoryPage() {
                             <div className="flex flex-col md:flex-row gap-6">
                                 {/* Amount Input */}
                                 <div className="flex-1 flex flex-col gap-3">
-                                    <label className="text-black text-base font-medium">
+                                    <label className="text-[#111714] dark:text-white text-base font-medium">
                                         Amount
                                     </label>
                                     <div className="relative">
-                                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-black text-2xl font-light">
+                                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#111714] dark:text-white text-2xl font-light">
                                             $
                                         </span>
                                         <input
                                             type="number"
                                             value={amount}
                                             onChange={(e) => setAmount(e.target.value)}
-                                            className="w-full h-20 bg-white border border-gray-300 rounded-xl pl-10 pr-4 text-4xl font-bold text-black"
+                                            className="w-full h-20 bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-800 rounded-xl pl-10 pr-4 text-4xl font-bold text-[#111714] dark:text-white"
                                             placeholder="0.00"
                                         />
                                     </div>
-                                    <p className="text-black text-sm flex items-center gap-1">
+                                    <p className="text-[#648772] dark:text-slate-400 text-sm flex items-center gap-1">
                                         <span className="material-symbols-outlined text-base">
                                             account_balance_wallet
                                         </span>
-                                        <span className="text-black font-medium">
-                                            Balance: ${wallet?.availableBalance?.toLocaleString() ?? wallet?.balance?.toLocaleString() ?? "—"}
+                                        <span className="font-medium">
+                                            Balance: {wallet ? formatVND(wallet.availableBalance ?? wallet.balance ?? 0) : "—"}
                                         </span>
                                     </p>
                                 </div>
 
-
                                 {/* Note */}
-                                <div className="flex-1 flex flex-col gap-3 text-black">
-                                    <label className="text-base font-medium">
+                                <div className="flex-1 flex flex-col gap-3">
+                                    <label className="text-[#111714] dark:text-white text-base font-medium">
                                         Note <span className="font-normal">(Optional)</span>
                                     </label>
                                     <textarea
                                         value={note}
                                         onChange={(e) => setNote(e.target.value)}
-                                        className="w-full h-20 bg-white border border-gray-300 rounded-xl p-4 text-black resize-none"
+                                        className="w-full h-20 bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-800 rounded-xl p-4 text-[#111714] dark:text-white resize-none"
                                         placeholder="What is this for?"
                                     />
                                 </div>
@@ -491,10 +530,10 @@ export default function TransferHistoryPage() {
 
                                     <div className="text-center">
                                         <h3 className="text-xl font-bold text-[#111714]">
-                                            {wallet?.accountName || "User"}
+                                            {wallet?.accountName || profile?.fullName || "User"}
                                         </h3>
                                         <p className="text-sm text-[#648772]">
-                                            Wallet ID: {wallet?.id || "—"}
+                                            Wallet ID: {wallet?.walletId || wallet?.id || "—"}
                                         </p>
                                     </div>
                                 </div>
@@ -566,7 +605,7 @@ export default function TransferHistoryPage() {
                 <div className="flex flex-col gap-6">
                     {/* Header + Filters */}
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                        <h3 className="text-black text-xl font-bold">
+                        <h3 className="text-[#111714] dark:text-white text-xl font-bold">
                             Transaction History
                         </h3>
                         <div className="flex items-center gap-2 overflow-x-auto pb-2 sm:pb-0">
@@ -578,13 +617,13 @@ export default function TransferHistoryPage() {
                                         setPage(0);
                                         setTimeRange(e.target.value);
                                     }}
-                                    className="appearance-none bg-surface-dark border border-border-dark text-black text-sm rounded-lg pl-3 pr-8 py-2 focus:ring-1 focus:ring-primary focus:border-primary outline-none cursor-pointer "
+                                    className="appearance-none bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-800 text-[#111714] dark:text-white text-sm rounded-lg pl-3 pr-8 py-2 focus:ring-1 focus:ring-primary focus:border-primary outline-none cursor-pointer"
                                 >
                                     <option value="30DAYS">Last 30 Days</option>
                                     <option value="3MONTHS">Last 3 Months</option>
                                     <option value="YEAR">This Year</option>
                                 </select>
-                                <span className="material-symbols-outlined absolute right-2 top-1/2 -translate-y-1/2 text-text-muted pointer-events-none text-lg">
+                                <span className="material-symbols-outlined absolute right-2 top-1/2 -translate-y-1/2 text-[#648772] dark:text-slate-400 pointer-events-none text-lg">
                                     expand_more
                                 </span>
                             </div>
@@ -598,20 +637,20 @@ export default function TransferHistoryPage() {
                                         setPage(0);
                                         setDirection(e.target.value);
                                     }}
-                                    className="appearance-none bg-surface-dark border border-border-dark text-black text-sm rounded-lg pl-3 pr-8 py-2 focus:ring-1 focus:ring-primary focus:border-primary outline-none cursor-pointer"
+                                    className="appearance-none bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-800 text-[#111714] dark:text-white text-sm rounded-lg pl-3 pr-8 py-2 focus:ring-1 focus:ring-primary focus:border-primary outline-none cursor-pointer"
                                 >
                                     <option value="ALL">All Types</option>
                                     <option value="OUT">Sent</option>
                                     <option value="IN">Received</option>
                                 </select>
-                                <span className="material-symbols-outlined absolute right-2 top-1/2 -translate-y-1/2 text-text-muted pointer-events-none text-lg">
+                                <span className="material-symbols-outlined absolute right-2 top-1/2 -translate-y-1/2 text-[#648772] dark:text-slate-400 pointer-events-none text-lg">
                                     expand_more
                                 </span>
                             </div>
 
 
                             {/* Extra filter button (UI only) */}
-                            <button className="bg-surface-dark border border-border-dark hover:border-primary text-text-muted hover:text-white rounded-lg p-2 transition-colors">
+                            <button className="bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-800 hover:border-primary text-[#648772] dark:text-slate-400 hover:text-primary rounded-lg p-2 transition-colors">
                                 <span className="material-symbols-outlined text-lg">
                                     filter_list
                                 </span>
@@ -621,10 +660,10 @@ export default function TransferHistoryPage() {
 
 
                     {/* Table */}
-                    <div className="overflow-x-auto rounded-xl border border-gray-200 bg-white">
+                    <div className="overflow-x-auto rounded-xl border border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-800">
                         <table className="w-full text-left border-collapse">
                             <thead>
-                                <tr className="bg-gray-50 border-b border-gray-200 text-black">
+                                <tr className="bg-gray-50 dark:bg-slate-800 border-b border-gray-200 dark:border-slate-800 text-[#111714] dark:text-white">
                                     <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider">
                                         Date
                                     </th>
@@ -648,54 +687,50 @@ export default function TransferHistoryPage() {
                             </thead>
 
 
-                            <tbody className="divide-y divide-gray-200">
+                            <tbody className="divide-y divide-gray-200 dark:divide-slate-800">
                                 {transactions.map((tx) => (
                                     <tr
                                         key={tx.id}
-                                        className="group hover:bg-gray-100 transition-colors cursor-pointer"
+                                        className="group hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors cursor-pointer"
                                         onClick={() => navigate(`/transactions/${tx.id}`)}
                                     >
                                         {/* Date + time */}
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             <div className="flex flex-col">
-                                                <span className="text-black text-sm font-medium">
+                                                <span className="text-[#111714] dark:text-white text-sm font-medium">
                                                     {new Date(tx.createdAt).toLocaleDateString()}
                                                 </span>
-                                                <span className="text-gray-500 text-xs">
+                                                <span className="text-gray-500 dark:text-slate-400 text-xs">
                                                     {new Date(tx.createdAt).toLocaleTimeString()}
                                                 </span>
                                             </div>
                                         </td>
 
-
                                         {/* Entity / partner */}
                                         <td className="px-6 py-4 whitespace-nowrap">
-                                            <span className="text-black text-sm font-medium">
+                                            <span className="text-[#111714] dark:text-white text-sm font-medium">
                                                 {tx.partnerName}
                                             </span>
                                         </td>
 
-
                                         {/* Type */}
                                         <td className="px-6 py-4 whitespace-nowrap">
-                                            <span className="text-gray-600 text-sm">
+                                            <span className="text-gray-600 dark:text-slate-400 text-sm">
                                                 {tx.direction === "OUT" ? "Sent" : "Received"}
                                             </span>
                                         </td>
-
 
                                         {/* Amount */}
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             <span
                                                 className={`font-bold text-sm ${tx.direction === "OUT"
-                                                    ? "text-black"
+                                                    ? "text-[#111714] dark:text-white"
                                                     : "text-primary"
                                                     }`}
                                             >
-                                                {tx.direction === "OUT" ? "-" : "+"}${tx.amount}
+                                                {tx.direction === "OUT" ? "-" : "+"}{formatVND(tx.amount)}
                                             </span>
                                         </td>
-
 
                                         {/* Status */}
                                         <td className="px-6 py-4 whitespace-nowrap">
@@ -717,18 +752,16 @@ export default function TransferHistoryPage() {
                                             </div>
                                         </td>
 
-
                                         {/* Note */}
                                         <td className="px-6 py-4 whitespace-nowrap max-w-[200px]">
-                                            <span className="text-gray-600 text-sm truncate block">
+                                            <span className="text-gray-600 dark:text-slate-400 text-sm truncate block">
                                                 {tx.note}
                                             </span>
                                         </td>
 
-
                                         {/* Chevron */}
                                         <td className="px-6 py-4 whitespace-nowrap text-right">
-                                            <span className="material-symbols-outlined text-gray-400 group-hover:text-black text-lg">
+                                            <span className="material-symbols-outlined text-gray-400 group-hover:text-[#111714] dark:group-hover:text-white text-lg">
                                                 chevron_right
                                             </span>
                                         </td>
@@ -752,37 +785,35 @@ export default function TransferHistoryPage() {
 
 
                     {/* PAGINATION */}
-                    <div className="flex justify-between items-center px-2 text-black">
-                        <p className="text-black text-sm">
+                    <div className="flex justify-between items-center px-2 text-[#111714] dark:text-white">
+                        <p className="text-sm">
                             Showing{" "}
-                            <span className="font-medium">
-                                {start}–{end}
-                            </span>{" "}
+                            <span className="font-medium">{start}–{end}</span>{" "}
                             of{" "}
                             <span className="font-medium">{totalElements}</span>{" "}
                             transactions
                         </p>
-
-
                         <div className="flex gap-2">
                             <button
                                 disabled={page === 0}
                                 onClick={() => setPage((p) => p - 1)}
-                                className="px-3 py-1 rounded-lg border border-gray-300 text-gray-600 hover:text-black hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                className="px-3 py-1 rounded-lg border border-gray-300 dark:border-slate-800 text-gray-600 dark:text-slate-400 hover:text-[#111714] dark:hover:text-white hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                                 Previous
                             </button>
                             <button
                                 disabled={(page + 1) * PAGE_SIZE >= totalElements}
                                 onClick={() => setPage((p) => p + 1)}
-                                className="px-3 py-1 rounded-lg border border-gray-300 text-gray-600 hover:text-black hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                className="px-3 py-1 rounded-lg border border-gray-300 dark:border-slate-800 text-gray-600 dark:text-slate-400 hover:text-[#111714] dark:hover:text-white hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                                 Next
                             </button>
                         </div>
                     </div>
                 </div>
-            </main>
+                </div>
+                </main>
+            </div>
         </div>
     );
 }

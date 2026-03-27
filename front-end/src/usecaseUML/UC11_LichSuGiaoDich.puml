@@ -1,0 +1,70 @@
+@startuml UC11_LichSuGiaoDich
+title UC11 - Xem lịch sử giao dịch
+
+autonumber "<b>[00]</b>"
+skinparam sequenceArrowThickness 2
+skinparam roundcorner 10
+skinparam defaultFontSize 20
+skinparam titleFontSize 26
+skinparam sequenceFontSize 19
+skinparam sequenceMessageFontSize 20
+skinparam sequenceActorFontSize 20
+skinparam sequenceParticipantFontSize 20
+skinparam noteFontSize 18
+skinparam sequenceArrowFontSize 20
+skinparam sequence {
+    ParticipantPadding 30
+    LifeLinePadding 20
+    MessagePadding 10
+}
+
+actor "Người dùng" as User
+boundary ":HistoryUI" as UI
+control ":TransactionController" as CTRL
+entity ":Transaction" as API
+database ":CSDL" as DB
+
+User -> UI : Truy cập trang Lịch sử ví
+activate UI
+
+UI -> CTRL : Yêu cầu danh sách giao dịch (Page 1)
+activate CTRL
+
+CTRL -> API : GET /api/wallet/transactions?page=0
+activate API
+API -> DB : Truy vấn lịch sử theo UserID (Sắp xếp mới nhất)
+activate DB
+DB --> API : Danh sách giao dịch & Phân trang
+deactivate DB
+API --> CTRL : Trả về dữ liệu Transaction[]
+deactivate API
+CTRL --> UI : Hiển thị danh sách giao dịch
+deactivate CTRL
+
+User -> UI : Chọn bộ lọc (Lọc theo Loại / Thời gian)
+UI -> CTRL : Yêu cầu danh sách đã lọc
+activate CTRL
+CTRL -> API : GET /api/wallet/transactions?type=...
+activate API
+API -> DB : Truy vấn với các điều kiện lọc
+activate DB
+DB --> API : Kết quả lọc
+deactivate DB
+API --> CTRL : Dữ liệu đã lọc
+deactivate API
+CTRL --> UI : Cập nhật lại màn hình hiển thị
+deactivate CTRL
+
+User -> UI : Nhấn "Xem thêm" (Phân trang)
+UI -> CTRL : Tải thêm dữ liệu (Page 2)
+activate CTRL
+CTRL -> API : GET /api/wallet/transactions?page=1
+activate API
+API --> CTRL : Trình dữ liệu trang tiếp theo
+deactivate API
+CTRL --> UI : Append dữ liệu vào danh sách cũ
+deactivate CTRL
+
+deactivate UI
+
+@enduml

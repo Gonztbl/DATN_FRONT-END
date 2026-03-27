@@ -1,0 +1,60 @@
+@startuml UC01_DangNhap
+title UC01 - Đăng nhập hệ thống (Login)
+
+autonumber "<b>[00]</b>"
+skinparam sequenceArrowThickness 2
+skinparam roundcorner 10
+skinparam defaultFontSize 20
+skinparam titleFontSize 26
+skinparam sequenceFontSize 19
+skinparam sequenceMessageFontSize 20
+skinparam sequenceActorFontSize 20
+skinparam sequenceParticipantFontSize 20
+skinparam noteFontSize 18
+skinparam sequenceArrowFontSize 20
+skinparam sequence {
+    ParticipantPadding 30
+    LifeLinePadding 20
+    MessagePadding 10
+}
+
+actor "Người dùng" as User
+boundary ":LoginUI" as UI
+control ":AuthController" as CTRL
+entity ":BackendAPI" as API
+database ":CSDL" as DB
+
+User -> UI : Truy cập trang đăng nhập
+activate UI
+
+User -> UI : Nhập username và password
+UI -> UI : Kiểm tra dữ liệu hợp lệ (client)
+
+User -> UI : Nhấn nút "Đăng nhập"
+UI -> CTRL : Gửi thông tin đăng nhập
+activate CTRL
+
+CTRL -> API : POST /api/auth/login
+activate API
+
+API -> DB : Truy vấn thông tin người dùng
+activate DB
+DB --> API : Thông tin tài khoản & vai trò
+deactivate DB
+
+alt Xác thực thành công
+    API --> CTRL : Trả về JWT Token & User Info
+    CTRL --> UI : Đăng nhập thành công
+    UI -> CTRL : Lưu Session (Token/User)
+    UI -> UI : Điều hướng theo vai trò (Admin/Shipper/...)
+else Xác thực thất bại
+    API --> CTRL : Trả về lỗi (401/403)
+    deactivate API
+    CTRL --> UI : Hiển thị lỗi
+    deactivate CTRL
+    UI --> User : Thông báo lỗi cho người dùng
+end
+
+deactivate UI
+
+@enduml

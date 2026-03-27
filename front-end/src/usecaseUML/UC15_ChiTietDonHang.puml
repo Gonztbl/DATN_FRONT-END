@@ -1,0 +1,60 @@
+@startuml UC15_ChiTietDonHang
+title UC15 - Xem chi tiết đơn hàng (Order Tracking)
+
+autonumber "<b>[00]</b>"
+skinparam sequenceArrowThickness 2
+skinparam roundcorner 10
+skinparam defaultFontSize 20
+skinparam titleFontSize 26
+skinparam sequenceFontSize 19
+skinparam sequenceMessageFontSize 20
+skinparam sequenceActorFontSize 20
+skinparam sequenceParticipantFontSize 20
+skinparam noteFontSize 18
+skinparam sequenceArrowFontSize 20
+skinparam sequence {
+    ParticipantPadding 30
+    LifeLinePadding 20
+    MessagePadding 10
+}
+
+actor "Người dùng" as User
+boundary ":OrderDetailUI" as UI
+control ":OrderController" as CTRL
+entity ":Order" as API
+database ":CSDL" as DB
+
+User -> UI : Chọn đơn hàng cần xem chi tiết
+activate UI
+
+UI -> CTRL : Lấy chi tiết đơn hàng #{id}
+activate CTRL
+
+CTRL -> API : GET /api/orders/{id}
+activate API
+API -> DB : Truy vấn Đơn hàng & Sản phẩm & Shipper
+activate DB
+DB --> API : Thông tin tổng hợp
+deactivate DB
+API --> CTRL : Trả về dữ liệu chi tiết
+deactivate API
+
+CTRL --> UI : Hiển thị Trạng thái, Thông tin Shipper và Lộ trình
+deactivate CTRL
+
+alt Đơn hàng đang SHIPPING
+    UI -> UI : Khởi tạo bản đồ theo dõi (Tracking Map)
+    UI -> CTRL : Yêu cầu tọa độ thực tế Shipper (Polling)
+    activate CTRL
+    CTRL -> API : Lấy vị trí GPS Shipper
+    activate API
+    API --> CTRL : { lat, lng }
+    deactivate API
+    CTRL --> UI : Cập nhật vị trí trên bản đồ
+    deactivate CTRL
+end
+
+User -> UI : Nhấn "Quay lại" hoặc "Đánh giá"
+deactivate UI
+
+@enduml

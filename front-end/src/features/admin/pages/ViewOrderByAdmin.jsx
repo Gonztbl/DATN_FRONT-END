@@ -143,9 +143,9 @@ const ViewOrderByAdmin = () => {
 
     if (loading) {
         return (
-            <div className="bg-white text-slate-900 h-screen flex font-display">
+            <div className="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 min-h-screen flex font-display">
                 <SidebarAdmin />
-                <main className="flex-1 flex flex-col items-center justify-center bg-[#f8fafc] dark:bg-background-dark h-screen w-full">
+                <main className="flex-1 flex flex-col items-center justify-center bg-slate-50 dark:bg-slate-950 h-screen w-full">
                     <div className="size-12 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
                     <p className="mt-4 text-slate-500">Đang tải thông tin đơn hàng...</p>
                 </main>
@@ -155,9 +155,9 @@ const ViewOrderByAdmin = () => {
 
     if (!order) {
         return (
-            <div className="bg-white text-slate-900 h-screen flex font-display">
+            <div className="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 h-screen flex font-display">
                 <SidebarAdmin />
-                <main className="flex-1 flex flex-col items-center justify-center bg-[#f8fafc] dark:bg-background-dark h-screen w-full">
+                <main className="flex-1 flex flex-col items-center justify-center bg-slate-50 dark:bg-slate-950 h-screen w-full">
                     <span className="material-symbols-outlined text-6xl text-slate-300">error</span>
                     <p className="mt-4 text-slate-500">Không tìm thấy đơn hàng #{id}</p>
                     <button onClick={() => navigate('/admin/orders')} className="mt-4 text-primary font-bold">Quay lại danh sách</button>
@@ -167,10 +167,10 @@ const ViewOrderByAdmin = () => {
     }
 
     return (
-        <div className="bg-white text-slate-900 h-screen flex font-display">
+        <div className="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 min-h-screen flex font-display">
             <SidebarAdmin />
 
-            <main className="flex-1 flex flex-col min-w-0 bg-[#f8fafc] dark:bg-background-dark h-screen overflow-y-auto w-full">
+            <main className="flex-1 flex flex-col min-w-0 bg-slate-50 dark:bg-slate-950 h-screen overflow-y-auto w-full">
                 <HeaderAdmin title={`Chi tiết đơn hàng #${order.id}`} />
 
                 <div className="p-4 md:p-8 max-w-7xl mx-auto w-full">
@@ -184,10 +184,10 @@ const ViewOrderByAdmin = () => {
                                 <span className="material-symbols-outlined">arrow_back</span>
                             </button>
                             <div>
-                                <h1 className="text-xl font-bold tracking-tight">Chi tiết đơn hàng #{order.id}</h1>
+                                <h1 className="text-xl font-bold tracking-tight text-slate-900 dark:text-white">Chi tiết đơn hàng #{order.id}</h1>
                                 <div className="flex items-center gap-2 mt-0.5">
                                     <span className="inline-flex items-center rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">SmartPay Delivery</span>
-                                    <span className="text-xs text-slate-500">ID: {order.id}</span>
+                                    <span className="text-xs text-slate-500 dark:text-slate-400">ID: {order.id}</span>
                                 </div>
                             </div>
                         </div>
@@ -211,38 +211,38 @@ const ViewOrderByAdmin = () => {
                     {/* Order Summary Cards */}
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
                         <div className="bg-white dark:bg-slate-900 p-5 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm transition-all hover:shadow-md">
-                            <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Trạng thái đơn hàng</label>
+                            <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Trạng thái đơn hàng</label>
                             <select 
                                 value={selectedStatus}
                                 onChange={(e) => setSelectedStatus(e.target.value)}
                                 disabled={actionLoading}
-                                className="w-full bg-primary/10 border-none text-primary font-bold rounded-lg focus:ring-primary text-sm p-2.5 cursor-pointer"
+                                className="w-full bg-primary/10 dark:bg-primary/20 border-none text-primary font-bold rounded-lg focus:ring-primary text-sm p-2.5 cursor-pointer outline-none"
                             >
-                                <option value="PENDING">PENDING</option>
-                                <option value="CONFIRMED">CONFIRMED</option>
-                                <option value="PREPARING">PREPARING</option>
-                                <option value="READY">READY_FOR_PICKUP</option>
-                                <option value="DELIVERING">DELIVERING</option>
-                                <option value="COMPLETED">COMPLETED</option>
-                                <option value="CANCELLED">CANCELLED</option>
-                                <option value="DELIVERY_FAILED">DELIVERY_FAILED</option>
+                                <option value="PENDING" className="dark:bg-slate-900">PENDING</option>
+                                <option value="CONFIRMED" className="dark:bg-slate-900">CONFIRMED</option>
+                                <option value="PREPARING" className="dark:bg-slate-900">PREPARING</option>
+                                <option value="READY" className="dark:bg-slate-900">READY_FOR_PICKUP</option>
+                                <option value="DELIVERING" className="dark:bg-slate-900">DELIVERING</option>
+                                <option value="COMPLETED" className="dark:bg-slate-900">COMPLETED</option>
+                                <option value="CANCELLED" className="dark:bg-slate-900">CANCELLED</option>
+                                <option value="DELIVERY_FAILED" className="dark:bg-slate-900">DELIVERY_FAILED</option>
                             </select>
                         </div>
                         <div className="bg-white dark:bg-slate-900 p-5 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
-                            <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Ngày tạo</label>
-                            <div className="text-lg font-bold">{new Date(order.createdAt).toLocaleDateString('vi-VN')}</div>
+                            <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Ngày tạo</label>
+                            <div className="text-lg font-bold text-slate-900 dark:text-white">{new Date(order.createdAt).toLocaleDateString('vi-VN')}</div>
                             <div className="text-xs text-slate-400">{new Date(order.createdAt).toLocaleTimeString('vi-VN')}</div>
                         </div>
                         <div className="bg-white dark:bg-slate-900 p-5 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
-                            <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Tổng giá trị</label>
+                            <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Tổng giá trị</label>
                             <div className="text-lg font-bold text-primary">{formatCurrency(order.totalAmount)}</div>
                             <div className="text-xs text-slate-400">Đã bao gồm phí và VAT</div>
                         </div>
                         <div className="bg-white dark:bg-slate-900 p-5 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
-                            <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Phương thức thanh toán</label>
+                            <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Phương thức thanh toán</label>
                             <div className="flex items-center gap-2">
                                 <span className="material-symbols-outlined text-primary">account_balance_wallet</span>
-                                <div className="text-lg font-bold">{order.payment?.method || order.paymentMethod || order.payment_method || 'Ví SmartPay'}</div>
+                                <div className="text-lg font-bold text-slate-900 dark:text-white">{order.payment?.method || order.paymentMethod || order.payment_method || 'Ví SmartPay'}</div>
                             </div>
                             <div className="text-xs text-emerald-600 font-bold uppercase tracking-tighter mt-1 flex items-center gap-1">
                                 <span className="material-symbols-outlined text-xs">verified</span>
@@ -263,22 +263,22 @@ const ViewOrderByAdmin = () => {
                                     </div>
                                     <div className="space-y-3">
                                         <div>
-                                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tight mb-0.5">Người đặt đơn</p>
+                                            <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-tight mb-0.5">Người đặt đơn</p>
                                             <p className="font-bold text-slate-900 dark:text-slate-100">{order.fullName || order.userName || order.full_name || order.user_name || customerInfo?.fullName || customerInfo?.userName || 'N/A'}</p>
                                         </div>
                                         <div>
-                                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tight mb-0.5">Người nhận hàng</p>
+                                            <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-tight mb-0.5">Người nhận hàng</p>
                                             <p className="font-bold text-slate-900 dark:text-slate-100">
                                                 {order.deliveryInfo?.recipientName || order.recipientName || order.recipient_name || order.customer?.name || order.recipient?.name || order.shipping?.name || order.fullName || order.userName || customerInfo?.fullName || 'N/A'}
                                             </p>
-                                            <p className="text-sm text-slate-500 mt-0.5 whitespace-nowrap overflow-hidden text-ellipsis">
+                                            <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5 whitespace-nowrap overflow-hidden text-ellipsis">
                                                 {order.deliveryInfo?.recipientPhone || order.recipientPhone || order.recipient_phone || order.customer?.phone || order.recipient?.phone || order.shipping?.phone || customerInfo?.phone || 'N/A'}
                                             </p>
                                         </div>
                                     </div>
                                     <div className="mt-3 pt-3 border-t border-slate-100 dark:border-slate-800">
-                                        <p className="text-[10px] font-bold text-slate-400 mb-1 uppercase tracking-tight">Địa chỉ giao hàng</p>
-                                        <p className="text-xs leading-relaxed">
+                                        <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 mb-1 uppercase tracking-tight">Địa chỉ giao hàng</p>
+                                        <p className="text-xs leading-relaxed text-slate-600 dark:text-slate-300">
                                             {order.deliveryInfo?.deliveryAddress || order.deliveryAddress || order.delivery_address || order.customer?.address || order.recipient?.address || order.shipping?.address || order.address || customerInfo?.address || 'N/A'}
                                         </p>
                                     </div>
@@ -295,10 +295,10 @@ const ViewOrderByAdmin = () => {
                                         <h3 className="font-bold">Nhà hàng</h3>
                                     </div>
                                     <p className="font-bold text-slate-900 dark:text-slate-100">{restaurantInfo?.name || order.restaurant?.name || order.restaurantName || order.restaurant_name || `Nhà hàng #${order.restaurant?.id || order.restaurantId || order.restaurant_id || 'N/A'}`}</p>
-                                    <p className="text-sm text-slate-500 mt-1">{restaurantOwner ? `${restaurantOwner.fullName} - ${restaurantOwner.phone || 'N/A'}` : (order.restaurant?.phone || order.restaurantPhone || order.restaurant_phone || 'N/A')}</p>
+                                    <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">{restaurantOwner ? `${restaurantOwner.fullName} - ${restaurantOwner.phone || 'N/A'}` : (order.restaurant?.phone || order.restaurantPhone || order.restaurant_phone || 'N/A')}</p>
                                     <div className="mt-3 pt-3 border-t border-slate-100 dark:border-slate-800">
-                                        <p className="text-[10px] font-bold text-slate-400 mb-1 uppercase tracking-tight">Địa chỉ lấy hàng</p>
-                                        <p className="text-xs leading-relaxed">{order.restaurant?.address || order.restaurantAddress || order.restaurant_address || 'N/A'}</p>
+                                        <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 mb-1 uppercase tracking-tight">Địa chỉ lấy hàng</p>
+                                        <p className="text-xs leading-relaxed text-slate-600 dark:text-slate-300">{order.restaurant?.address || order.restaurantAddress || order.restaurant_address || 'N/A'}</p>
                                     </div>
                                 </div>
                                 <div className="bg-white dark:bg-slate-900 p-5 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
@@ -348,8 +348,8 @@ const ViewOrderByAdmin = () => {
                             {/* Items List */}
                             <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden mt-4">
                                 <div className="p-5 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center">
-                                    <h3 className="font-bold text-lg">Danh sách món ăn</h3>
-                                    <span className="text-xs font-bold text-slate-400 bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded-full uppercase tracking-tighter">
+                                    <h3 className="font-bold text-lg text-slate-900 dark:text-white">Danh sách món ăn</h3>
+                                    <span className="text-xs font-bold text-slate-400 dark:text-slate-500 bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded-full uppercase tracking-tighter">
                                         {(order.items || order.orderItems || []).length} món trong đơn
                                     </span>
                                 </div>
@@ -412,7 +412,7 @@ const ViewOrderByAdmin = () => {
                         <div className="flex flex-col gap-6">
                             {/* Timeline */}
                             <div className="bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm transition-all hover:shadow-md">
-                                <h3 className="font-bold text-lg mb-8 flex items-center gap-2">
+                                <h3 className="font-bold text-lg mb-8 flex items-center gap-2 text-slate-900 dark:text-white">
                                     <span className="material-symbols-outlined text-primary">history</span>
                                     Lịch trình đơn hàng
                                 </h3>
@@ -458,7 +458,7 @@ const ViewOrderByAdmin = () => {
 
                             {/* Actions Area */}
                             <div className="bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col gap-4">
-                                <h3 className="font-bold text-lg mb-2">Thao tác quản trị</h3>
+                                <h3 className="font-bold text-lg mb-2 text-slate-900 dark:text-white">Thao tác quản trị</h3>
                                 <div className="space-y-4">
                                     <div className="pt-2">
                                         <label className="block text-[10px] font-black text-rose-500 uppercase tracking-widest mb-3">Hủy đơn hàng</label>
@@ -466,13 +466,13 @@ const ViewOrderByAdmin = () => {
                                             <select 
                                                 value={cancelReason}
                                                 onChange={(e) => setCancelReason(e.target.value)}
-                                                className="w-full text-sm rounded-xl border-slate-200 dark:border-slate-800 dark:bg-slate-800 focus:border-rose-500 focus:ring-rose-500 h-11 px-3"
+                                                className="w-full text-sm rounded-xl border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:border-rose-500 focus:ring-rose-500 h-11 px-3 outline-none"
                                             >
-                                                <option value="">-- Lý do hủy đơn --</option>
-                                                <option value="Hết hàng">Sản phẩm hết hàng</option>
-                                                <option value="Khách hủy">Khách hàng yêu cầu hủy</option>
-                                                <option value="Sự cố">Sự cố vận hành/tài xế</option>
-                                                <option value="Khác">Lý do khác...</option>
+                                                <option value="" className="dark:bg-slate-900">-- Lý do hủy đơn --</option>
+                                                <option value="Hết hàng" className="dark:bg-slate-900">Sản phẩm hết hàng</option>
+                                                <option value="Khách hủy" className="dark:bg-slate-900">Khách hàng yêu cầu hủy</option>
+                                                <option value="Sự cố" className="dark:bg-slate-900">Sự cố vận hành/tài xế</option>
+                                                <option value="Khác" className="dark:bg-slate-900">Lý do khác...</option>
                                             </select>
                                             <button 
                                                 onClick={handleCancelOrder}

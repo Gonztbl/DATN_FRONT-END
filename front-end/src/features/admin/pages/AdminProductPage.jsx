@@ -272,7 +272,7 @@ export default function AdminProductPage() {
     const totalPages = Math.ceil(total / limit) || 1;
 
     return (
-        <div className="flex bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 min-h-screen">
+        <div className="flex bg-white dark:bg-slate-950 font-display text-slate-900 dark:text-slate-100 min-h-screen transition-colors duration-300">
             <SidebarAdmin />
             <main className="flex-1 flex flex-col min-w-0 bg-slate-50 dark:bg-slate-950 h-screen overflow-y-auto w-full">
                 <HeaderAdmin title="Product Management" />
@@ -287,7 +287,7 @@ export default function AdminProductPage() {
                         </div>
                         <button
                             onClick={handleOpenAdd}
-                            className="flex items-center gap-2 px-6 py-3 bg-primary text-slate-900 rounded-xl font-bold hover:shadow-lg hover:shadow-primary/30 transition-all"
+                            className="flex items-center gap-2 px-6 py-3 bg-primary text-slate-950 rounded-xl font-bold hover:shadow-lg hover:shadow-primary/30 transition-all h-12"
                         >
                             <span className="material-symbols-outlined">add_circle</span>
                             <span>Thêm món mới</span>
@@ -299,9 +299,9 @@ export default function AdminProductPage() {
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                             {/* Search */}
                             <div className="lg:col-span-2 relative">
-                                <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">search</span>
+                                <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500">search</span>
                                 <input
-                                    className="w-full pl-10 pr-4 py-3 bg-slate-50 dark:bg-slate-800 border-none rounded-xl focus:ring-2 focus:ring-primary text-slate-900 dark:text-slate-100 placeholder:text-slate-400"
+                                    className="w-full pl-10 pr-4 py-3 bg-slate-50 dark:bg-slate-800 border-none rounded-xl focus:ring-2 focus:ring-primary text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 transition-all"
                                     placeholder="Tìm kiếm tên món ăn..."
                                     type="text"
                                     value={searchQuery}
@@ -311,26 +311,26 @@ export default function AdminProductPage() {
                             {/* Category Filter */}
                             <div className="relative">
                                 <select
-                                    className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border-none rounded-xl focus:ring-2 focus:ring-primary text-slate-900 dark:text-slate-100"
+                                    className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border-none rounded-xl focus:ring-2 focus:ring-primary text-slate-900 dark:text-slate-100 transition-colors"
                                     value={categoryId}
                                     onChange={(e) => { setCategoryId(e.target.value); setPage(1); }}
                                 >
-                                    <option value="">Tất cả danh mục</option>
+                                    <option value="" className="dark:bg-slate-900">Tất cả danh mục</option>
                                     {categories.map(c => (
-                                        <option key={c.id} value={c.id}>{c.name}</option>
+                                        <option key={c.id} value={c.id} className="dark:bg-slate-900">{c.name}</option>
                                     ))}
                                 </select>
                             </div>
                             {/* Restaurant Filter */}
                             <div className="relative">
                                 <select
-                                    className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border-none rounded-xl focus:ring-2 focus:ring-primary text-slate-900 dark:text-slate-100"
+                                    className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border-none rounded-xl focus:ring-2 focus:ring-primary text-slate-900 dark:text-slate-100 transition-colors"
                                     value={restaurantId}
                                     onChange={(e) => { setRestaurantId(e.target.value); setPage(1); }}
                                 >
-                                    <option value="">Tất cả cửa hàng</option>
+                                    <option value="" className="dark:bg-slate-900">Tất cả cửa hàng</option>
                                     {restaurants.map(r => (
-                                        <option key={r.id} value={r.id}>{r.name}</option>
+                                        <option key={r.id} value={r.id} className="dark:bg-slate-900">{r.name}</option>
                                     ))}
                                 </select>
                             </div>
@@ -355,11 +355,11 @@ export default function AdminProductPage() {
                                 <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                                     {loading ? (
                                         <tr>
-                                            <td colSpan="8" className="px-6 py-4 text-center text-slate-500">Đang tải dữ liệu...</td>
+                                            <td colSpan="8" className="px-6 py-8 text-center text-slate-500 dark:text-slate-400">Đang tải dữ liệu...</td>
                                         </tr>
                                     ) : products.length === 0 ? (
                                         <tr>
-                                            <td colSpan="8" className="px-6 py-4 text-center text-slate-500">Không tìm thấy món ăn nào</td>
+                                            <td colSpan="8" className="px-6 py-4 text-center text-slate-500 dark:text-slate-400">Không tìm thấy món ăn nào</td>
                                         </tr>
                                     ) : (
                                         products.map((product) => (
@@ -424,7 +424,7 @@ export default function AdminProductPage() {
                                 <button
                                     onClick={() => setPage(page - 1)}
                                     disabled={page === 1}
-                                    className="px-3 py-1 rounded border border-slate-300 dark:border-slate-700 text-slate-600 dark:text-slate-400 disabled:opacity-50 hover:bg-slate-100 transition-colors"
+                                    className="px-3 py-1 rounded border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 disabled:opacity-50 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
                                 >
                                     <span className="material-symbols-outlined text-sm">chevron_left</span>
                                 </button>
@@ -433,7 +433,7 @@ export default function AdminProductPage() {
                                     <button
                                         key={idx}
                                         onClick={() => setPage(idx + 1)}
-                                        className={`px-3 py-1 rounded text-sm ${page === idx + 1 ? 'bg-primary text-slate-900 font-bold border-transparent' : 'border border-slate-300 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:bg-primary/10 transition-colors'}`}
+                                        className={`px-3 py-1 rounded text-sm transition-all ${page === idx + 1 ? 'bg-primary text-slate-950 font-bold border-transparent shadow-sm' : 'border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 hover:bg-primary/10 hover:border-primary/30 transition-colors'}`}
                                     >
                                         {idx + 1}
                                     </button>
@@ -442,7 +442,7 @@ export default function AdminProductPage() {
                                 <button
                                     onClick={() => setPage(page + 1)}
                                     disabled={page >= totalPages}
-                                    className="px-3 py-1 rounded border border-slate-300 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:bg-primary/10 transition-colors disabled:opacity-50"
+                                    className="px-3 py-1 rounded border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 disabled:opacity-50 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
                                 >
                                     <span className="material-symbols-outlined text-sm">chevron_right</span>
                                 </button>
@@ -457,13 +457,13 @@ export default function AdminProductPage() {
             {showModal && (
                 <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
                     {/* Add/Edit Modal */}
-                    <div className="bg-white dark:bg-slate-900 w-full max-w-2xl rounded-2xl shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200">
+                    <div className="bg-white dark:bg-slate-900 w-full max-w-2xl rounded-2xl shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200 border border-slate-200 dark:border-slate-800">
                         {/* Modal Header */}
-                        <div className="px-8 py-6 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center bg-slate-50/50 dark:bg-slate-800/30">
+                        <div className="px-8 py-6 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center bg-slate-50/50 dark:bg-slate-800/50">
                             <h3 className="text-xl font-black text-slate-900 dark:text-slate-100">
                                 {editingProduct ? 'Chi tiết món ăn' : 'Thêm món ăn mới'}
                             </h3>
-                            <button onClick={handleCloseModal} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+                            <button onClick={handleCloseModal} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors">
                                 <span className="material-symbols-outlined">close</span>
                             </button>
                         </div>
@@ -480,7 +480,7 @@ export default function AdminProductPage() {
                                             value={formData.name}
                                             onChange={handleChange}
                                             required
-                                            className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent text-slate-900 dark:text-slate-100"
+                                            className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent text-slate-900 dark:text-slate-100 transition-all placeholder:text-slate-400 dark:placeholder:text-slate-500"
                                             type="text"
                                             placeholder="Nhập tên món ăn"
                                         />
@@ -506,11 +506,11 @@ export default function AdminProductPage() {
                                         value={formData.category_id}
                                         onChange={handleChange}
                                         required
-                                        className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100"
+                                        className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 transition-colors"
                                     >
-                                        <option value="" disabled>Chọn danh mục</option>
+                                        <option value="" disabled className="dark:bg-slate-900">Chọn danh mục</option>
                                         {categories.map(c => (
-                                            <option key={c.id} value={c.id}>{c.name}</option>
+                                            <option key={c.id} value={c.id} className="dark:bg-slate-900">{c.name}</option>
                                         ))}
                                     </select>
                                 </label>
@@ -615,8 +615,8 @@ export default function AdminProductPage() {
 
                             {/* Form Actions footer directly included into the form via modal footer */}
                             <div className="pt-6 border-t border-slate-200 dark:border-slate-800 flex justify-end gap-3 mt-6">
-                                <button type="button" onClick={handleCloseModal} className="px-6 py-3 rounded-xl font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors">Hủy bỏ</button>
-                                <button type="submit" className="px-8 py-3 bg-primary text-slate-900 rounded-xl font-bold hover:shadow-lg hover:shadow-primary/30 transition-all">
+                                <button type="button" onClick={handleCloseModal} className="px-6 py-3 rounded-xl font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors font-display">Hủy bỏ</button>
+                                <button type="submit" className="px-8 py-3 bg-primary text-slate-950 rounded-xl font-bold hover:shadow-lg hover:shadow-primary/30 transition-all font-display">
                                     Lưu thay đổi
                                 </button>
                             </div>
@@ -628,13 +628,13 @@ export default function AdminProductPage() {
             {/* View Product Detail Modal */}
             {viewingProduct && (
                 <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
-                    <div className="bg-white dark:bg-slate-900 w-full max-w-2xl max-h-[90vh] rounded-2xl overflow-hidden shadow-2xl flex flex-col border border-slate-100 dark:border-slate-800 animate-in fade-in zoom-in duration-200">
+                    <div className="bg-white dark:bg-slate-900 w-full max-w-2xl max-h-[90vh] rounded-2xl overflow-hidden shadow-2xl flex flex-col border border-slate-200 dark:border-slate-800 animate-in fade-in zoom-in duration-200">
                         {/* Header */}
-                        <div className="px-8 py-6 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center bg-slate-50/50 dark:bg-slate-800/30">
+                        <div className="px-8 py-6 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center bg-slate-50/50 dark:bg-slate-800/50">
                             <h3 className="text-xl font-black text-slate-900 dark:text-slate-100">
                                 Chi tiết món ăn
                             </h3>
-                            <button onClick={handleCloseView} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+                            <button onClick={handleCloseView} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors">
                                 <span className="material-symbols-outlined">close</span>
                             </button>
                         </div>
@@ -711,7 +711,7 @@ export default function AdminProductPage() {
                         </div>
                         {/* Footer Spacer */}
                         <div className="px-8 py-5 border-t border-slate-100 dark:border-slate-800 flex justify-end">
-                            <button onClick={handleCloseView} className="px-6 py-2.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-900 dark:text-white rounded-xl font-bold transition-all">Đóng trang tính</button>
+                            <button onClick={handleCloseView} className="px-6 py-2.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-900 dark:text-white rounded-xl font-bold transition-all font-display">Đóng trang tính</button>
                         </div>
                     </div>
                 </div>

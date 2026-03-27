@@ -1,0 +1,61 @@
+@startuml UC12_ThongKeChi
+title UC12 - Thống kê chi tiêu (Spending Summary)
+
+autonumber "<b>[00]</b>"
+skinparam sequenceArrowThickness 2
+skinparam roundcorner 10
+skinparam defaultFontSize 20
+skinparam titleFontSize 26
+skinparam sequenceFontSize 19
+skinparam sequenceMessageFontSize 20
+skinparam sequenceActorFontSize 20
+skinparam sequenceParticipantFontSize 20
+skinparam noteFontSize 18
+skinparam sequenceArrowFontSize 20
+skinparam sequence {
+    ParticipantPadding 30
+    LifeLinePadding 20
+    MessagePadding 10
+}
+
+actor "Người dùng" as User
+boundary ":SpendingSummaryUI" as UI
+control ":SpendingController" as CTRL
+entity ":Transaction" as ENT
+database ":CSDL" as DB
+
+User -> UI : Truy cập trang Thống kê chi tiêu
+activate UI
+
+UI -> CTRL : Yêu cầu dữ liệu thống kê tháng hiện tại
+activate CTRL
+
+CTRL -> ENT : GET /api/wallet/spending-summary?period=month
+activate ENT
+ENT -> DB : Truy vấn & Tính tổng giao dịch theo Loại/Hạng mục
+activate DB
+DB --> ENT : Kết quả phân tích (TotalSpent, TotalReceived, breakdown[])
+deactivate DB
+ENT --> CTRL : Trả về dữ liệu thống kê
+deactivate ENT
+
+CTRL --> UI : Hiển thị Biểu đồ và Bảng tổng hợp
+deactivate CTRL
+
+User -> UI : Chọn khoảng thời gian khác (Tuần/Năm)
+UI -> CTRL : Yêu cầu dữ liệu theo kỳ mới
+activate CTRL
+CTRL -> ENT : Gửi yêu cầu thống kê (Tuần/Năm)
+activate ENT
+ENT -> DB : Phân tích dữ liệu theo khung giờ mới
+activate DB
+DB --> ENT : Kết quả thống kê mới
+deactivate DB
+ENT --> CTRL : Trả về dữ liệu
+deactivate ENT
+CTRL --> UI : Cập nhật biểu đồ thống kê
+deactivate CTRL
+
+deactivate UI
+
+@enduml

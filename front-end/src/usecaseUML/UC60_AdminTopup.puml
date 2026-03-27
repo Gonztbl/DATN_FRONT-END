@@ -1,0 +1,42 @@
+@startuml UC60_AdminTopup
+actor Admin
+boundary ":AdminWalletUI" as UI
+control ":WalletController" as CTRL
+entity ":Transaction" as ENT
+entity ":CSDL" as DB
+
+Admin -> UI : 1: Chọn ví, nhấn "Topup"
+activate UI
+
+UI --> Admin : 2: Hiển thị Modal Topup
+Admin -> UI : 3: Nhập số tiền (amount), nhấn "Confirm"
+
+UI -> UI : 4: Validate (amount > 0)
+
+UI -> CTRL : 5: adminTopup({walletId, amount})
+activate CTRL
+
+CTRL -> DB : 6: POST /api/admin/wallets/topup
+activate DB
+
+alt Topup thất bại
+    DB --> CTRL : 6.1: 4xx/5xx Error
+    CTRL --> UI : 6.2: Trả về lỗi
+    UI --> Admin : 6.3: Hiển thị thông báo lỗi
+else Thành công
+    DB --> CTRL : 7.1: 200 OK {success: true, newBalance}
+    deactivate DB
+
+    CTRL -> ENT : 7.2: Tạo Transaction (ADMIN_TOPUP)
+    activate ENT
+    ENT --> CTRL : 7.3: Đã tạo
+    deactivate ENT
+
+    CTRL --> UI : 7.4: Thành công
+    deactivate CTRL
+
+    UI --> Admin : 8: Hiển thị "Nạp tiền thành công", refresh danh sách
+end
+
+deactivate UI
+@enduml

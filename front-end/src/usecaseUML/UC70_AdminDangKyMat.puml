@@ -1,0 +1,37 @@
+@startuml UC70_AdminDangKyMat
+actor Admin
+boundary ":AdminFaceRegisterUI" as UI
+control ":FaceController" as CTRL
+entity ":CSDL" as DB
+
+Admin -> UI : 1: Truy cập trang đăng ký mặt cho User ID
+activate UI
+
+UI -> CTRL : 2: getUserInfo(id)
+activate CTRL
+CTRL -> DB : 3: GET /api/admin/users/{id}
+activate DB
+DB --> CTRL : 4: 200 OK {user}
+deactivate DB
+CTRL --> UI : 5: Hiển thị tên User
+deactivate CTRL
+
+UI --> Admin : 6: Hiển thị Video Stream & Hướng dẫn
+
+loop 3 tư thế (Chính diện, Trái, Phải)
+    Admin -> UI : 7: Nhấn "Capture"
+    UI -> CTRL : 8: registerFacePose({userId, imageBlob, pose})
+    activate CTRL
+    CTRL -> DB : 9: POST /api/admin/face/register
+    activate DB
+    DB --> CTRL : 10: 200 OK {success: true}
+    deactivate DB
+    CTRL --> UI : 11: Thành công
+    deactivate CTRL
+    UI --> Admin : 12: Hiển thị Preview nhỏ
+end
+
+UI --> Admin : 13: Thông báo hoàn tất đủ 3 mẫu
+UI -> UI : 14: Điều hướng về UserDetailPage
+deactivate UI
+@enduml

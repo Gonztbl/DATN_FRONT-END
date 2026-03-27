@@ -10,9 +10,10 @@ import TransferService from "../api/transfer/transferService";
 import qrService from "../../../api/qrService";
 import { useNotification } from "../../../context/NotificationContext";
 import { showSuccess, showError, showWarning, showAlert } from "../../../utils/swalUtils";
+import { useTheme } from "../../../context/ThemeContext";
 
 export default function DashboardPage() {
-    const [isDark, setIsDark] = useState(false);
+    const { isDarkMode, toggleDarkMode } = useTheme();
     const { user, logout } = useAuth();
     const navigate = useNavigate();
     const { showSuccess } = useNotification();
@@ -442,7 +443,7 @@ export default function DashboardPage() {
     };
 
     return (
-        <div className={`min-h-screen bg-background-light ${isDark ? "dark bg-background-dark" : ""} font-display text-text-main dark:text-white overflow-hidden`}>
+        <div className="min-h-screen bg-background-light dark:bg-slate-900 font-display text-text-main dark:text-white overflow-hidden">
             {/* Tailwind CDN + Config */}
             <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
             <script
@@ -482,17 +483,17 @@ export default function DashboardPage() {
                 <Sidebar activeRoute="dashboard" />
 
                 {/* Main Content */}
-                <main className="flex-1 flex flex-col h-full overflow-y-auto bg-background-light dark:bg-background-dark p-4 md:p-8">
+                <main className="flex-1 flex flex-col h-full overflow-y-auto bg-background-light dark:bg-slate-900 p-4 md:p-8">
                     {/* Header */}
                     <header className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
                         <div>
                             <h1 className="text-3xl font-bold text-text-main dark:text-white mb-1">Welcome back, {profile?.fullName || 'User'}! 👋</h1>
-                            <p className="text-text-sub dark:text-gray-400">Here's what's happening with your account today</p>
+                            <p className="text-text-sub dark:text-slate-400">Here's what's happening with your account today</p>
                         </div>
                         <div className="flex items-center gap-4">
                             {/* Search */}
-                            <div className="hidden md:flex items-center gap-2 bg-white dark:bg-[#1a2c22] px-4 py-2 rounded-full border border-gray-200 dark:border-[#2a3c32]">
-                                <span className="material-symbols-outlined text-text-sub dark:text-gray-400">search</span>
+                            <div className="hidden md:flex items-center gap-2 bg-white dark:bg-slate-800 px-4 py-2 rounded-full border border-gray-200 dark:border-slate-800">
+                                <span className="material-symbols-outlined text-text-sub dark:text-slate-400">search</span>
                                 <input
                                     type="text"
                                     placeholder="Search..."
@@ -501,20 +502,21 @@ export default function DashboardPage() {
                             </div>
                             {/* Dark Mode Toggle */}
                             <button
-                                onClick={() => setIsDark(!isDark)}
-                                className="flex items-center justify-center size-10 rounded-full bg-white dark:bg-[#1a2c22] border border-gray-200 dark:border-[#2a3c32] hover:bg-gray-50 dark:hover:bg-[#25382e] transition-colors"
+                                onClick={toggleDarkMode}
+                                className="size-10 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-primary/10 hover:text-primary transition-all flex items-center justify-center"
+                                title={isDarkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}
                             >
-                                <span className="material-symbols-outlined text-text-sub dark:text-gray-400">
-                                    {isDark ? "light_mode" : "dark_mode"}
+                                <span className="material-symbols-outlined transition-all">
+                                    {isDarkMode ? "light_mode" : "dark_mode"}
                                 </span>
                             </button>
                             {/* Notifications */}
                             <div className="relative notification-dropdown">
                                 <button
                                     onClick={() => setShowNotifications(!showNotifications)}
-                                    className="relative flex items-center justify-center size-10 rounded-full bg-white dark:bg-[#1a2c22] border border-gray-200 dark:border-[#2a3c32] hover:bg-gray-50 dark:hover:bg-[#25382e] transition-colors"
+                                    className="relative size-10 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-primary/10 hover:text-primary transition-all flex items-center justify-center"
                                 >
-                                    <span className="material-symbols-outlined text-text-sub dark:text-gray-400">notifications</span>
+                                    <span className="material-symbols-outlined text-text-sub dark:text-slate-400">notifications</span>
                                     {incomingTransactions.length > 0 && (
                                         <span className="absolute -top-1 -right-1 size-5 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">
                                             {incomingTransactions.length}
@@ -524,16 +526,16 @@ export default function DashboardPage() {
 
                                 {/* Notification Dropdown */}
                                 {showNotifications && (
-                                    <div className="absolute right-0 top-12 w-80 bg-white dark:bg-[#1a2c22] border border-gray-200 dark:border-[#2a3c32] rounded-xl shadow-lg z-50 max-h-96 overflow-y-auto">
-                                        <div className="p-4 border-b border-gray-200 dark:border-[#2a3c32]">
+                                    <div className="absolute right-0 top-12 w-80 bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-800 rounded-xl shadow-lg z-50 max-h-96 overflow-y-auto">
+                                        <div className="p-4 border-b border-gray-200 dark:border-slate-800">
                                             <h3 className="font-bold text-text-main dark:text-white">Incoming Transactions</h3>
-                                            <p className="text-xs text-text-sub dark:text-gray-400">Recent money received</p>
+                                            <p className="text-xs text-text-sub dark:text-slate-400">Recent money received</p>
                                         </div>
 
                                         {incomingTransactions.length > 0 ? (
-                                            <div className="divide-y divide-gray-100 dark:divide-[#2a3c32]">
+                                            <div className="divide-y divide-gray-100 dark:divide-slate-800">
                                                 {incomingTransactions.slice(0, 5).map((tx) => (
-                                                    <div key={tx.id} className="p-4 hover:bg-gray-50 dark:hover:bg-[#25382e] transition-colors">
+                                                    <div key={tx.id} className="p-4 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors">
                                                         <div className="flex items-start gap-3">
                                                             <div className="size-10 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center shrink-0">
                                                                 <span className="material-symbols-outlined text-green-600 dark:text-green-400 text-lg">arrow_downward</span>
@@ -542,10 +544,10 @@ export default function DashboardPage() {
                                                                 <p className="text-sm font-medium text-text-main dark:text-white truncate">
                                                                     {tx.partnerName || 'Received money'}
                                                                 </p>
-                                                                <p className="text-xs text-text-sub dark:text-gray-400 mt-0.5">
+                                                                <p className="text-xs text-text-sub dark:text-slate-400 mt-0.5">
                                                                     {tx.note || 'No note'}
                                                                 </p>
-                                                                <p className="text-xs text-text-sub dark:text-gray-400 mt-1">
+                                                                <p className="text-xs text-text-sub dark:text-slate-400 mt-1">
                                                                     {new Date(tx.createdAt).toLocaleString('vi-VN')}
                                                                 </p>
                                                             </div>
@@ -561,7 +563,7 @@ export default function DashboardPage() {
                                         ) : (
                                             <div className="p-8 text-center">
                                                 <span className="material-symbols-outlined text-4xl text-gray-300 dark:text-gray-600 mb-2">notifications_off</span>
-                                                <p className="text-sm text-text-sub dark:text-gray-400">No new notifications</p>
+                                                <p className="text-sm text-text-sub dark:text-slate-400">No new notifications</p>
                                             </div>
                                         )}
                                     </div>
@@ -570,10 +572,10 @@ export default function DashboardPage() {
                             {/* Logout */}
                             <button
                                 onClick={handleLogout}
-                                className="flex items-center justify-center size-10 rounded-full bg-white dark:bg-[#1a2c22] border border-gray-200 dark:border-[#2a3c32] hover:bg-red-50 dark:hover:bg-red-900/20 hover:border-red-200 dark:hover:border-red-800 transition-colors group"
+                                className="flex items-center justify-center size-10 rounded-full bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-800 hover:bg-red-50 dark:hover:bg-red-900/20 hover:border-red-200 dark:hover:border-red-800 transition-colors group"
                                 title="Logout"
                             >
-                                <span className="material-symbols-outlined text-text-sub dark:text-gray-400 group-hover:text-red-500">logout</span>
+                                <span className="material-symbols-outlined text-text-sub dark:text-slate-400 group-hover:text-red-500">logout</span>
                             </button>
                         </div>
                     </header>
@@ -623,10 +625,10 @@ export default function DashboardPage() {
                             </div>
 
                             {/* Chart */}
-                            <div className="bg-white dark:bg-[#1a2c22] rounded-xl p-6 border border-gray-100 dark:border-[#2a3c32]">
+                            <div className="bg-white dark:bg-slate-800 rounded-xl p-6 border border-gray-100 dark:border-slate-800">
                                 <div className="flex justify-between items-center mb-6">
                                     <h3 className="text-lg font-semibold text-text-main dark:text-white">Spending Analytics</h3>
-                                    <select className="bg-gray-50 dark:bg-[#25382e] border border-gray-200 dark:border-[#2a3c32] text-text-main dark:text-white text-sm rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-primary/50">
+                                    <select className="bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-800 text-text-main dark:text-white text-sm rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-primary/50">
                                         <option>Last 7 days</option>
                                         <option>Last 30 days</option>
                                         <option>Last 90 days</option>
@@ -645,14 +647,14 @@ export default function DashboardPage() {
                                                     ${item.amount?.toLocaleString() || '0'}
                                                 </div>
                                             </div>
-                                            <span className="text-xs text-text-sub dark:text-gray-400">
+                                            <span className="text-xs text-text-sub dark:text-slate-400">
                                                 {item.label}
                                             </span>
                                         </div>
                                     )) : (
                                         <div className="w-full text-center py-8">
                                             <span className="material-symbols-outlined text-4xl text-gray-300 dark:text-gray-600 mb-2 block">trending_up</span>
-                                            <p className="text-sm text-text-sub dark:text-gray-400">No spending data</p>
+                                            <p className="text-sm text-text-sub dark:text-slate-400">No spending data</p>
                                             <p className="text-xs text-text-sub dark:text-gray-500 mt-1">Make transactions to see analytics</p>
                                         </div>
                                     )}
@@ -660,21 +662,21 @@ export default function DashboardPage() {
                             </div>
 
                             {/* Recent Transactions */}
-                            <div className="bg-white dark:bg-[#1a2c22] rounded-xl p-6 border border-gray-100 dark:border-[#2a3c32]">
+                            <div className="bg-white dark:bg-slate-800 rounded-xl p-6 border border-gray-100 dark:border-slate-800">
                                 <div className="flex justify-between items-center mb-6">
                                     <h3 className="text-lg font-semibold text-text-main dark:text-white">Recent Transactions</h3>
                                     <a href="#" className="text-sm text-primary hover:text-primary/80 transition-colors">View All</a>
                                 </div>
                                 <div className="space-y-4">
                                     {transactions.length > 0 ? transactions.map((tx, i) => (
-                                        <div key={tx.id || i} className="flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-[#25382e] transition-colors cursor-pointer">
+                                        <div key={tx.id || i} className="flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors cursor-pointer">
                                             <div className="flex items-center gap-4">
                                                 <div className={`size-11 rounded-full flex items-center justify-center ${tx.direction === 'IN' ? 'bg-green-50 dark:bg-green-500/10 text-green-500' : 'bg-red-50 dark:bg-red-500/10 text-red-500'}`}>
                                                     <span className="material-symbols-outlined text-xl">{tx.direction === 'IN' ? 'arrow_downward' : 'arrow_upward'}</span>
                                                 </div>
                                                 <div>
                                                     <p className="text-sm font-medium text-text-main dark:text-white">{tx.partnerName || tx.type || 'Transfer'}</p>
-                                                    <p className="text-xs text-text-sub dark:text-gray-400">{new Date(tx.createdAt).toLocaleDateString()}</p>
+                                                    <p className="text-xs text-text-sub dark:text-slate-400">{new Date(tx.createdAt).toLocaleDateString()}</p>
                                                 </div>
                                             </div>
                                             <p className={`text-sm font-semibold ${tx.direction === 'IN' ? 'text-green-500' : 'text-red-500'}`}>
@@ -691,7 +693,7 @@ export default function DashboardPage() {
                         {/* Right Column */}
                         <div className="lg:col-span-4 flex flex-col gap-6">
                             {/* My Cards */}
-                            <div className="bg-white dark:bg-[#1a2c22] rounded-xl p-6 border border-gray-100 dark:border-[#2a3c32]">
+                            <div className="bg-white dark:bg-slate-800 rounded-xl p-6 border border-gray-100 dark:border-slate-800">
                                 <div className="flex justify-between items-center mb-4">
                                     <h3 className="text-lg font-semibold text-text-main dark:text-white">My Cards</h3>
                                     <button onClick={() => setShowAddCardModal(true)} className="text-sm text-primary hover:text-primary/80 transition-colors">+ Add</button>
@@ -722,7 +724,7 @@ export default function DashboardPage() {
                             </div>
 
                             {/* Quick Transfer */}
-                            <div className="bg-white dark:bg-[#1a2c22] rounded-xl p-6 border border-gray-100 dark:border-[#2a3c32]">
+                            <div className="bg-white dark:bg-slate-800 rounded-xl p-6 border border-gray-100 dark:border-slate-800">
                                 <h3 className="text-lg font-semibold text-text-main dark:text-white mb-4">Quick Transfer</h3>
                                 <div className="flex gap-3 mb-6 overflow-x-auto pb-2">
                                     {contacts.length > 0 ? contacts.map((contact, i) => (
@@ -755,14 +757,14 @@ export default function DashboardPage() {
 
                                     {/* Divider */}
                                     <div className="flex items-center gap-3 my-4">
-                                        <div className="flex-1 h-px bg-gray-200 dark:bg-[#2a3c32]"></div>
-                                        <span className="text-xs text-text-sub dark:text-gray-400">OR</span>
-                                        <div className="flex-1 h-px bg-gray-200 dark:bg-[#2a3c32]"></div>
+                                        <div className="flex-1 h-px bg-gray-200 dark:bg-slate-800"></div>
+                                        <span className="text-xs text-text-sub dark:text-slate-400">OR</span>
+                                        <div className="flex-1 h-px bg-gray-200 dark:bg-slate-800"></div>
                                     </div>
 
                                     {/* Phone Search */}
                                     <div>
-                                        <label className="text-sm text-text-sub dark:text-gray-400 mb-2 block">Search by Phone Number</label>
+                                        <label className="text-sm text-text-sub dark:text-slate-400 mb-2 block">Search by Phone Number</label>
                                         <div className="flex gap-2">
                                             <input
                                                 type="tel"
@@ -770,7 +772,7 @@ export default function DashboardPage() {
                                                 onChange={(e) => setPhoneSearch(e.target.value)}
                                                 onKeyPress={(e) => e.key === 'Enter' && handlePhoneSearch()}
                                                 placeholder="Enter phone number"
-                                                className="flex-1 px-4 py-3 rounded-lg border border-gray-200 dark:border-[#2a3c32] bg-gray-50 dark:bg-[#25382e] text-text-main dark:text-white outline-none focus:ring-2 focus:ring-primary/50"
+                                                className="flex-1 px-4 py-3 rounded-lg border border-gray-200 dark:border-slate-800 bg-gray-50 dark:bg-slate-800 text-text-main dark:text-white outline-none focus:ring-2 focus:ring-primary/50"
                                             />
                                             <button
                                                 onClick={handlePhoneSearch}
@@ -788,8 +790,8 @@ export default function DashboardPage() {
 
                                     {/* Search Results */}
                                     {searchResults.length > 0 && (
-                                        <div className="bg-gray-50 dark:bg-[#25382e] rounded-lg p-3 border border-gray-200 dark:border-[#2a3c32]">
-                                            <p className="text-xs text-text-sub dark:text-gray-400 mb-2">Search Results:</p>
+                                        <div className="bg-gray-50 dark:bg-slate-800 rounded-lg p-3 border border-gray-200 dark:border-slate-800">
+                                            <p className="text-xs text-text-sub dark:text-slate-400 mb-2">Search Results:</p>
                                             <div className="space-y-2">
                                                 {searchResults.map((result) => (
                                                     <div
@@ -806,7 +808,7 @@ export default function DashboardPage() {
                                                         }}
                                                         className={`flex items-center gap-3 p-2 rounded-lg cursor-pointer transition-colors ${selectedContact?.userId === result.userId
                                                             ? 'bg-primary/20 border-2 border-primary'
-                                                            : 'bg-white dark:bg-[#1a2c22] hover:bg-gray-100 dark:hover:bg-[#2a3c32] border border-gray-200 dark:border-[#3a4c42]'
+                                                            : 'bg-white dark:bg-slate-800 hover:bg-gray-100 dark:hover:bg-slate-700 border border-gray-200 dark:border-slate-700'
                                                             }`}
                                                     >
                                                         <div className="size-10 rounded-full bg-gradient-to-br from-primary to-emerald-400 flex items-center justify-center text-text-main font-bold">
@@ -814,7 +816,7 @@ export default function DashboardPage() {
                                                         </div>
                                                         <div className="flex-1">
                                                             <p className="text-sm font-medium text-text-main dark:text-white">{result.fullName}</p>
-                                                            <p className="text-xs text-text-sub dark:text-gray-400">{result.accountNumber}</p>
+                                                            <p className="text-xs text-text-sub dark:text-slate-400">{result.accountNumber}</p>
                                                         </div>
                                                         {selectedContact?.userId === result.userId && (
                                                             <span className="material-symbols-outlined text-primary">check_circle</span>
@@ -828,7 +830,7 @@ export default function DashboardPage() {
                                     {/* Selected Contact Display */}
                                     {selectedContact && selectedContact.userId && (
                                         <div className="bg-primary/10 border-2 border-primary rounded-lg p-3">
-                                            <p className="text-xs text-text-sub dark:text-gray-400 mb-1">Sending to:</p>
+                                            <p className="text-xs text-text-sub dark:text-slate-400 mb-1">Sending to:</p>
                                             <div className="flex items-center gap-2">
                                                 <div className="size-8 rounded-full bg-gradient-to-br from-primary to-emerald-400 flex items-center justify-center text-text-main font-bold text-sm">
                                                     {(selectedContact.fullName || selectedContact.name)[0].toUpperCase()}
@@ -836,15 +838,15 @@ export default function DashboardPage() {
                                                 <div>
                                                     <p className="text-sm font-bold text-text-main dark:text-white">{selectedContact.fullName || selectedContact.name}</p>
                                                     {selectedContact.phone && (
-                                                        <p className="text-xs text-text-sub dark:text-gray-400">{selectedContact.phone}</p>
+                                                        <p className="text-xs text-text-sub dark:text-slate-400">{selectedContact.phone}</p>
                                                     )}
                                                 </div>
                                             </div>
                                         </div>
                                     )}
                                     <div>
-                                        <label className="text-sm text-text-sub dark:text-gray-400 mb-2 block">Amount</label>
-                                        <div className="flex items-center gap-2 bg-gray-50 dark:bg-[#25382e] rounded-lg px-4 py-3 border border-gray-200 dark:border-[#2a3c32]">
+                                        <label className="text-sm text-text-sub dark:text-slate-400 mb-2 block">Amount</label>
+                                        <div className="flex items-center gap-2 bg-gray-50 dark:bg-slate-800 rounded-lg px-4 py-3 border border-gray-200 dark:border-slate-800">
                                             <span className="text-text-main dark:text-white font-medium">$</span>
                                             <input
                                                 type="number"
@@ -871,7 +873,7 @@ export default function DashboardPage() {
             {/* Modals */}
             {showAddCardModal && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-                    <div className="bg-white dark:bg-[#1a2c22] rounded-2xl w-full max-w-md p-6 shadow-2xl border border-gray-100 dark:border-[#2a3c32]">
+                    <div className="bg-white dark:bg-slate-800 rounded-2xl w-full max-w-md p-6 shadow-2xl border border-gray-100 dark:border-slate-800">
                         <h3 className="text-xl font-bold mb-4 text-text-main dark:text-white">Add New Card</h3>
                         <form onSubmit={handleAddCardSubmit} className="flex flex-col gap-4">
                             <input
@@ -930,7 +932,7 @@ export default function DashboardPage() {
 
             {showTopupModal && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-                    <div className="bg-white dark:bg-[#1a2c22] rounded-2xl w-full max-w-md p-6 shadow-2xl border border-gray-100 dark:border-[#2a3c32]">
+                    <div className="bg-white dark:bg-slate-800 rounded-2xl w-full max-w-md p-6 shadow-2xl border border-gray-100 dark:border-slate-800">
                         <h3 className="text-xl font-bold mb-4 text-text-main dark:text-white">Top Up Wallet</h3>
                         <form onSubmit={handleTopupSubmit} className="flex flex-col gap-4">
                             <div>
@@ -970,12 +972,12 @@ export default function DashboardPage() {
             {/* QR Scan Modal */}
             {showQrScanModal && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-                    <div className="bg-white dark:bg-[#1a2c22] rounded-2xl w-full max-w-md p-6 shadow-2xl border border-gray-100 dark:border-[#2a3c32]">
+                    <div className="bg-white dark:bg-slate-800 rounded-2xl w-full max-w-md p-6 shadow-2xl border border-gray-100 dark:border-slate-800">
                         <h3 className="text-xl font-bold mb-4 text-text-main dark:text-white">Scan QR Code</h3>
 
                         <div className="space-y-4">
                             {/* File Input */}
-                            <div className="border-2 border-dashed border-gray-300 dark:border-[#2a3c32] rounded-xl p-6 text-center">
+                            <div className="border-2 border-dashed border-gray-300 dark:border-slate-800 rounded-xl p-6 text-center">
                                 {qrPreview ? (
                                     <div className="space-y-3">
                                         <img src={qrPreview} alt="QR Preview" className="max-h-48 mx-auto rounded-lg" />
@@ -992,7 +994,7 @@ export default function DashboardPage() {
                                 ) : (
                                     <label className="cursor-pointer block">
                                         <span className="material-symbols-outlined text-5xl text-gray-300 dark:text-gray-600 mb-2 block">upload_file</span>
-                                        <p className="text-sm text-text-sub dark:text-gray-400 mb-2">Click to upload QR code image</p>
+                                        <p className="text-sm text-text-sub dark:text-slate-400 mb-2">Click to upload QR code image</p>
                                         <p className="text-xs text-text-sub dark:text-gray-500">PNG, JPG up to 10MB</p>
                                         <input
                                             type="file"

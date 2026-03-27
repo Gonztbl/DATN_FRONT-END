@@ -105,14 +105,37 @@ export default function AdminUserCreatePage() {
             navigate("/user-manager");
         } catch (err) {
             console.error("Error creating user:", err);
+            
             if (err.response?.status === 409) {
-                const message = err.response.data;
-                if (typeof message === 'string') {
-                    if (message.includes("Email")) setErrors(prev => ({ ...prev, email: message }));
-                    if (message.includes("Username")) setErrors(prev => ({ ...prev, userName: message }));
-                    if (message.includes("Phone")) setErrors(prev => ({ ...prev, phone: message }));
+                const responseData = err.response.data;
+                const message = responseData.message || "Conflict occurred";
+                const details = responseData.details;
+
+                // Handle specific conflict cases using details
+                if (details === "EMAIL_EXISTS") {
+                    setErrors(prev => ({ ...prev, email: message }));
+                    showError(message, "Conflict");
+                } else if (details === "USERNAME_EXISTS") {
+                    setErrors(prev => ({ ...prev, userName: message }));
+                    showError(message, "Conflict");
+                } else if (details === "PHONE_EXISTS") {
+                    setErrors(prev => ({ ...prev, phone: message }));
+                    showError(message, "Conflict");
                 } else {
-                    showError(err.response?.data?.message || "User already exists", "Conflict");
+                    // Fallback for string messages or other details
+                    const rawMessage = typeof responseData === 'string' ? responseData : message;
+                    if (rawMessage.includes("Email")) {
+                        setErrors(prev => ({ ...prev, email: rawMessage }));
+                        showError(rawMessage, "Conflict");
+                    } else if (rawMessage.includes("Username")) {
+                        setErrors(prev => ({ ...prev, userName: rawMessage }));
+                        showError(rawMessage, "Conflict");
+                    } else if (rawMessage.includes("Phone")) {
+                        setErrors(prev => ({ ...prev, phone: rawMessage }));
+                        showError(rawMessage, "Conflict");
+                    } else {
+                        showError(rawMessage, "Conflict");
+                    }
                 }
             } else {
                 showError(err.response?.data?.message || "Failed to create user. Please try again later.", "Error");
@@ -123,38 +146,38 @@ export default function AdminUserCreatePage() {
     };
 
     return (
-        <div className="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 min-h-screen flex font-display">
+        <div className="bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 min-h-screen flex font-display">
             <SidebarAdmin />
             
-            <main className="flex-1 overflow-y-auto flex flex-col bg-slate-50 dark:bg-background-dark/50 min-w-0">
+            <main className="flex-1 overflow-y-auto flex flex-col bg-slate-50 dark:bg-slate-950 min-w-0">
                 <HeaderAdmin title="User Management" />
 
                 <div className="p-4 sm:p-8 max-w-4xl mx-auto w-full">
                     {/* Breadcrumbs-like Header */}
-                    <div className="mb-8">
-                        <div className="flex items-center gap-2 mb-4 text-sm text-slate-500">
-                             <span className="hover:text-primary cursor-pointer" onClick={() => navigate('/user-manager')}>User Management</span>
+                    <div className="mb-8 font-display">
+                        <div className="flex items-center gap-2 mb-4 text-sm text-slate-500 dark:text-slate-400">
+                             <span className="hover:text-primary cursor-pointer transition-colors" onClick={() => navigate('/user-manager')}>User Management</span>
                              <span className="material-symbols-outlined text-sm">chevron_right</span>
-                             <span className="font-medium text-slate-900 dark:text-white">Create New Account</span>
+                             <span className="font-medium text-slate-900 dark:text-slate-200">Create New Account</span>
                         </div>
-                        <h2 className="text-3xl font-black tracking-tight">Create User Account</h2>
+                        <h2 className="text-3xl font-black tracking-tight text-slate-900 dark:text-white">Create User Account</h2>
                         <p className="text-slate-500 dark:text-slate-400 mt-2">Add a new administrator, staff member, or partner to the SmartPay ecosystem.</p>
                     </div>
 
-                    <form onSubmit={handleSubmit} className="bg-white dark:bg-background-dark rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
+                    <form onSubmit={handleSubmit} className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden font-display">
                         {/* Form Section: Personal Details */}
                         <div className="p-6 sm:p-8 border-b border-slate-100 dark:border-slate-800">
                             <h3 className="text-sm font-bold uppercase tracking-wider text-primary mb-6">Personal Details</h3>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div className="space-y-2">
-                                    <label className="text-sm font-semibold">Username</label>
+                                    <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Username</label>
                                     <div className="relative">
-                                        <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">person</span>
+                                        <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500">person</span>
                                         <input 
                                             name="userName"
                                             value={formData.userName}
                                             onChange={handleChange}
-                                            className={`w-full pl-10 pr-4 py-3 rounded-lg border bg-transparent focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all ${errors.userName ? 'border-red-500' : 'border-slate-200 dark:border-slate-700'}`} 
+                                            className={`w-full pl-10 pr-4 py-3 rounded-lg border bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all placeholder:text-slate-400 dark:placeholder:text-slate-500 ${errors.userName ? 'border-red-500' : 'border-slate-200 dark:border-slate-700'}`} 
                                             placeholder="e.g. jsmith_admin" 
                                             type="text"
                                         />
@@ -163,14 +186,14 @@ export default function AdminUserCreatePage() {
                                 </div>
 
                                 <div className="space-y-2">
-                                    <label className="text-sm font-semibold">Full Name</label>
+                                    <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Full Name</label>
                                     <div className="relative">
-                                        <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">badge</span>
+                                        <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500">badge</span>
                                         <input 
                                             name="fullName"
                                             value={formData.fullName}
                                             onChange={handleChange}
-                                            className={`w-full pl-10 pr-4 py-3 rounded-lg border bg-transparent focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all ${errors.fullName ? 'border-red-500' : 'border-slate-200 dark:border-slate-700'}`} 
+                                            className={`w-full pl-10 pr-4 py-3 rounded-lg border bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all placeholder:text-slate-400 dark:placeholder:text-slate-500 ${errors.fullName ? 'border-red-500' : 'border-slate-200 dark:border-slate-700'}`} 
                                             placeholder="e.g. John Smith" 
                                             type="text"
                                         />
@@ -179,14 +202,14 @@ export default function AdminUserCreatePage() {
                                 </div>
 
                                 <div className="space-y-2">
-                                    <label className="text-sm font-semibold">Email Address</label>
+                                    <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Email Address</label>
                                     <div className="relative">
-                                        <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">mail</span>
+                                        <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500">mail</span>
                                         <input 
                                             name="email"
                                             value={formData.email}
                                             onChange={handleChange}
-                                            className={`w-full pl-10 pr-4 py-3 rounded-lg border bg-transparent focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all ${errors.email ? 'border-red-500' : 'border-slate-200 dark:border-slate-700'}`} 
+                                            className={`w-full pl-10 pr-4 py-3 rounded-lg border bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all placeholder:text-slate-400 dark:placeholder:text-slate-500 ${errors.email ? 'border-red-500' : 'border-slate-200 dark:border-slate-700'}`} 
                                             placeholder="email@smartpay.com" 
                                             type="email"
                                         />
@@ -195,14 +218,14 @@ export default function AdminUserCreatePage() {
                                 </div>
 
                                 <div className="space-y-2">
-                                    <label className="text-sm font-semibold">Phone Number</label>
+                                    <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Phone Number</label>
                                     <div className="relative">
-                                        <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">call</span>
+                                        <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500">call</span>
                                         <input 
                                             name="phone"
                                             value={formData.phone}
                                             onChange={handleChange}
-                                            className={`w-full pl-10 pr-4 py-3 rounded-lg border bg-transparent focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all ${errors.phone ? 'border-red-500' : 'border-slate-200 dark:border-slate-700'}`} 
+                                            className={`w-full pl-10 pr-4 py-3 rounded-lg border bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all placeholder:text-slate-400 dark:placeholder:text-slate-500 ${errors.phone ? 'border-red-500' : 'border-slate-200 dark:border-slate-700'}`} 
                                             placeholder="09xxxxxxxx" 
                                             type="tel"
                                         />
@@ -213,18 +236,18 @@ export default function AdminUserCreatePage() {
                         </div>
 
                         {/* Form Section: Security */}
-                        <div className="p-6 sm:p-8 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/10">
+                        <div className="p-6 sm:p-8 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/20">
                             <h3 className="text-sm font-bold uppercase tracking-wider text-primary mb-6">Security</h3>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div className="space-y-2">
-                                    <label className="text-sm font-semibold">Password</label>
+                                    <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Password</label>
                                     <div className="relative">
-                                        <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">lock</span>
+                                        <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500">lock</span>
                                         <input 
                                             name="passwordHash"
                                             value={formData.passwordHash}
                                             onChange={handleChange}
-                                            className={`w-full pl-10 pr-12 py-3 rounded-lg border bg-transparent focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all ${errors.passwordHash ? 'border-red-500' : 'border-slate-200 dark:border-slate-700'}`} 
+                                            className={`w-full pl-10 pr-12 py-3 rounded-lg border bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all placeholder:text-slate-400 dark:placeholder:text-slate-500 ${errors.passwordHash ? 'border-red-500' : 'border-slate-200 dark:border-slate-700'}`} 
                                             placeholder="Enter password" 
                                             type={showPassword ? "text" : "password"}
                                         />
@@ -241,14 +264,14 @@ export default function AdminUserCreatePage() {
                                     {errors.passwordHash && <p className="text-red-500 text-xs mt-1">{errors.passwordHash}</p>}
                                 </div>
                                 <div className="space-y-2">
-                                    <label className="text-sm font-semibold">Confirm Password</label>
+                                    <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Confirm Password</label>
                                     <div className="relative">
-                                        <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">lock_reset</span>
+                                        <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500">lock_reset</span>
                                         <input 
                                             name="confirmPassword"
                                             value={formData.confirmPassword}
                                             onChange={handleChange}
-                                            className={`w-full pl-10 pr-12 py-3 rounded-lg border bg-transparent focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all ${errors.confirmPassword ? 'border-red-500' : 'border-slate-200 dark:border-slate-700'}`} 
+                                            className={`w-full pl-10 pr-12 py-3 rounded-lg border bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all placeholder:text-slate-400 dark:placeholder:text-slate-500 ${errors.confirmPassword ? 'border-red-500' : 'border-slate-200 dark:border-slate-700'}`} 
                                             placeholder="Confirm password" 
                                             type={showConfirmPassword ? "text" : "password"}
                                         />
@@ -271,7 +294,7 @@ export default function AdminUserCreatePage() {
                         <div className="p-6 sm:p-8">
                             <h3 className="text-sm font-bold uppercase tracking-wider text-primary mb-6">Account Role & Access</h3>
                             <div className="space-y-4">
-                                <label className="text-sm font-semibold">Assign System Role</label>
+                                <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Assign System Role</label>
                                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
                                     {[
                                         { id: 'USER', label: 'USER', icon: 'person' },
@@ -288,9 +311,9 @@ export default function AdminUserCreatePage() {
                                                 onChange={handleChange}
                                                 className="peer hidden" 
                                             />
-                                            <div className="flex flex-col items-center justify-center p-4 border border-slate-200 dark:border-slate-700 rounded-xl peer-checked:border-primary peer-checked:bg-primary/5 hover:border-primary/50 transition-all text-center h-full">
-                                                <span className={`material-symbols-outlined mb-2 ${formData.role === role.id ? 'text-primary' : 'text-slate-400'}`}>{role.icon}</span>
-                                                <span className="text-xs font-bold">{role.label}</span>
+                                            <div className="flex flex-col items-center justify-center p-4 border border-slate-200 dark:border-slate-700 rounded-xl peer-checked:border-primary peer-checked:bg-primary/5 dark:peer-checked:bg-primary/10 hover:border-primary/50 transition-all text-center h-full">
+                                                <span className={`material-symbols-outlined mb-2 ${formData.role === role.id ? 'text-primary' : 'text-slate-400 dark:text-slate-500'}`}>{role.icon}</span>
+                                                <span className="text-xs font-bold text-slate-700 dark:text-slate-300">{role.label}</span>
                                             </div>
                                         </label>
                                     ))}
@@ -299,7 +322,7 @@ export default function AdminUserCreatePage() {
                         </div>
 
                         {/* Action Footer */}
-                        <div className="px-6 py-4 sm:px-8 sm:py-6 bg-slate-50 dark:bg-slate-800/20 border-t border-slate-200 dark:border-slate-800 flex justify-end gap-3">
+                        <div className="px-6 py-4 sm:px-8 sm:py-6 bg-slate-50 dark:bg-slate-800/40 border-t border-slate-200 dark:border-slate-800 flex justify-end gap-3">
                             <button 
                                 onClick={() => navigate('/user-manager')}
                                 className="px-6 py-2.5 text-sm font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800 rounded-lg transition-colors" 
@@ -327,8 +350,8 @@ export default function AdminUserCreatePage() {
                     <div className="mt-8 p-4 rounded-xl bg-primary/10 border border-primary/20 flex gap-4">
                         <span className="material-symbols-outlined text-primary">info</span>
                         <div>
-                            <p className="text-sm font-bold">Important Note</p>
-                            <p className="text-sm text-slate-600 dark:text-slate-400">Newly created accounts will receive a verification email at the address provided. Admin accounts require additional 2FA setup on first login.</p>
+                            <p className="text-sm font-bold text-slate-900 dark:text-white">Important Note</p>
+                            <p className="text-sm text-slate-600 dark:text-slate-400 font-medium">Newly created accounts will receive a verification email at the address provided. Admin accounts require additional 2FA setup on first login.</p>
                         </div>
                     </div>
                 </div>

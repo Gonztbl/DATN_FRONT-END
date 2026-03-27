@@ -251,7 +251,7 @@ export default function AdminRestaurantPage() {
     const totalPages = Math.ceil(total / limit) || 1;
 
     return (
-        <div className="relative flex h-auto min-h-screen w-full flex-col font-display bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 overflow-x-hidden md:flex-row">
+        <div className="relative flex h-auto min-h-screen w-full flex-col font-display bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 overflow-x-hidden md:flex-row transition-colors duration-300">
             <SidebarAdmin />
 
             <main className="flex-1 flex flex-col min-w-0 bg-slate-50 dark:bg-slate-950 h-screen overflow-y-auto w-full">
@@ -268,14 +268,14 @@ export default function AdminRestaurantPage() {
                         <div className="flex gap-3">
                             <button
                                 onClick={handleExport}
-                                className="flex items-center justify-center gap-2 px-4 h-12 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors bg-white dark:bg-slate-900"
+                                className="flex items-center justify-center gap-2 px-4 h-12 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300"
                             >
-                                <span className="material-symbols-outlined text-slate-500">download</span>
+                                <span className="material-symbols-outlined text-slate-500 dark:text-slate-400">download</span>
                                 <span className="font-bold text-sm">Xuất dữ liệu</span>
                             </button>
                             <button
                                 onClick={handleOpenAdd}
-                                className="flex items-center gap-2 bg-primary text-background-dark px-6 py-3 rounded-xl font-bold hover:brightness-105 shadow-lg shadow-primary/20 transition-all h-12"
+                                className="flex items-center gap-2 bg-primary text-slate-950 px-6 py-3 rounded-xl font-bold hover:brightness-105 shadow-lg shadow-primary/20 transition-all h-12"
                             >
                                 <span className="material-symbols-outlined text-xl">add_circle</span>
                                 <span>Thêm nhà hàng</span>
@@ -284,31 +284,31 @@ export default function AdminRestaurantPage() {
                     </div>
 
                     {/* Filters */}
-                    <div className="bg-white dark:bg-background-dark p-4 rounded-2xl border border-slate-200 dark:border-slate-800 mb-6 flex flex-col lg:flex-row gap-4 justify-between items-center shadow-sm">
+                    <div className="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 mb-6 flex flex-col lg:flex-row gap-4 justify-between items-center shadow-sm">
                         <div className="flex flex-wrap items-center gap-2 w-full lg:w-auto">
                             <button
                                 onClick={() => setStatusFilter('ALL')}
-                                className={`px-4 py-2 rounded-lg text-sm font-semibold transition-colors ${statusFilter === 'ALL' ? 'bg-primary/10 text-primary border border-primary/20' : 'bg-slate-50 dark:bg-slate-800/50 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800'}`}
+                                className={`px-4 py-2 rounded-lg text-sm font-semibold transition-colors ${statusFilter === 'ALL' ? 'bg-primary/10 text-primary border border-primary/20' : 'bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700'}`}
                             >
                                 Tất cả
                             </button>
                             <button
                                 onClick={() => setStatusFilter('OPEN')}
-                                className={`px-4 py-2 rounded-lg text-sm font-semibold transition-colors ${statusFilter === 'OPEN' ? 'bg-primary/10 text-primary border border-primary/20' : 'bg-slate-50 dark:bg-slate-800/50 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800'}`}
+                                className={`px-4 py-2 rounded-lg text-sm font-semibold transition-colors ${statusFilter === 'OPEN' ? 'bg-primary/10 text-primary border border-primary/20' : 'bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700'}`}
                             >
                                 Đang mở
                             </button>
                             <button
                                 onClick={() => setStatusFilter('CLOSED')}
-                                className={`px-4 py-2 rounded-lg text-sm font-semibold transition-colors ${statusFilter === 'CLOSED' ? 'bg-primary/10 text-primary border border-primary/20' : 'bg-slate-50 dark:bg-slate-800/50 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800'}`}
+                                className={`px-4 py-2 rounded-lg text-sm font-semibold transition-colors ${statusFilter === 'CLOSED' ? 'bg-primary/10 text-primary border border-primary/20' : 'bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700'}`}
                             >
                                 Đóng cửa
                             </button>
                         </div>
                         <div className="relative w-full lg:w-96 flex">
-                            <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">search</span>
+                            <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500">search</span>
                             <input
-                                className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 focus:ring-2 focus:ring-primary focus:border-transparent outline-none"
+                                className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all"
                                 placeholder="Tìm kiếm theo tên hoặc địa chỉ..."
                                 type="text"
                                 value={searchQuery}
@@ -318,26 +318,26 @@ export default function AdminRestaurantPage() {
                     </div>
 
                     {/* Data Table */}
-                    <div className="overflow-hidden rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-background-dark shadow-sm auto-cols-max">
+                    <div className="overflow-hidden rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm auto-cols-max">
                         <div className="overflow-x-auto">
                             <table className="w-full text-left min-w-[800px]">
                                 <thead>
-                                    <tr className="bg-slate-50 dark:bg-slate-800/30 border-b border-slate-200 dark:border-slate-800">
-                                        <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Tên nhà hàng</th>
-                                        <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Địa chỉ</th>
-                                        <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-center">Số món</th>
-                                        <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Trạng thái</th>
-                                        <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-right">Thao tác</th>
+                                    <tr className="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-800">
+                                        <th className="px-6 py-4 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Tên nhà hàng</th>
+                                        <th className="px-6 py-4 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Địa chỉ</th>
+                                        <th className="px-6 py-4 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider text-center">Số món</th>
+                                        <th className="px-6 py-4 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Trạng thái</th>
+                                        <th className="px-6 py-4 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider text-right">Thao tác</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                                     {loading ? (
                                         <tr>
-                                            <td colSpan="5" className="px-6 py-8 text-center text-slate-500">Đang tải dữ liệu...</td>
+                                            <td colSpan="5" className="px-6 py-8 text-center text-slate-500 dark:text-slate-400">Đang tải dữ liệu...</td>
                                         </tr>
                                     ) : restaurants.length === 0 ? (
                                         <tr>
-                                            <td colSpan="5" className="px-6 py-8 text-center text-slate-500">Không tìm thấy nhà hàng nào.</td>
+                                            <td colSpan="5" className="px-6 py-8 text-center text-slate-500 dark:text-slate-400">Không tìm thấy nhà hàng nào.</td>
                                         </tr>
                                     ) : (
                                         restaurants.map(rs => (
@@ -395,15 +395,15 @@ export default function AdminRestaurantPage() {
                         </div>
 
                         {/* Pagination */}
-                        <div className="px-6 py-4 bg-slate-50 dark:bg-slate-800/30 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between">
-                            <span className="text-xs text-slate-500">
+                        <div className="px-6 py-4 bg-slate-50 dark:bg-slate-800/50 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between">
+                            <span className="text-xs text-slate-500 dark:text-slate-400">
                                 Hiển thị {total > 0 ? (page - 1) * limit + 1 : 0} - {Math.min(page * limit, total)} trong tổng số {total} nhà hàng
                             </span>
                             <div className="flex gap-1">
                                 <button
                                     disabled={page === 1}
                                     onClick={() => setPage(page - 1)}
-                                    className="px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs text-slate-500 hover:bg-slate-100 disabled:opacity-50 transition-colors"
+                                    className="px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-50 transition-colors"
                                 >
                                     Trang trước
                                 </button>
@@ -430,7 +430,7 @@ export default function AdminRestaurantPage() {
                                 <button
                                     disabled={page === totalPages || totalPages === 0}
                                     onClick={() => setPage(page + 1)}
-                                    className="px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs text-slate-500 hover:bg-slate-100 disabled:opacity-50 transition-colors"
+                                    className="px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-50 transition-colors"
                                 >
                                     Trang sau
                                 </button>
@@ -444,8 +444,8 @@ export default function AdminRestaurantPage() {
             {/* Modal Form */}
             {showModal && (
                 <div className="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-                    <div className="bg-white dark:bg-background-dark w-full max-w-2xl rounded-3xl shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-300">
-                        <div className="flex items-center justify-between px-8 py-6 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30">
+                    <div className="bg-white dark:bg-slate-900 w-full max-w-2xl rounded-3xl shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-300 border border-slate-200 dark:border-slate-800">
+                        <div className="flex items-center justify-between px-8 py-6 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/50">
                             <div className="flex items-center gap-3">
                                 <div className="p-2 bg-primary/20 rounded-xl text-primary">
                                     <span className="material-symbols-outlined text-2xl">restaurant</span>
@@ -454,7 +454,7 @@ export default function AdminRestaurantPage() {
                                     <h3 className="text-xl font-black text-slate-900 dark:text-white">
                                         {editingRestaurant ? 'Cập nhật nhà hàng' : 'Thêm nhà hàng mới'}
                                     </h3>
-                                    <p className="text-xs text-slate-500">
+                                    <p className="text-xs text-slate-500 dark:text-slate-400">
                                         {editingRestaurant ? 'Chỉnh sửa thông tin đối tác' : 'Nhập thông tin cơ bản cho nhà hàng đối tác'}
                                     </p>
                                 </div>
@@ -469,35 +469,35 @@ export default function AdminRestaurantPage() {
                                     {/* Left Column */}
                                     <div className="space-y-4">
                                         <div>
-                                            <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Tên nhà hàng <span className="text-red-500">*</span></label>
+                                            <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Tên nhà hàng <span className="text-red-500">*</span></label>
                                             <input
                                                 name="name"
                                                 value={formData.name}
                                                 onChange={handleChange}
                                                 required
-                                                className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 focus:ring-2 focus:ring-primary focus:border-transparent text-sm outline-none"
+                                                className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent text-sm outline-none transition-all placeholder:text-slate-400 dark:placeholder:text-slate-500"
                                                 placeholder="VD: Phở Thìn Lò Đúc"
                                                 type="text"
                                             />
                                         </div>
                                         <div>
-                                            <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Số điện thoại</label>
+                                            <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Số điện thoại</label>
                                             <input
                                                 name="phone"
                                                 value={formData.phone}
                                                 onChange={handleChange}
-                                                className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 focus:ring-2 focus:ring-primary focus:border-transparent text-sm outline-none"
+                                                className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent text-sm outline-none transition-all placeholder:text-slate-400 dark:placeholder:text-slate-500"
                                                 placeholder="024 3971 2738"
                                                 type="tel"
                                             />
                                         </div>
                                         <div>
-                                            <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Email liên hệ</label>
+                                            <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Email liên hệ</label>
                                             <input
                                                 name="email"
                                                 value={formData.email}
                                                 onChange={handleChange}
-                                                className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 focus:ring-2 focus:ring-primary focus:border-transparent text-sm outline-none"
+                                                className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent text-sm outline-none transition-all placeholder:text-slate-400 dark:placeholder:text-slate-500"
                                                 placeholder="contact@phothin.com"
                                                 type="email"
                                             />
@@ -507,18 +507,18 @@ export default function AdminRestaurantPage() {
                                     {/* Right Column */}
                                     <div className="space-y-4">
                                         <div>
-                                            <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Chủ nhà hàng <span className="text-red-500">*</span></label>
+                                            <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Chủ nhà hàng <span className="text-red-500">*</span></label>
                                             <div className="relative">
                                                 <select
                                                     name="userId"
                                                     value={formData.userId}
                                                     onChange={handleChange}
                                                     required
-                                                    className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 focus:ring-2 focus:ring-primary focus:border-transparent text-sm outline-none appearance-none"
+                                                    className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent text-sm outline-none appearance-none transition-all"
                                                 >
-                                                    <option value="">-- Chọn chủ nhà hàng --</option>
+                                                    <option value="" className="dark:bg-slate-900">-- Chọn chủ nhà hàng --</option>
                                                     {owners.map(owner => (
-                                                        <option key={owner.id} value={owner.id}>
+                                                        <option key={owner.id} value={owner.id} className="dark:bg-slate-900">
                                                             {owner.fullName || owner.userName} (ID: {owner.id})
                                                         </option>
                                                     ))}
@@ -528,29 +528,29 @@ export default function AdminRestaurantPage() {
                                         </div>
                                         <div className="grid grid-cols-2 gap-4">
                                             <div>
-                                                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Giờ mở cửa</label>
+                                                <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Giờ mở cửa</label>
                                                 <input
                                                     name="open_time"
                                                     value={formData.open_time}
                                                     onChange={handleChange}
-                                                    className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 focus:ring-2 focus:ring-primary focus:border-transparent text-sm outline-none"
+                                                    className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent text-sm outline-none transition-all"
                                                     type="time"
                                                 />
                                             </div>
                                             <div>
-                                                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Giờ đóng cửa</label>
+                                                <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Giờ đóng cửa</label>
                                                 <input
                                                     name="close_time"
                                                     value={formData.close_time}
                                                     onChange={handleChange}
-                                                    className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 focus:ring-2 focus:ring-primary focus:border-transparent text-sm outline-none"
+                                                    className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent text-sm outline-none transition-all"
                                                     type="time"
                                                 />
                                             </div>
                                         </div>
                                         <div>
-                                            <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Trạng thái hiện tại</label>
-                                            <div className="flex items-center gap-4 p-3 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-700">
+                                            <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Trạng thái hiện tại</label>
+                                            <div className="flex items-center gap-4 p-3 bg-slate-50 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700">
                                                 <span className="text-sm font-medium text-slate-700 dark:text-slate-300 flex-1">
                                                     {formData.status ? 'Đang mở cửa' : 'Đóng cửa'}
                                                 </span>
@@ -562,7 +562,7 @@ export default function AdminRestaurantPage() {
                                                         checked={formData.status}
                                                         onChange={handleChange}
                                                     />
-                                                    <div className="w-11 h-6 bg-slate-300 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                                                    <div className="w-11 h-6 bg-slate-300 peer-focus:outline-none rounded-full peer dark:bg-slate-600 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary transition-colors"></div>
                                                 </label>
                                             </div>
                                         </div>
@@ -570,13 +570,13 @@ export default function AdminRestaurantPage() {
 
                                     {/* Full Width: Address */}
                                     <div className="md:col-span-2">
-                                        <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Địa chỉ chi tiết <span className="text-red-500">*</span></label>
+                                        <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Địa chỉ chi tiết <span className="text-red-500">*</span></label>
                                         <textarea
                                             name="address"
                                             value={formData.address}
                                             onChange={handleChange}
                                             required
-                                            className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 focus:ring-2 focus:ring-primary focus:border-transparent text-sm resize-none outline-none custom-scrollbar"
+                                            className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent text-sm resize-none outline-none custom-scrollbar transition-all placeholder:text-slate-400 dark:placeholder:text-slate-500"
                                             placeholder="Số nhà, tên đường, phường/xã, quận/huyện..."
                                             rows="3"
                                         ></textarea>
@@ -584,11 +584,11 @@ export default function AdminRestaurantPage() {
                                 </div>
                             </form>
                         </div>
-                        <div className="px-8 py-6 bg-slate-50 dark:bg-slate-800/30 border-t border-slate-100 dark:border-slate-800 flex justify-end gap-3">
-                            <button onClick={handleCloseModal} className="px-6 py-2.5 rounded-xl text-sm font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors outline-none">
+                        <div className="px-8 py-6 bg-slate-50 dark:bg-slate-800/50 border-t border-slate-100 dark:border-slate-800 flex justify-end gap-3">
+                            <button onClick={handleCloseModal} className="px-6 py-2.5 rounded-xl text-sm font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors outline-none font-display">
                                 Hủy bỏ
                             </button>
-                            <button form="restaurant-form" type="submit" className="px-8 py-2.5 rounded-xl text-sm font-bold bg-primary text-background-dark shadow-lg shadow-primary/20 hover:brightness-105 transition-all outline-none">
+                            <button form="restaurant-form" type="submit" className="px-8 py-2.5 rounded-xl text-sm font-bold bg-primary text-slate-950 shadow-lg shadow-primary/20 hover:brightness-105 transition-all outline-none font-display">
                                 Lưu thông tin
                             </button>
                         </div>

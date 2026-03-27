@@ -1,0 +1,21 @@
+@startuml UC79_AdminTaiChinh
+actor Admin
+boundary ":AdminWalletUI" as UI
+control ":WalletController" as CTRL
+entity ":CSDL" as DB
+
+Admin -> UI : 1: Xem Dashboard Tài chính
+activate UI
+
+UI -> CTRL : 2: getSystemFinancialSummary()
+activate CTRL
+CTRL -> DB : 3: GET /api/admin/finance/summary
+activate DB
+DB --> CTRL : 4: 200 OK {totalBalance, totalTransactions, revenue}
+deactivate DB
+CTRL --> UI : 5: Hiển thị biểu đồ và con số
+deactivate CTRL
+
+UI --> Admin : 6: Xem báo cáo doanh thu toàn hệ thống
+deactivate UI
+@enduml

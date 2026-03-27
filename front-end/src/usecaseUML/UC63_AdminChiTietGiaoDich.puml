@@ -1,0 +1,29 @@
+@startuml UC63_AdminChiTietGiaoDich
+actor Admin
+boundary ":AdminTransactionUI" as UI
+control ":TransactionController" as CTRL
+entity ":Transaction" as ENT
+entity ":CSDL" as DB
+
+Admin -> UI : 1: Nhấn "View" tại một giao dịch
+activate UI
+
+UI -> CTRL : 2: getTransactionDetail(id)
+activate CTRL
+
+CTRL -> DB : 3: GET /api/admin/transactions/{id}
+activate DB
+DB --> CTRL : 4: 200 OK {detail}
+deactivate DB
+
+CTRL -> ENT : 5: Mapping chi tiết giao dịch
+activate ENT
+ENT --> CTRL : 6: Transaction data
+deactivate ENT
+
+CTRL --> UI : 7: Hiển thị Modal chi tiết
+deactivate CTRL
+
+UI --> Admin : 8: Xem Review chi tiết (Partner, Note, Direction...)
+deactivate UI
+@enduml

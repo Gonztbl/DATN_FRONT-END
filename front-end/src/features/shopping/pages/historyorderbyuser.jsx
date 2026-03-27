@@ -2,9 +2,11 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import orderService from '../../../api/orderService';
 import { showError } from '../../../utils/swalUtils';
+import { useTheme } from '../../../context/ThemeContext';
 
 const HistoryOrderByUser = () => {
     const navigate = useNavigate();
+    const { isDarkMode, toggleDarkMode } = useTheme();
 
     // State management
     const [orders, setOrders] = useState([]);
@@ -146,9 +148,9 @@ const HistoryOrderByUser = () => {
     };
 
     return (
-        <div className="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 min-h-screen">
+        <div className="bg-slate-50 dark:bg-slate-900 font-display text-slate-900 dark:text-slate-100 min-h-screen">
             {/* Top Navigation Bar */}
-            <header className="sticky top-0 z-50 w-full border-b border-slate-200 dark:border-slate-800 bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-md">
+            <header className="sticky top-0 z-50 w-full border-b border-slate-200 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-900/80 backdrop-blur-md">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex h-16 items-center justify-between">
                         <div className="flex items-center gap-4">
@@ -170,7 +172,7 @@ const HistoryOrderByUser = () => {
                             <div className="relative w-full">
                                 <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xl">search</span>
                                 <input 
-                                    className="w-full bg-slate-100 dark:bg-slate-800 border-none rounded-xl py-2 pl-10 pr-4 focus:ring-2 focus:ring-primary text-sm transition-all" 
+                                    className="w-full bg-slate-100 dark:bg-slate-800 border-none rounded-xl py-2 pl-10 pr-4 focus:ring-2 focus:ring-primary text-sm transition-all text-slate-900 dark:text-slate-100" 
                                     placeholder="Search orders..." 
                                     type="text"
                                     value={searchQuery}
@@ -178,9 +180,15 @@ const HistoryOrderByUser = () => {
                                 />
                             </div>
                         </div>
-                        <div className="flex items-center gap-2 sm:gap-4 ml-4">
-                            <button className="p-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
-                                <span className="material-symbols-outlined">notifications</span>
+                        <div className="flex items-center gap-2 sm:gap-3 ml-4">
+                            <button
+                                onClick={toggleDarkMode}
+                                className="size-10 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-primary/10 hover:text-primary transition-all flex items-center justify-center"
+                                title={isDarkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}
+                            >
+                                <span className="material-symbols-outlined transition-all">
+                                    {isDarkMode ? "light_mode" : "dark_mode"}
+                                </span>
                             </button>
                             <div className="size-10 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold border-2 border-primary/10">
                                 JS
@@ -387,7 +395,7 @@ const HistoryOrderByUser = () => {
                 )}
             </main>
 
-            <footer className="mt-20 border-t border-slate-200 dark:border-slate-800 py-12 bg-slate-50 dark:bg-slate-950/50">
+            <footer className="mt-20 border-t border-slate-200 dark:border-slate-800 py-12 bg-slate-100 dark:bg-slate-950/50">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex flex-col md:flex-row justify-between items-center gap-8">
                         <div className="flex items-center gap-2">

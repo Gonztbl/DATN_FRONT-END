@@ -1,0 +1,73 @@
+@startuml UC18_NhaHangQuanLyDon
+title UC18 - Nhà hàng quản lý đơn hàng (Merchant Orders)
+
+autonumber "<b>[00]</b>"
+skinparam sequenceArrowThickness 2
+skinparam roundcorner 10
+skinparam defaultFontSize 20
+skinparam titleFontSize 26
+skinparam sequenceFontSize 19
+skinparam sequenceMessageFontSize 20
+skinparam sequenceActorFontSize 20
+skinparam sequenceParticipantFontSize 20
+skinparam noteFontSize 18
+skinparam sequenceArrowFontSize 20
+skinparam sequence {
+    ParticipantPadding 30
+    LifeLinePadding 20
+    MessagePadding 10
+}
+
+actor "Chủ nhà hàng" as Merchant
+boundary ":MerchantOrderUI" as UI
+control ":MerchantController" as CTRL
+entity ":Order" as API
+database ":CSDL" as DB
+
+Merchant -> UI : Truy cập quản lý đơn hàng
+activate UI
+
+UI -> CTRL : Tải danh sách đơn hiện có
+activate CTRL
+CTRL -> API : GET /api/merchant/orders
+activate API
+API -> DB : Truy vấn đơn hàng thuộc nhà hàng theo UserID
+activate DB
+DB --> API : Danh sách Order[]
+deactivate DB
+API --> CTRL : Trả về dữ liệu Merchant orders
+deactivate API
+CTRL --> UI : Hiển thị bảng đơn hàng (Phân loại theo trạng thái)
+deactivate CTRL
+
+Merchant -> UI : Nhấn "Xác nhận chuẩn bị món"
+UI -> CTRL : Cập nhật trạng thái PREPARING
+activate CTRL
+CTRL -> API : PUT /api/merchant/orders/{id}/preparing
+activate API
+API -> DB : Cập nhật status
+activate DB
+DB --> API : Thành công
+deactivate DB
+API --> CTRL : Confirmed
+deactivate API
+CTRL --> UI : Cập nhật UI
+deactivate CTRL
+
+Merchant -> UI : Nhấn "Món đã xong - Gọi Shipper"
+UI -> CTRL : Chuyển trạng thái PAID
+activate CTRL
+CTRL -> API : PUT /api/merchant/orders/{id}/ready
+activate API
+API -> DB : Đưa đơn vào hàng chờ Shipper
+activate DB
+DB --> API : Thành công
+deactivate DB
+API --> CTRL : Order Ready
+deactivate API
+CTRL --> UI : Thông báo đã gửi tín hiệu tới Shipper
+deactivate CTRL
+
+deactivate UI
+
+@enduml

@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, useMemo } from "react";
 import authService from "../services/authService";
 import { useNavigate } from "react-router-dom";
+import { useTheme } from "../../../context/ThemeContext";
 
 // Tạo Context
 const AuthContext = createContext(null);
@@ -12,6 +13,7 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const { setDarkMode } = useTheme();
 
   // Kiểm tra authentication khi component mount
   useEffect(() => {
@@ -68,6 +70,10 @@ export function AuthProvider({ children }) {
     setUser(null);
     setError(null);
     localStorage.removeItem("user");
+    // Reset theme to light mode on logout
+    if (setDarkMode) {
+      setDarkMode(false);
+    }
   };
 
   const value = useMemo(() => ({

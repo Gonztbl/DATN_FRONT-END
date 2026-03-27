@@ -1,0 +1,73 @@
+@startuml UC20_NhaHangCaiDat
+title UC20 - Nhà hàng cài đặt trạng thái & thông tin
+
+autonumber "<b>[00]</b>"
+skinparam sequenceArrowThickness 2
+skinparam roundcorner 10
+skinparam defaultFontSize 20
+skinparam titleFontSize 26
+skinparam sequenceFontSize 19
+skinparam sequenceMessageFontSize 20
+skinparam sequenceActorFontSize 20
+skinparam sequenceParticipantFontSize 20
+skinparam noteFontSize 18
+skinparam sequenceArrowFontSize 20
+skinparam sequence {
+    ParticipantPadding 30
+    LifeLinePadding 20
+    MessagePadding 10
+}
+
+actor "Chủ nhà hàng" as Merchant
+boundary ":MerchantSettingsUI" as UI
+control ":SettingController" as CTRL
+entity ":RestaurantProfile" as API
+database ":CSDL" as DB
+
+Merchant -> UI : Truy cập Cài đặt tài khoản
+activate UI
+
+UI -> CTRL : Tải cấu hình nhà hàng
+activate CTRL
+CTRL -> API : GET /api/merchant/restaurant/me
+activate API
+API -> DB : Truy vấn Profile nhà hàng
+activate DB
+DB --> API : { Name, Status, Schedule, Phone }
+deactivate DB
+API --> CTRL : Trả về dữ liệu
+deactivate API
+CTRL --> UI : Hiển thị form thông tin
+deactivate CTRL
+
+Merchant -> UI : Tick chọn trạng thái "ĐANG MỞ CỬA"
+UI -> CTRL : Yêu cầu cập nhật Status: OPENING
+activate CTRL
+CTRL -> API : PUT /api/merchant/restaurant/status
+activate API
+API -> DB : Update restaurant status
+activate DB
+DB --> API : Thành công
+deactivate DB
+API --> CTRL : Status updated
+deactivate API
+CTRL --> UI : Hiển thị thông báo "Cửa hàng đã mở!"
+deactivate CTRL
+
+Merchant -> UI : Sửa giờ hoạt động & Click "Lưu"
+UI -> CTRL : Cập nhật thông tin Store Profile
+activate CTRL
+CTRL -> API : PUT /api/merchant/restaurant/info
+activate API
+API -> DB : Thực hiện ghi đè cấu hình cũ
+activate DB
+DB --> API : Thành công
+deactivate DB
+API --> CTRL : Data updated
+deactivate API
+CTRL --> UI : Phản hồi "Lưu thành công"
+deactivate CTRL
+
+deactivate UI
+
+@enduml

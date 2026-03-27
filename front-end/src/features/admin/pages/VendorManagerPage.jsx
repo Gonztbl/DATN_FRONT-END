@@ -201,7 +201,7 @@ export default function VendorManagerPage() {
     const totalPages = Math.ceil(total / limit) || 1;
 
     return (
-        <div className="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 min-h-screen flex font-display">
+        <div className="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 min-h-screen flex font-display">
             <SidebarAdmin />
 
             <main className="flex-1 flex flex-col min-w-0 bg-slate-50 dark:bg-slate-950 h-screen overflow-y-auto w-full">
@@ -239,7 +239,7 @@ export default function VendorManagerPage() {
                                 <label className="flex items-center bg-slate-50 dark:bg-slate-800/50 rounded-lg px-4 h-12 border border-slate-200 dark:border-slate-700 focus-within:border-primary transition-all shadow-sm">
                                     <span className="material-symbols-outlined text-slate-400">search</span>
                                     <input
-                                        className="bg-transparent border-none focus:ring-0 text-base w-full placeholder:text-slate-400 ml-2 outline-none"
+                                        className="bg-transparent border-none focus:ring-0 text-base w-full placeholder:text-slate-400 ml-2 outline-none text-slate-900 dark:text-slate-100"
                                         placeholder="Tìm kiếm theo tên danh mục, mã danh mục..."
                                         type="text"
                                         value={searchQuery}
@@ -390,7 +390,7 @@ export default function VendorManagerPage() {
                                     value={formData.name}
                                     onChange={handleChange}
                                     required
-                                    className="w-full px-4 h-12 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 focus:ring-1 focus:ring-primary focus:border-primary transition-all placeholder:text-slate-400 outline-none"
+                                    className="w-full px-4 h-12 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 focus:ring-1 focus:ring-primary focus:border-primary transition-all placeholder:text-slate-400 outline-none text-slate-900 dark:text-slate-100"
                                     placeholder="VD: Đồ chơi trẻ em"
                                     type="text"
                                 />
@@ -414,7 +414,7 @@ export default function VendorManagerPage() {
                                         </button>
                                     ))}
                                 </div>
-                                <p className="mt-2 text-xs text-slate-500">Biểu tượng sẽ hiển thị tại trang khách hàng.</p>
+                                <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">Biểu tượng sẽ hiển thị tại trang khách hàng.</p>
                             </div>
 
                             {/* orderIndex Field */}
@@ -426,7 +426,7 @@ export default function VendorManagerPage() {
                                         type="number"
                                         value={formData.orderIndex}
                                         onChange={handleChange}
-                                        className="w-full px-4 h-12 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 focus:ring-1 focus:ring-primary focus:border-primary transition-all outline-none"
+                                        className="w-full px-4 h-12 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 focus:ring-1 focus:ring-primary focus:border-primary transition-all outline-none text-slate-900 dark:text-slate-100"
                                     />
                                 </div>
                             </div>

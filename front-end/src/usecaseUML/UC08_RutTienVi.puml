@@ -1,0 +1,77 @@
+@startuml UC08_RutTienVi
+title UC08 - Rút tiền từ ví (Withdraw)
+
+autonumber "<b>[00]</b>"
+skinparam sequenceArrowThickness 2
+skinparam roundcorner 10
+skinparam defaultFontSize 20
+skinparam titleFontSize 26
+skinparam sequenceFontSize 19
+skinparam sequenceMessageFontSize 20
+skinparam sequenceActorFontSize 20
+skinparam sequenceParticipantFontSize 20
+skinparam noteFontSize 18
+skinparam sequenceArrowFontSize 20
+skinparam sequence {
+    ParticipantPadding 30
+    LifeLinePadding 20
+    MessagePadding 10
+}
+
+actor "Người dùng" as User
+boundary ":WithdrawUI" as UI
+control ":WalletController" as CTRL
+entity ":Transaction" as API
+database ":CSDL" as DB
+
+User -> UI : Truy cập trang rút tiền
+activate UI
+
+UI -> CTRL : Lấy số dư và danh sách thẻ
+activate CTRL
+CTRL -> API : Lấy Balance & Cards
+activate API
+API -> DB : Truy vấn dữ liệu tài khoản
+activate DB
+DB --> API : Kết quả
+deactivate DB
+API --> CTRL : Dữ liệu đầy đủ
+deactivate API
+CTRL --> UI : Hiển thị form rút tiền
+deactivate CTRL
+
+User -> UI : Chọn thẻ và nhập số tiền rút
+UI -> UI : Tự động tính phí dịch vụ (Service Fee)
+User -> UI : Nhấn "Xác nhận rút tiền"
+
+UI -> CTRL : Yêu cầu thực hiện rút tiền
+activate CTRL
+
+CTRL -> API : POST /api/wallet/withdraw
+activate API
+
+API -> DB : Kiểm tra số dư (Balance >= Amount + Fee)
+activate DB
+DB --> API : Số dư hợp lệ
+deactivate DB
+
+API -> DB : Khấu trừ ví & Chuyển tiền tới ngân hàng
+activate DB
+DB --> API : Thành công
+deactivate DB
+
+API -> DB : Ghi nhận giao dịch WITHDRAWAL
+activate DB
+DB --> API : Đã lưu
+deactivate DB
+
+API --> CTRL : Trả về thông tin giao dịch
+deactivate API
+
+CTRL --> UI : Thông báo rút tiền thành công
+deactivate CTRL
+
+UI --> User : "Rút thành công {Amount}đ về thẻ"
+deactivate UI
+
+@enduml

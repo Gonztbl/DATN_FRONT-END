@@ -1,0 +1,61 @@
+@startuml UC64_AdminQuanLyNhaHang
+actor Admin
+boundary ":AdminRestaurantUI" as UI
+control ":RestaurantController" as CTRL
+entity ":Restaurant" as ENT
+entity ":CSDL" as DB
+
+== Xem và Lọc ==
+Admin -> UI : 1: Truy cập "Restaurant Management"
+activate UI
+UI -> CTRL : 2: getAllRestaurants(filters)
+activate CTRL
+CTRL -> DB : 3: GET /api/admin/restaurants?...
+activate DB
+DB --> CTRL : 4: 200 OK {list}
+deactivate DB
+CTRL --> UI : 5: Hiển thị danh sách
+deactivate CTRL
+
+== Thêm mới ==
+Admin -> UI : 6: Nhấn "Thêm nhà hàng"
+UI --> Admin : 7: Hiển thị Form (Tên, SĐT, Chủ nhà hàng...)
+Admin -> UI : 8: Nhập thông tin, nhấn "Lưu"
+UI -> CTRL : 9: createRestaurant(data)
+activate CTRL
+CTRL -> DB : 10: POST /api/admin/restaurants
+activate DB
+alt Trùng tên
+    DB --> CTRL : 10.1: 409 Conflict
+    CTRL --> UI : 10.2: Báo lỗi trùng tên
+    UI --> Admin : 10.3: Hiển thị lỗi
+else Thành công
+    DB --> CTRL : 11.1: 201 Created
+    deactivate DB
+    CTRL --> UI : 11.2: Thành công
+    deactivate CTRL
+    UI --> Admin : 12: Đóng form, refresh danh sách
+end
+
+== Xóa ==
+Admin -> UI : 13: Nhấn "Xóa" tại 1 nhà hàng
+UI --> Admin : 14: Hiển thị xác nhận
+Admin -> UI : 15: Xác nhận xóa
+UI -> CTRL : 16: deleteRestaurant(id)
+activate CTRL
+CTRL -> DB : 17: DELETE /api/admin/restaurants/{id}
+activate DB
+alt Đang có sản phẩm
+    DB --> CTRL : 17.1: 400 Bad Request
+    CTRL --> UI : 17.2: Báo lỗi "Không thể xóa"
+    UI --> Admin : 17.3: Hiển thị thông báo
+else Thành công
+    DB --> CTRL : 18.1: 200 OK
+    deactivate DB
+    CTRL --> UI : 18.2: Thành công
+    deactivate CTRL
+    UI --> Admin : 19: Xóa hàng khỏi bảng
+end
+
+deactivate UI
+@enduml

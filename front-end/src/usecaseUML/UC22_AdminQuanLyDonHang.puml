@@ -1,0 +1,78 @@
+@startuml UC22_AdminQuanLyDonHang
+title UC22 - Admin quản lý toàn bộ đơn hàng hệ thống
+
+autonumber "<b>[00]</b>"
+skinparam sequenceArrowThickness 2
+skinparam roundcorner 10
+skinparam defaultFontSize 20
+skinparam titleFontSize 26
+skinparam sequenceFontSize 19
+skinparam sequenceMessageFontSize 20
+skinparam sequenceActorFontSize 20
+skinparam sequenceParticipantFontSize 20
+skinparam noteFontSize 18
+skinparam sequenceArrowFontSize 20
+skinparam sequence {
+    ParticipantPadding 30
+    LifeLinePadding 20
+    MessagePadding 10
+}
+
+actor "Admin" as Admin
+boundary ":AdminOrderUI" as UI
+control ":OrderAdminController" as CTRL
+entity ":Order" as ENT
+database ":CSDL" as DB
+
+Admin -> UI : Truy cập quản trị đơn hàng
+activate UI
+
+UI -> CTRL : Tải tất cả đơn hàng hệ thống
+activate CTRL
+CTRL -> ENT : GET /api/admin/orders
+activate ENT
+ENT -> DB : Truy vấn toàn bộ bảng Order
+activate DB
+DB --> ENT : Danh sách đầy đủ đơn hàng
+deactivate DB
+ENT --> CTRL : Trả về dữ liệu Order[]
+deactivate ENT
+CTRL --> UI : Hiển thị bảng quản trị đa năng
+deactivate CTRL
+
+Admin -> UI : Chọn bộ lọc (Nhà hàng / Shipper / Trạng thái)
+UI -> CTRL : Yêu cầu dữ liệu theo filter
+activate CTRL
+CTRL -> ENT : Lọc dữ liệu kèm tham số Query
+activate ENT
+ENT -> DB : Truy vấn với điều kiện filter
+activate DB
+DB --> ENT : Kết quả lọc
+deactivate DB
+ENT --> CTRL : Dữ liệu filtered
+deactivate ENT
+CTRL --> UI : Refresh bảng dữ liệu
+deactivate CTRL
+
+Admin -> UI : Nhấn "Xem chi tiết" đơn #{id}
+UI -> UI : Điều hướng tới trang Chi tiết quản trị
+
+Admin -> UI : Nhấn "Xóa đơn hàng" (Force Delete)
+UI -> UI : Hiển thị cảnh báo rủi ro cao
+Admin -> UI : Xác nhận xóa vĩnh viễn
+UI -> CTRL : DELETE /api/admin/orders/{id}
+activate CTRL
+CTRL -> ENT : Gửi yêu cầu xóa dữ liệu hệ thống
+activate ENT
+ENT -> DB : Xóa record khỏi database
+activate DB
+DB --> ENT : Success
+deactivate DB
+ENT --> CTRL : Deleted
+deactivate ENT
+CTRL --> UI : Thông báo đã xóa & Tải lại bảng
+deactivate CTRL
+
+deactivate UI
+
+@enduml

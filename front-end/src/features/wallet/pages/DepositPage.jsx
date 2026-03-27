@@ -4,10 +4,13 @@ import cardService from "../api/cardService";
 import walletService from "../api/walletService";
 import { useAuth } from "../../auth/context/AuthContext";
 import { useNotification } from "../../../context/NotificationContext";
+import { useTheme } from "../../../context/ThemeContext";
+import Sidebar from "../../../components/layout/Sidebar";
 
 const DepositPage = () => {
   const navigate = useNavigate();
   const { showSuccess } = useNotification();
+  const { isDarkMode, toggleDarkMode } = useTheme();
   const [error, setError] = useState("");
   const [recentDeposits, setRecentDeposits] = useState([]);
   const [loadingHistory, setLoadingHistory] = useState(true);
@@ -125,24 +128,46 @@ const DepositPage = () => {
   };
 
   return (
-    <div className="font-display bg-background-light dark:bg-background-dark text-[#111714] dark:text-white min-h-screen">
-      <main className="px-4 md:px-10 lg:px-40 py-8 flex justify-center">
-        <div className="flex flex-col lg:flex-row gap-8 max-w-[1200px] w-full">
-          {/* LEFT SECTION */}
-          <section className="flex-1 flex flex-col gap-6">
-            <div>
-              <button
-                onClick={() => navigate("/dashboard")}
-                className="flex items-center gap-2 text-[#648772] hover:text-primary transition-colors mb-4"
-              >
-                <span className="material-symbols-outlined">arrow_back</span>
-                <span className="font-medium">Back to Dashboard</span>
-              </button>
-              <h1 className="text-4xl font-black">Deposit Funds</h1>
-              <p className="text-[#648772]">
-                Select a card and enter amount to deposit into your wallet.
-              </p>
+    <div className="min-h-screen bg-background-light dark:bg-slate-900 font-display text-[#111714] dark:text-white overflow-hidden">
+      <div className="flex h-screen w-full">
+        {/* Sidebar */}
+        <Sidebar activeRoute="deposit" />
+
+        {/* Main Content */}
+        <main className="flex-1 flex flex-col h-full overflow-y-auto bg-background-light dark:bg-slate-900">
+          {/* Mobile Header */}
+          <div className="lg:hidden flex items-center justify-between p-4 bg-white dark:bg-slate-800 border-b border-gray-200 dark:border-slate-800">
+            <div className="flex items-center gap-2">
+              <span className="material-symbols-outlined text-primary">arrow_downward</span>
+              <span className="font-bold text-lg">Deposit</span>
             </div>
+            <button className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800">
+              <span className="material-symbols-outlined">menu</span>
+            </button>
+          </div>
+
+          <div className="flex-1 px-4 md:px-10 py-8 flex justify-center">
+            <div className="flex flex-col lg:flex-row gap-8 max-w-[1200px] w-full">
+              {/* LEFT SECTION */}
+              <section className="flex-1 flex flex-col gap-6">
+                <div>
+                  <div className="flex items-center justify-between mb-4">
+                    <div />
+                    <button
+                      onClick={toggleDarkMode}
+                      className="size-10 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-primary/10 hover:text-primary transition-all flex items-center justify-center"
+                      title={isDarkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}
+                    >
+                      <span className="material-symbols-outlined transition-all">
+                        {isDarkMode ? "light_mode" : "dark_mode"}
+                      </span>
+                    </button>
+                  </div>
+                  <h1 className="text-4xl font-black text-[#111714] dark:text-white">Deposit Funds</h1>
+                  <p className="text-[#648772] dark:text-slate-400">
+                    Select a card and enter amount to deposit into your wallet.
+                  </p>
+                </div>
 
             {/* ERROR MESSAGE */}
             {error && (
@@ -154,7 +179,7 @@ const DepositPage = () => {
 
             {/* CREDIT CARD SELECTION */}
             <div>
-              <h3 className="text-lg font-bold mb-3">Select Card</h3>
+              <h3 className="text-lg font-bold mb-3 text-[#111714] dark:text-white">Select Card</h3>
               {loadingCards ? (
                 <p>Loading cards...</p>
               ) : cards.length === 0 ? (
@@ -169,8 +194,8 @@ const DepositPage = () => {
                       key={card.id}
                       onClick={() => setSelectedCardId(card.id)}
                       className={`relative flex items-center gap-3 p-4 border-2 rounded-lg cursor-pointer transition-all ${selectedCardId === card.id
-                        ? "border-primary bg-primary/5"
-                        : "border-gray-200 hover:border-primary/50"
+                        ? "border-primary bg-primary/5 dark:bg-primary/10"
+                        : "border-gray-200 dark:border-slate-800 hover:border-primary/50"
                         }`}
                     >
                       {selectedCardId === card.id && (
@@ -198,7 +223,7 @@ const DepositPage = () => {
 
             {/* AMOUNT INPUT */}
             <div>
-              <label className="text-lg font-bold">Enter Amount</label>
+              <label className="text-lg font-bold text-[#111714] dark:text-white">Enter Amount</label>
               <div className="relative mt-2">
                 <span className="absolute left-4 top-1/2 -translate-y-1/2 text-xl font-bold">
                   $
@@ -208,7 +233,7 @@ const DepositPage = () => {
                   min="0"
                   step="1000"
                   placeholder="0.00"
-                  className="w-full h-16 pl-9 pr-4 text-2xl font-bold border rounded-lg focus:ring-2 focus:ring-primary dark:bg-black/20"
+                  className="w-full h-16 pl-9 pr-4 text-2xl font-bold border border-gray-200 dark:border-slate-800 rounded-lg focus:ring-2 focus:ring-primary bg-white dark:bg-slate-800 text-[#111714] dark:text-white"
                   value={amount}
                   onChange={(e) => {
                     const val = e.target.value;
@@ -223,7 +248,7 @@ const DepositPage = () => {
                   <button
                     key={v}
                     type="button"
-                    className="h-8 px-4 border rounded-lg hover:border-primary hover:bg-primary/10 transition"
+                    className="h-8 px-4 border border-gray-200 dark:border-slate-800 rounded-lg hover:border-primary hover:bg-primary/10 transition text-[#111714] dark:text-white"
                     onClick={() => handleQuickAdd(v)}
                   >
                     +${v.toLocaleString()}
@@ -231,16 +256,16 @@ const DepositPage = () => {
                 ))}
               </div>
             </div>
-          </section>
+              </section>
 
-          {/* RIGHT CHECKOUT SECTION */}
-          <aside className="w-full lg:w-[380px]">
-            <div className="sticky top-24 bg-white dark:bg-[#1a2c22] border rounded-xl p-6 shadow-sm">
-              <h3 className="text-lg font-bold mb-6">Transaction Details</h3>
+              {/* RIGHT CHECKOUT SECTION */}
+              <aside className="w-full lg:w-[380px]">
+            <div className="sticky top-24 bg-white dark:bg-slate-800 border rounded-xl p-6 shadow-sm">
+              <h3 className="text-lg font-bold mb-6 text-[#111714] dark:text-white">Transaction Details</h3>
 
               <div className="flex justify-between mb-3">
-                <span className="text-[#648772]">Current Wallet Balance</span>
-                <strong>
+                <span className="text-[#648772] dark:text-slate-400">Current Wallet Balance</span>
+                <strong className="text-[#111714] dark:text-white">
                   $
                   {wallet
                     ? wallet.balance?.toLocaleString("en-US", {
@@ -252,8 +277,8 @@ const DepositPage = () => {
               </div>
 
               <div className="flex justify-between mb-3">
-                <span className="text-[#648772]">Deposit Amount</span>
-                <strong>
+                <span className="text-[#648772] dark:text-slate-400">Deposit Amount</span>
+                <strong className="text-[#111714] dark:text-white">
                   $
                   {Number(amount).toLocaleString("en-US", {
                     minimumFractionDigits: 0,
@@ -262,10 +287,10 @@ const DepositPage = () => {
                 </strong>
               </div>
 
-              <hr className="my-4 border-dashed border-gray-300" />
+              <hr className="my-4 border-dashed border-gray-300 dark:border-slate-800" />
 
               <div className="flex justify-between items-center mb-6">
-                <span className="font-bold">Total Pay</span>
+                <span className="font-bold text-[#111714] dark:text-white">Total Pay</span>
                 <span className="text-primary text-2xl font-black">
                   $
                   {Number(amount).toLocaleString("en-US", {
@@ -282,13 +307,12 @@ const DepositPage = () => {
                 Confirm Deposit
               </button>
             </div>
-          </aside>
+              </aside>
 
-          {/* RECENT DEPOSITS LIST */}
-          {/* Can be placed below or side. Original design had it below right logic or separate? In valid responsive design, below is fine. */}
-        </div>
+            </div>
+          </div>
 
-        {/* MOVED RECENT DEPOSITS OUTSIDE FLEX ROW TO BE FULL WIDTH BELOW OR KEEP IN FLOW? 
+          {/* MOVED RECENT DEPOSITS OUTSIDE FLEX ROW TO BE FULL WIDTH BELOW OR KEEP IN FLOW? 
              Original code: Inside main flex, so it was beside/below. 
              Let's put it below the 2 columns if needed, or keep in left column if space permits.
              Actually the original code had it as a sibling to LEFT/RIGHT section?? 
@@ -308,10 +332,9 @@ const DepositPage = () => {
              Actually, let's put Recent Deposits BELOW the columns, or inside the Left section at the bottom.
              Putting it in the Main container below the flex-row is better for mobile.
          */}
-      </main>
 
-      {/* HISTORY SECTION SEPARATE FROM COLUMNS */}
-      <div className="flex justify-center pb-20 px-4 md:px-10 lg:px-40">
+          {/* HISTORY SECTION SEPARATE FROM COLUMNS */}
+          <div className="flex justify-center pb-20 px-4 md:px-10">
         <div className="max-w-[1200px] w-full">
           <h3 className="text-[#111714] dark:text-white text-xl font-bold mb-4">
             Recent Card Deposits
@@ -324,7 +347,7 @@ const DepositPage = () => {
           ) : recentDeposits.length === 0 ? (
             <p className="text-sm text-gray-500">No deposit history found.</p>
           ) : (
-            <div className="bg-white dark:bg-[#1a2c22] rounded-xl border overflow-hidden">
+            <div className="bg-white dark:bg-slate-800 rounded-xl border overflow-hidden">
               {recentDeposits.map((tx) => (
                 <div
                   key={tx.transactionId || tx.id} // api might return transactionId
@@ -366,7 +389,9 @@ const DepositPage = () => {
               ))}
             </div>
           )}
-        </div>
+          </div>
+          </div>
+        </main>
       </div>
     </div>
   );

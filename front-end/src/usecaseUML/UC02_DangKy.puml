@@ -1,0 +1,63 @@
+@startuml UC02_DangKy
+title UC02 - Đăng ký tài khoản (Register)
+
+autonumber "<b>[00]</b>"
+skinparam sequenceArrowThickness 2
+skinparam roundcorner 10
+skinparam defaultFontSize 20
+skinparam titleFontSize 26
+skinparam sequenceFontSize 19
+skinparam sequenceMessageFontSize 20
+skinparam sequenceActorFontSize 20
+skinparam sequenceParticipantFontSize 20
+skinparam noteFontSize 18
+skinparam sequenceArrowFontSize 20
+skinparam sequence {
+    ParticipantPadding 30
+    LifeLinePadding 20
+    MessagePadding 10
+}
+
+actor "Người dùng" as User
+boundary ":RegisterUI" as UI
+control ":AuthController" as CTRL
+entity ":BackendAPI" as API
+database ":CSDL" as DB
+
+User -> UI : Truy cập trang đăng ký
+activate UI
+
+User -> UI : Nhập Email, Username, SĐT, Mật khẩu
+UI -> UI : Kiểm tra dữ liệu (client validate)
+
+User -> UI : Nhấn nút "Đăng ký"
+UI -> CTRL : Gửi thông tin đăng ký
+activate CTRL
+
+CTRL -> API : POST /api/auth/register
+activate API
+
+API -> DB : Kiểm tra tồn tại (Email/Username)
+activate DB
+DB --> API : Kết quả kiểm tra
+deactivate DB
+
+alt Đăng ký thành công
+    API -> DB : Lưu thông tin người dùng mới
+    activate DB
+    DB --> API : Thành công
+    deactivate DB
+    API --> CTRL : Trả về mã thành công (201)
+    CTRL --> UI : Đăng ký thành công
+    UI -> UI : Điều hướng về trang đăng nhập
+else Email/Username đã tồn tại
+    API --> CTRL : Trả về lỗi xung đột (409)
+    deactivate API
+    CTRL --> UI : Hiển thị thông báo trùng lặp
+    deactivate CTRL
+    UI --> User : Thông báo thông tin đã tồn tại
+end
+
+deactivate UI
+
+@enduml

@@ -1,0 +1,71 @@
+@startuml UC07_NapTienVi
+title UC07 - Nạp tiền vào ví (Deposit)
+
+autonumber "<b>[00]</b>"
+skinparam sequenceArrowThickness 2
+skinparam roundcorner 10
+skinparam defaultFontSize 20
+skinparam titleFontSize 26
+skinparam sequenceFontSize 19
+skinparam sequenceMessageFontSize 20
+skinparam sequenceActorFontSize 20
+skinparam sequenceParticipantFontSize 20
+skinparam noteFontSize 18
+skinparam sequenceArrowFontSize 20
+skinparam sequence {
+    ParticipantPadding 30
+    LifeLinePadding 20
+    MessagePadding 10
+}
+
+actor "Người dùng" as User
+boundary ":DepositUI" as UI
+control ":WalletController" as CTRL
+entity ":Transaction" as API
+database ":CSDL" as DB
+
+User -> UI : Truy cập trang nạp tiền
+activate UI
+
+UI -> CTRL : Lấy danh sách thẻ đã liên kết
+activate CTRL
+CTRL -> API : GET /api/wallet/cards
+activate API
+API -> DB : Truy vấn thẻ của người dùng
+activate DB
+DB --> API : Danh sách thẻ
+deactivate DB
+API --> CTRL : Trả về cards[]
+deactivate API
+CTRL --> UI : Hiển thị danh sách thẻ nạp
+deactivate CTRL
+
+User -> UI : Chọn thẻ và nhập số tiền cần nạp
+User -> UI : Nhấn nút "Nạp tiền"
+
+UI -> CTRL : Yêu cầu thực hiện nạp tiền
+activate CTRL
+
+CTRL -> API : POST /api/wallet/deposit
+activate API
+
+API -> DB : Khấu trừ từ thẻ ngân hàng liên kết
+activate DB
+DB --> API : Phản hồi từ Bank API thành công
+deactivate DB
+
+API -> DB : Cộng tiền vào ví & Ghi giao dịch
+activate DB
+DB --> API : Thành công
+deactivate DB
+
+API --> CTRL : Trả về mã giao dịch & Số dư mới
+deactivate API
+
+CTRL --> UI : Thông báo nạp tiền thành công
+deactivate CTRL
+
+UI --> User : Hiển thị thông báo "Nạp thành công"
+deactivate UI
+
+@enduml

@@ -1,0 +1,64 @@
+@startuml UC16_ShipperNhanDon
+title UC16 - Shipper nhận đơn hàng (Shipper Acceptance)
+
+autonumber "<b>[00]</b>"
+skinparam sequenceArrowThickness 2
+skinparam roundcorner 10
+skinparam defaultFontSize 20
+skinparam titleFontSize 26
+skinparam sequenceFontSize 19
+skinparam sequenceMessageFontSize 20
+skinparam sequenceActorFontSize 20
+skinparam sequenceParticipantFontSize 20
+skinparam noteFontSize 18
+skinparam sequenceArrowFontSize 20
+skinparam sequence {
+    ParticipantPadding 30
+    LifeLinePadding 20
+    MessagePadding 10
+}
+
+actor "Shipper" as SP
+boundary ":OrderListUI" as UI
+control ":ShipperController" as CTRL
+entity ":Order" as API
+database ":CSDL" as DB
+
+SP -> UI : Truy cập trang danh sách đơn đang chờ
+activate UI
+
+UI -> CTRL : Lấy các đơn hàng STATUS: PAID
+activate CTRL
+CTRL -> API : GET /api/shipper/available-orders
+activate API
+API -> DB : Truy vấn đơn chưa có Shipper
+activate DB
+DB --> API : Danh sách đơn hàng
+deactivate DB
+API --> CTRL : Trả về Order[]
+deactivate API
+CTRL --> UI : Hiển thị danh sách cho Shipper
+deactivate CTRL
+
+SP -> UI : Chọn đơn hàng và nhấn "Nhận đơn"
+UI -> CTRL : Yêu cầu nhận đơn #{id}
+activate CTRL
+
+CTRL -> API : PUT /api/shipper/accept-order/{id}
+activate API
+
+API -> DB : Cập nhật shipper_id & Trạng thái: CONFIRMED
+activate DB
+DB --> API : Thành công
+deactivate DB
+
+API --> CTRL : Xác nhận nhận đơn thành công
+deactivate API
+
+CTRL --> UI : Thông báo cho Shipper
+deactivate CTRL
+
+UI --> SP : "Bạn đã nhận đơn thành công. Hãy đến nhà hàng!"
+deactivate UI
+
+@enduml

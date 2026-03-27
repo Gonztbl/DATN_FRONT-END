@@ -123,13 +123,13 @@ export default function AdminVerifyFacePage() {
     };
 
     return (
-        <div className="flex min-h-screen bg-background-light dark:bg-background-dark font-display">
+        <div className="flex min-h-screen bg-slate-50 dark:bg-slate-950 font-display">
             <SidebarAdmin />
             <main className="flex-1 flex flex-col min-w-0 bg-slate-50 dark:bg-slate-950 h-screen overflow-y-auto w-full">
                 <HeaderAdmin title="User Management" />
 
                 <div className="p-6 lg:p-8">
-                    <div className="max-w-4xl mx-auto flex flex-col gap-6">
+                    <div className="max-w-5xl mx-auto flex flex-col gap-6">
                         <nav className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400 mb-2 font-display">
                             <Link to="/user-manager" className="hover:text-primary transition-colors">Users</Link>
                             <span className="material-symbols-outlined text-xs">chevron_right</span>

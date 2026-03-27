@@ -1,0 +1,53 @@
+@startuml UC14_LichSuDonHang
+title UC14 - Kiểm tra lịch sử đơn hàng
+
+autonumber "<b>[00]</b>"
+skinparam sequenceArrowThickness 2
+skinparam roundcorner 10
+skinparam defaultFontSize 20
+skinparam titleFontSize 26
+skinparam sequenceFontSize 19
+skinparam sequenceMessageFontSize 20
+skinparam sequenceActorFontSize 20
+skinparam sequenceParticipantFontSize 20
+skinparam noteFontSize 18
+skinparam sequenceArrowFontSize 20
+skinparam sequence {
+    ParticipantPadding 30
+    LifeLinePadding 20
+    MessagePadding 10
+}
+
+actor "Người dùng" as User
+boundary ":HistoryOrderUI" as UI
+control ":OrderController" as CTRL
+entity ":Order" as API
+database ":CSDL" as DB
+
+User -> UI : Truy cập trang Lịch sử đơn hàng
+activate UI
+
+UI -> CTRL : Yêu cầu danh sách đơn hàng của tôi
+activate CTRL
+
+CTRL -> API : GET /api/orders/my-orders
+activate API
+API -> DB : Truy vấn đơn hàng theo UserID
+activate DB
+DB --> API : Danh sách đơn hàng (Tất cả trạng thái)
+deactivate DB
+API --> CTRL : Trả về dữ liệu Order[]
+deactivate API
+
+CTRL --> UI : Hiển thị danh sách (Thẻ đơn hàng)
+deactivate CTRL
+
+User -> UI : Chuyển Tab (Đang giao / Đã giao)
+UI -> UI : Filter Client-side theo trạng thái 'status'
+
+User -> UI : Nhấn vào một đơn hàng bất kỳ
+UI -> UI : Chuyển hướng tới trang Chi tiết đơn hàng
+
+deactivate UI
+
+@enduml

@@ -1,0 +1,73 @@
+@startuml UC10_NhanTienQR
+title UC10 - Nhận tiền qua mã QR (Receive Money)
+
+autonumber "<b>[00]</b>"
+skinparam sequenceArrowThickness 2
+skinparam roundcorner 10
+skinparam defaultFontSize 20
+skinparam titleFontSize 26
+skinparam sequenceFontSize 19
+skinparam sequenceMessageFontSize 20
+skinparam sequenceActorFontSize 20
+skinparam sequenceParticipantFontSize 20
+skinparam noteFontSize 18
+skinparam sequenceArrowFontSize 20
+skinparam sequence {
+    ParticipantPadding 30
+    LifeLinePadding 20
+    MessagePadding 10
+}
+
+actor "Người nhận" as User
+boundary ":ReceiveMoneyUI" as UI
+control ":WalletController" as CTRL
+entity ":Profile" as API
+database ":CSDL" as DB
+
+User -> UI : Truy cập trang Nhận tiền
+activate UI
+
+UI -> CTRL : Lấy thông tin ID người dùng
+activate CTRL
+CTRL -> API : GET /api/users/profile
+activate API
+API -> DB : Truy vấn thông tin tài khoản
+activate DB
+DB --> API : Trả về thông tin Profile (userId/phone)
+deactivate DB
+API --> CTRL : Dữ liệu đầy đủ
+deactivate API
+CTRL --> UI : Trả về Profile Data
+deactivate CTRL
+
+UI -> UI : Tạo QR Code từ userId & phone
+
+alt Nhập số tiền nhận (Tùy chọn)
+    User -> UI : Nhập số tiền nhận cụ thể
+    UI -> UI : Cập nhật QR Code mới kèm số tiền
+end
+
+UI --> User : Hiển thị mã QR lên màn hình
+
+UI -> CTRL : Theo dõi giao dịch đến (Polling/Websocket)
+loop Chờ người gửi thanh toán
+    activate CTRL
+    CTRL -> API : GET /api/wallet/transactions?type=RECEIVE
+    activate API
+    API -> DB : Kiểm tra giao dịch mới nhất
+    activate DB
+    DB --> API : Không có / Có giao dịch mới
+    deactivate DB
+    API --> CTRL : Kết quả
+    deactivate API
+    
+    alt Phát hiện tiền đã vào ví
+        CTRL --> UI : Thông báo nhận tiền thành công
+        UI --> User : "Bạn vừa nhận được {Amount}đ!"
+    end
+    deactivate CTRL
+end
+
+deactivate UI
+
+@enduml
