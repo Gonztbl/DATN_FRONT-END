@@ -19,6 +19,10 @@ const MerchantOrderPage = () => {
     const [size] = useState(10);
     const [totalElements, setTotalElements] = useState(0);
 
+    // New state for quick view details
+    const [orderDetailsMap, setOrderDetailsMap] = useState({});
+    const [loadingDetails, setLoadingDetails] = useState(new Set());
+
     const tabs = [
         { name: "Chờ duyệt", value: 'PENDING' },
         { name: "Đã xác nhận", value: 'CONFIRMED' },
@@ -91,7 +95,7 @@ const MerchantOrderPage = () => {
             case 'COMPLETED': return 'Hoàn thành';
             case 'CANCELLED': return 'Đã hủy';
             case 'FAILED': return 'Thất bại';
-            default: return status || 'N/A';
+            default: return status || 'Không rõ';
         }
     };
 
@@ -151,6 +155,28 @@ const MerchantOrderPage = () => {
             }
         }
     };
+
+    const handleRowMouseEnter = useCallback(async (orderId) => {
+        // Skip if already in map or currently loading
+        if (orderDetailsMap[orderId] || loadingDetails.has(orderId)) return;
+
+        setLoadingDetails(prev => new Set(prev).add(orderId));
+        try {
+            const res = await merchantOrderService.getOrderDetail(orderId);
+            const detailData = res.data?.data || res.data;
+            if (detailData) {
+                setOrderDetailsMap(prev => ({ ...prev, [orderId]: detailData }));
+            }
+        } catch (error) {
+            console.error("Lỗi khi tải chi tiết nhanh cho tooltip:", error);
+        } finally {
+            setLoadingDetails(prev => {
+                const next = new Set(prev);
+                next.delete(orderId);
+                return next;
+            });
+        }
+    }, [orderDetailsMap, loadingDetails]);
     
     // Pagination controls
     const canPrev = page > 0;
@@ -229,8 +255,8 @@ const MerchantOrderPage = () => {
                     </div>
 
                     {/* Orders Table */}
-                    <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm">
-                        <div className="overflow-x-auto min-h-[300px]">
+                    <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
+                        <div className="min-h-[300px]">
                             {loading ? (
                                 <div className="flex flex-col items-center justify-center py-20">
                                     <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary mb-4"></div>
@@ -256,18 +282,101 @@ const MerchantOrderPage = () => {
                                     </thead>
                                     <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                                         {orders.map((order) => {
-                                            const itemsString = order.orderItems?.map(i => `${i.quantity}x ${i.productName}`).join(', ');
+                                            const fullOrder = orderDetailsMap[order.id] || order;
+                                            const isDetailLoading = loadingDetails.has(order.id);
+                                            const currentItems = fullOrder.items || fullOrder.orderItems || [];
+                                            const itemsString = currentItems.map(i => `${i.quantity}x ${i.productName}`).join(', ');
+
                                             return (
-                                                <tr key={order.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
-                                                    <td className="px-6 py-4 font-mono font-bold text-primary cursor-pointer hover:underline" onClick={() => navigate(`/merchant/orders/${order.id}`)}>
-                                                        #{order.id}
+                                                <tr 
+                                                    key={order.id} 
+                                                    onMouseEnter={() => handleRowMouseEnter(order.id)}
+                                                    className="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors group relative"
+                                                >
+                                                    <td 
+                                                        className="px-6 py-4 font-mono font-bold text-primary cursor-pointer hover:underline" 
+                                                        onClick={() => navigate(`/merchant/orders/${order.id}`)}
+                                                    >
+                                                        {order.orderCode || `#${order.id}`}
+                                                        
+                                                        {/* Advanced Quick view Tooltip */}
+                                                        <div className="absolute bottom-full left-0 hidden group-hover:block z-[999] w-[950px] p-6 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 rounded-2xl shadow-[0_20px_60px_rgba(0,0,0,0.3)] border border-slate-200 dark:border-slate-800 mb-4 pointer-events-none animate-in fade-in slide-in-from-bottom-2 duration-300">
+                                                            <div className="grid grid-cols-4 gap-6 text-sm">
+                                                                {/* Col 1: Customer */}
+                                                                <div className="space-y-4">
+                                                                    <h5 className="text-[10px] uppercase font-black tracking-widest text-primary border-b border-slate-100 dark:border-slate-800 pb-2">Khách hàng</h5>
+                                                                    <div className="space-y-3">
+                                                                        <div className="flex items-start gap-2.5">
+                                                                            <span className="material-symbols-outlined text-slate-400 text-lg">person</span>
+                                                                            <div className="flex flex-col">
+                                                                                <span className="font-bold text-sm leading-tight">{fullOrder.customerName || fullOrder.recipientName || 'N/A'}</span>
+                                                                                <span className="text-[10px] text-slate-500 mt-0.5">{fullOrder.paymentMethod || 'SmartPay'}</span>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div className="flex items-center gap-2.5">
+                                                                            <span className="material-symbols-outlined text-slate-400 text-lg">call</span>
+                                                                            <span className="font-mono font-bold text-xs text-slate-600 dark:text-slate-400">{fullOrder.customerPhone || fullOrder.recipientPhone || 'N/A'}</span>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+
+                                                                {/* Col 2: Address */}
+                                                                <div className="space-y-4">
+                                                                    <h5 className="text-[10px] uppercase font-black tracking-widest text-primary border-b border-slate-100 dark:border-slate-800 pb-2">Địa chỉ giao</h5>
+                                                                    <div className="flex items-start gap-2.5">
+                                                                        <span className="material-symbols-outlined text-slate-400 text-lg flex-shrink-0">location_on</span>
+                                                                        {isDetailLoading ? (
+                                                                            <p className="text-xs text-slate-400 animate-pulse italic">Đang tải địa chỉ...</p>
+                                                                        ) : (
+                                                                            <p className="font-medium text-slate-700 dark:text-slate-300 text-xs leading-relaxed italic break-words">
+                                                                                {fullOrder.deliveryAddress || 'Chưa cập nhật địa chỉ'}
+                                                                            </p>
+                                                                        )}
+                                                                    </div>
+                                                                </div>
+
+                                                                {/* Col 3: Note */}
+                                                                <div className="space-y-4">
+                                                                    <h5 className="text-[10px] uppercase font-black tracking-widest text-primary border-b border-slate-100 dark:border-slate-800 pb-2">Ghi chú</h5>
+                                                                    <div className="flex items-start gap-2.5 bg-amber-50 dark:bg-amber-900/10 p-2.5 rounded-xl border border-amber-100 dark:border-amber-900/20 min-h-[60px]">
+                                                                        <span className="material-symbols-outlined text-amber-500 text-lg flex-shrink-0">sticky_note_2</span>
+                                                                        {isDetailLoading ? (
+                                                                             <p className="text-xs text-amber-600/50 animate-pulse italic">Đang lấy ghi chú...</p>
+                                                                        ) : (
+                                                                            <p className="italic text-amber-800 dark:text-amber-200 text-xs font-medium break-words">
+                                                                                {fullOrder.note ? `"${fullOrder.note}"` : 'Không có ghi chú'}
+                                                                            </p>
+                                                                        )}
+                                                                    </div>
+                                                                </div>
+
+                                                                {/* Col 4: Items */}
+                                                                <div className="space-y-4">
+                                                                    <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-2">
+                                                                        <h5 className="text-[10px] uppercase font-black tracking-widest text-primary">Món đã đặt</h5>
+                                                                        <span className="text-[10px] font-bold text-slate-400">{(fullOrder.items || fullOrder.orderItems || []).length} món</span>
+                                                                    </div>
+                                                                    <ul className="space-y-2 max-h-[120px] overflow-y-auto pr-1 no-scrollbar text-xs">
+                                                                        {(fullOrder.items || fullOrder.orderItems || []).map((it, idx) => (
+                                                                            <li key={idx} className="flex justify-between items-start gap-3 bg-slate-50 dark:bg-slate-800/50 p-2 rounded-lg border border-slate-100 dark:border-slate-700/50">
+                                                                                <span className="font-bold text-slate-700 dark:text-slate-300 truncate flex-1">{it.productName}</span>
+                                                                                <span className="bg-primary/20 text-primary px-1.5 py-0.5 rounded font-black whitespace-nowrap">x{it.quantity}</span>
+                                                                            </li>
+                                                                        ))}
+                                                                    </ul>
+                                                                </div>
+                                                            </div>
+                                                            
+                                                            {/* Arrow pointer */}
+                                                            <div className="absolute left-6 top-full w-4 h-4 bg-white dark:bg-slate-900 rotate-45 border-r border-b border-slate-200 dark:border-slate-800 -mt-2 -translate-y-2"></div>
+                                                        </div>
                                                     </td>
                                                     <td className="px-6 py-4 text-sm font-medium text-slate-600 dark:text-slate-400 whitespace-nowrap">
                                                         {formatTime(order.createdAt)}
                                                     </td>
                                                     <td className="px-6 py-4">
                                                         <div className="flex flex-col">
-                                                            <span className="font-bold text-sm text-slate-900 dark:text-slate-100 line-clamp-1">{order.recipientName}</span>
+                                                            <span className="font-bold text-sm text-slate-900 dark:text-slate-100 line-clamp-1">{order.customerName || order.recipientName}</span>
                                                             <span className="text-xs text-slate-500 mt-1">{order.paymentMethod || 'SmartPay'}</span>
                                                         </div>
                                                     </td>

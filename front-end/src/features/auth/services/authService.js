@@ -47,6 +47,7 @@ const authService = {
 
         // Lưu user info trực tiếp từ response
         const user = {
+          id: response.data.id ?? response.data.userId,
           username: response.data.userName || 'User',
           email: response.data.email,
           fullName: response.data.fullName,

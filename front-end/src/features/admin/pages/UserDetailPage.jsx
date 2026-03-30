@@ -246,16 +246,16 @@ export default function UserDetailPage() {
       <SidebarAdmin />
 
       <main className="flex-1 flex flex-col min-w-0 bg-slate-50 dark:bg-slate-950 h-screen overflow-y-auto w-full">
-        <HeaderAdmin title="User Management" />
+        <HeaderAdmin title="Quản lý người dùng" />
         
         <div className="p-6 lg:p-8">
           <div className="max-w-[1400px] mx-auto flex flex-col gap-6">
             {/* Breadcrumbs */}
             <nav className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400 mb-2 font-display">
-              <Link to="/user-manager" className="hover:text-primary transition-colors">Users</Link>
+              <Link to="/user-manager" className="hover:text-primary transition-colors">Người dùng</Link>
               <span className="material-symbols-outlined text-xs">chevron_right</span>
               <span className="text-slate-900 dark:text-slate-200 font-medium">
-                User Details - {user.fullName || user.userName}
+                Chi tiết người dùng - {user.fullName || user.userName}
               </span>
             </nav>
 
@@ -273,7 +273,7 @@ export default function UserDetailPage() {
                   <p className="text-slate-500 dark:text-slate-400 text-sm flex items-center gap-2">
                     ID: SP-{user.id} <span className="inline-block w-1 h-1 rounded-full bg-slate-300 dark:bg-slate-700"></span>
                     <span className={`${isUserActive ? "text-emerald-600 dark:text-emerald-400" : "text-red-500 font-semibold"}`}>
-                      {isUserActive ? "Active" : "Locked"}
+                      {isUserActive ? "Hoạt động" : "Đã khóa"}
                     </span>
                   </p>
                 </div>
@@ -283,13 +283,13 @@ export default function UserDetailPage() {
                   onClick={handleOpenEditModal}
                   className="px-4 py-2 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 rounded-lg text-sm font-semibold hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors shadow-sm"
                 >
-                  Edit Profile
+                  Chỉnh sửa hồ sơ
                 </button>
                 <button 
                   onClick={handleDeleteUser}
                   className="px-4 py-2 border border-red-200 dark:border-red-900 bg-red-50 dark:bg-red-950/30 text-red-600 rounded-lg text-sm font-semibold hover:bg-red-100 transition-colors shadow-sm"
                 >
-                  Delete User
+                  Xóa người dùng
                 </button>
               </div>
             </div>
@@ -306,9 +306,9 @@ export default function UserDetailPage() {
                       : "text-slate-500 dark:text-slate-400 border-transparent hover:text-slate-700 dark:hover:text-slate-200"
                   }`}
                 >
-                  {tab === "general" ? "General Info" : 
-                   tab === "wallets" ? "Wallets" : 
-                   tab === "biometrics" ? "Biometrics" : "Activity Logs"}
+                  {tab === "general" ? "Thông tin chung" : 
+                   tab === "wallets" ? "Ví" : 
+                   tab === "biometrics" ? "Sinh trắc học" : "Lịch sử hoạt động"}
                 </button>
               ))}
             </div>
@@ -325,9 +325,9 @@ export default function UserDetailPage() {
                       <span className="material-symbols-outlined !text-2xl">face</span>
                     </div>
                     <div>
-                      <h3 className="font-bold text-lg leading-tight text-slate-900 dark:text-white">Biometric Face Authentication</h3>
+                      <h3 className="font-bold text-lg leading-tight text-slate-900 dark:text-white">Xác thực sinh trắc học khuôn mặt</h3>
                       <p className="text-slate-500 dark:text-slate-400 text-sm">
-                        Last verified: {lastVerifiedDate ? lastVerifiedDate.toLocaleString("vi-VN") : "Never"}
+                        Xác thực lần cuối: {lastVerifiedDate ? lastVerifiedDate.toLocaleString("vi-VN") : "Chưa từng"}
                       </p>
                     </div>
                   </div>
@@ -336,25 +336,25 @@ export default function UserDetailPage() {
                       onClick={() => handleAddEmbedding()}
                       className="flex-1 lg:flex-none flex items-center justify-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-lg text-sm font-bold shadow-sm hover:bg-emerald-700 transition-colors"
                     >
-                      <span className="material-symbols-outlined">add</span> Add New Embedding
+                      <span className="material-symbols-outlined">add</span> Thêm khuôn mặt mới
                     </button>
                     <button 
                       onClick={handleTestVerification}
                       disabled={embeddings.length === 0}
-                      title={embeddings.length === 0 ? "User has no face embeddings to test" : "Test biometric verification"}
+                      title={embeddings.length === 0 ? "Người dùng chưa có dữ liệu khuôn mặt để kiểm tra" : "Kiểm tra xác thực sinh trắc học"}
                       className={`flex-1 lg:flex-none flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm font-bold shadow-sm transition-all ${
                         embeddings.length === 0 
                           ? "bg-slate-300 text-slate-500 cursor-not-allowed border border-slate-200" 
                           : "bg-blue-600 text-white hover:bg-blue-700"
                       }`}
                     >
-                      <span className="material-symbols-outlined">verified</span> Test Verification
+                      <span className="material-symbols-outlined">verified</span> Kiểm tra xác thực
                     </button>
                     <button 
                       onClick={handleResetAll}
                       className="flex-1 lg:flex-none flex items-center justify-center gap-2 px-4 py-2 bg-red-50 dark:bg-red-950/30 text-red-600 dark:text-red-400 border border-red-100 dark:border-red-900 rounded-lg text-sm font-bold hover:bg-red-100 dark:hover:bg-red-900/50 transition-colors"
                     >
-                      <span className="material-symbols-outlined">delete_sweep</span> Reset All
+                      <span className="material-symbols-outlined">delete_sweep</span> Xóa tất cả
                     </button>
                   </div>
                 </div>
@@ -363,8 +363,8 @@ export default function UserDetailPage() {
               {/* Embeddings Table */}
               <div>
                 <div className="flex items-center justify-between mb-4">
-                  <h4 className="font-bold text-slate-900 dark:text-slate-100">Stored Embeddings ({embeddings.length})</h4>
-                  <span className="text-xs text-slate-500 uppercase font-bold tracking-wider">Face Recognition V2.4</span>
+                  <h4 className="font-bold text-slate-900 dark:text-slate-100">Dữ liệu khuôn mặt đã lưu ({embeddings.length})</h4>
+                  <span className="text-xs text-slate-500 uppercase font-bold tracking-wider">Nhận diện khuôn mặt V2.4</span>
                 </div>
                 
                 {embeddings.length > 0 ? (
@@ -372,11 +372,11 @@ export default function UserDetailPage() {
                     <table className="w-full text-left border-collapse">
                       <thead className="bg-slate-50 dark:bg-slate-800/80 text-slate-500 dark:text-slate-400 text-xs uppercase font-bold">
                         <tr>
-                          <th className="px-6 py-4">Embedding ID</th>
-                          <th className="px-6 py-4">Pose</th>
-                          <th className="px-6 py-4">Created At</th>
-                          <th className="px-6 py-4">Status</th>
-                          <th className="px-6 py-4 text-right">Action</th>
+                          <th className="px-6 py-4">ID Dữ liệu</th>
+                          <th className="px-6 py-4">Tư thế</th>
+                          <th className="px-6 py-4">Ngày tạo</th>
+                          <th className="px-6 py-4">Trạng thái</th>
+                          <th className="px-6 py-4 text-right">Thao tác</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-slate-100 dark:divide-slate-800 text-sm">
@@ -388,7 +388,11 @@ export default function UserDetailPage() {
                                 <span className="material-symbols-outlined text-slate-400">
                                   {emb.pose === "front" ? "person" : emb.pose === "left" ? "turn_right" : "turn_left"}
                                 </span>
-                                <span className="capitalize">{emb.pose}</span>
+                                <span className="capitalize">
+                                  {emb.pose === 'front' ? 'Chính diện' : 
+                                   emb.pose === 'left' ? 'Bên trái' : 
+                                   emb.pose === 'right' ? 'Bên phải' : emb.pose}
+                                </span>
                               </div>
                             </td>
                             <td className="px-6 py-4 text-slate-500 dark:text-slate-400">
@@ -398,7 +402,7 @@ export default function UserDetailPage() {
                             </td>
                             <td className="px-6 py-4">
                               <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400">
-                                Active
+                                Hoạt động
                               </span>
                             </td>
                             <td className="px-6 py-4 text-right">
@@ -419,13 +423,13 @@ export default function UserDetailPage() {
                     <div className="size-16 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-4 text-slate-400">
                       <span className="material-symbols-outlined !text-3xl">no_photography</span>
                     </div>
-                    <h3 className="text-lg font-bold mb-1">No Biometric Data Found</h3>
-                    <p className="text-slate-500 text-sm mb-6">This user hasn't set up face authentication yet.</p>
+                    <h3 className="text-lg font-bold mb-1">Không tìm thấy dữ liệu sinh trắc học</h3>
+                    <p className="text-slate-500 text-sm mb-6">Người dùng này chưa thiết lập xác thực khuôn mặt.</p>
                     <button 
                       onClick={() => handleAddEmbedding()}
                       className="px-6 py-2 bg-primary text-white rounded-lg text-sm font-bold shadow-sm hover:opacity-90 transition-opacity"
                     >
-                      Initialize Setup
+                      Thiết lập ngay
                     </button>
                   </div>
                 )}
@@ -441,23 +445,23 @@ export default function UserDetailPage() {
                 <div className="bg-slate-50 dark:bg-slate-800/50 rounded-xl p-6 border border-slate-100 dark:border-slate-800/50">
                   <h3 className="text-lg font-bold mb-4 flex items-center gap-2 text-slate-900 dark:text-white">
                     <span className="material-symbols-outlined text-primary">badge</span>
-                    Account Details
+                    Chi tiết tài khoản
                   </h3>
                   <div className="space-y-4">
                     <div>
-                      <span className="text-sm font-medium text-slate-500 dark:text-slate-400 block mb-1">Username</span>
+                      <span className="text-sm font-medium text-slate-500 dark:text-slate-400 block mb-1">Tên đăng nhập</span>
                       <p className="font-semibold text-slate-900 dark:text-white">{user.userName}</p>
                     </div>
                     <div>
                       <span className="text-sm font-medium text-slate-500 dark:text-slate-400 block mb-1">Email</span>
-                      <p className="font-semibold text-slate-900 dark:text-white">{user.email || "Not provided"}</p>
+                      <p className="font-semibold text-slate-900 dark:text-white">{user.email || "Chưa cung cấp"}</p>
                     </div>
                     <div>
-                      <span className="text-sm font-medium text-slate-500 dark:text-slate-400 block mb-1">Phone Number</span>
-                      <p className="font-semibold text-slate-900 dark:text-white">{user.phone || "Not provided"}</p>
+                      <span className="text-sm font-medium text-slate-500 dark:text-slate-400 block mb-1">Số điện thoại</span>
+                      <p className="font-semibold text-slate-900 dark:text-white">{user.phone || "Chưa cung cấp"}</p>
                     </div>
                     <div>
-                      <span className="text-sm font-medium text-slate-500 dark:text-slate-400 block mb-1">Role</span>
+                      <span className="text-sm font-medium text-slate-500 dark:text-slate-400 block mb-1">Vai trò</span>
                       <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold leading-none bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400">
                         {user.role || wallets[0]?.role || user.roles?.[0]?.name || "USER"}
                       </span>
@@ -469,30 +473,30 @@ export default function UserDetailPage() {
                 <div className="bg-slate-50 dark:bg-slate-800/50 rounded-xl p-6 border border-slate-100 dark:border-slate-800/50">
                   <h3 className="text-lg font-bold mb-4 flex items-center gap-2 text-slate-900 dark:text-white">
                     <span className="material-symbols-outlined text-primary">info</span>
-                    System Information
+                    Thông tin hệ thống
                   </h3>
                   <div className="space-y-4">
                     <div>
-                      <span className="text-sm font-medium text-slate-500 dark:text-slate-400 block mb-1">Account Created</span>
+                      <span className="text-sm font-medium text-slate-500 dark:text-slate-400 block mb-1">Ngày tạo tài khoản</span>
                       <p className="font-semibold text-slate-900 dark:text-white">
                         {user.createdAt ? new Date(user.createdAt).toLocaleString("vi-VN", {
                           dateStyle: "medium", timeStyle: "short"
-                        }) : "Unknown"}
+                        }) : "Không rõ"}
                       </p>
                     </div>
                     <div>
-                      <span className="text-sm font-medium text-slate-500 dark:text-slate-400 block mb-1">Account Status</span>
+                      <span className="text-sm font-medium text-slate-500 dark:text-slate-400 block mb-1">Trạng thái tài khoản</span>
                       <p className={`font-semibold ${isUserActive ? "text-emerald-600 dark:text-emerald-400" : "text-red-500"}`}>
-                        {isUserActive ? "Active" : "Locked"}
+                        {isUserActive ? "Hoạt động" : "Đã khóa"}
                       </p>
                     </div>
                     <div>
-                      <span className="text-sm font-medium text-slate-500 dark:text-slate-400 block mb-1">Number of Wallets</span>
-                      <p className="font-semibold text-slate-900 dark:text-white">{wallets.length} wallet(s)</p>
+                      <span className="text-sm font-medium text-slate-500 dark:text-slate-400 block mb-1">Số lượng ví</span>
+                      <p className="font-semibold text-slate-900 dark:text-white">{wallets.length} ví</p>
                     </div>
                     <div>
-                      <span className="text-sm font-medium text-slate-500 dark:text-slate-400 block mb-1">Total Transactions</span>
-                      <p className="font-semibold text-slate-900 dark:text-white">{transactions.length} transaction(s)</p>
+                      <span className="text-sm font-medium text-slate-500 dark:text-slate-400 block mb-1">Tổng số giao dịch</span>
+                      <p className="font-semibold text-slate-900 dark:text-white">{transactions.length} giao dịch</p>
                     </div>
                   </div>
                 </div>
@@ -504,12 +508,12 @@ export default function UserDetailPage() {
           {activeTab === "wallets" && (
             <div className="p-6 animate-in fade-in duration-300">
               <div className="flex items-center justify-between mb-4">
-                <h4 className="font-bold text-slate-900 dark:text-slate-100">User Wallets ({wallets.length})</h4>
+                <h4 className="font-bold text-slate-900 dark:text-slate-100">Ví của người dùng ({wallets.length})</h4>
                 <button 
                   onClick={() => navigate("/admin/wallets")}
                   className="text-sm font-bold text-primary hover:underline"
                 >
-                  Manage in Wallet Center
+                  Quản lý tại Trung tâm Ví
                 </button>
               </div>
 
@@ -533,7 +537,7 @@ export default function UserDetailPage() {
                       </div>
                       
                       <div className="space-y-1 mb-6">
-                        <p className="text-sm text-slate-500 font-medium">Available Balance</p>
+                        <p className="text-sm text-slate-500 font-medium">Số dư khả dụng</p>
                         <p className="text-3xl font-extrabold text-slate-900 dark:text-white">
                           {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(wallet.availableBalance || 0)}
                         </p>
@@ -544,13 +548,13 @@ export default function UserDetailPage() {
                           onClick={() => navigate("/admin/wallets", { state: { searchId: wallet.accountNumber } })}
                           className="px-4 py-2 text-sm font-semibold rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200"
                         >
-                          View Details
+                          Xem chi tiết
                         </button>
                         <button 
                           onClick={() => navigate("/admin/wallets", { state: { topupWalletUserId: wallet.userId } })}
                           className="px-4 py-2 text-sm font-semibold rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 border border-blue-200"
                         >
-                          Topup
+                          Nạp tiền
                         </button>
                       </div>
                     </div>
@@ -561,8 +565,8 @@ export default function UserDetailPage() {
                   <div className="size-16 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-4 text-slate-400">
                     <span className="material-symbols-outlined !text-3xl">account_balance_wallet</span>
                   </div>
-                  <h3 className="text-lg font-bold mb-1">No Wallets Found</h3>
-                  <p className="text-slate-500 text-sm mb-6">This user does not have any active wallets.</p>
+                  <h3 className="text-lg font-bold mb-1">Không tìm thấy ví</h3>
+                  <p className="text-slate-500 text-sm mb-6">Người dùng này không có ví nào đang hoạt động.</p>
                 </div>
               )}
             </div>
@@ -572,12 +576,12 @@ export default function UserDetailPage() {
           {activeTab === "activity" && (
             <div className="p-6 animate-in fade-in duration-300">
               <div className="flex items-center justify-between mb-4">
-                <h4 className="font-bold text-slate-900 dark:text-slate-100">Recent Transactions ({transactions.length})</h4>
+                <h4 className="font-bold text-slate-900 dark:text-slate-100">Giao dịch gần đây ({transactions.length})</h4>
                 <button 
                   onClick={() => navigate("/admin/transactions", { state: { searchUserId: id } })}
                   className="text-sm font-bold text-primary hover:underline"
                 >
-                  View All in History
+                  Xem tất cả lịch sử
                 </button>
               </div>
 
@@ -586,18 +590,24 @@ export default function UserDetailPage() {
                   <table className="w-full text-left border-collapse">
                     <thead className="bg-slate-50 dark:bg-slate-800/80 text-slate-500 text-xs uppercase font-bold">
                       <tr>
-                        <th className="px-6 py-4">Txn ID</th>
-                        <th className="px-6 py-4">Type</th>
-                        <th className="px-6 py-4 text-right">Amount</th>
-                        <th className="px-6 py-4">Status</th>
-                        <th className="px-6 py-4">Date</th>
+                        <th className="px-6 py-4">ID Giao dịch</th>
+                        <th className="px-6 py-4">Loại</th>
+                        <th className="px-6 py-4 text-right">Số tiền</th>
+                        <th className="px-6 py-4">Trạng thái</th>
+                        <th className="px-6 py-4">Ngày</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100 dark:divide-slate-800 text-sm">
                       {transactions.slice(0, 10).map((txn) => ( // Show only top 10 recent
                         <tr key={txn.transactionId} className="hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors">
                           <td className="px-6 py-4 font-medium font-mono text-xs text-slate-600 dark:text-slate-400">{txn.transactionId}</td>
-                          <td className="px-6 py-4 font-semibold text-slate-700 dark:text-slate-200">{txn.type}</td>
+                          <td className="px-6 py-4 font-semibold text-slate-700 dark:text-slate-200">
+                            {txn.type === 'DEPOSIT' ? 'Nạp tiền' : 
+                             txn.type === 'WITHDRAW' ? 'Rút tiền' : 
+                             txn.type === 'TRANSFER' ? 'Chuyển tiền' : 
+                             txn.type === 'PAYMENT' ? 'Thanh toán' : 
+                             txn.type === 'REFUND' ? 'Hoàn tiền' : txn.type}
+                          </td>
                           <td className={`px-6 py-4 font-extrabold text-right ${txn.direction === 'OUT' ? 'text-red-500' : 'text-emerald-500 dark:text-emerald-400'}`}>
                             {txn.direction === 'OUT' ? '-' : '+'}{new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(txn.amount)}
                           </td>
@@ -607,7 +617,9 @@ export default function UserDetailPage() {
                               txn.status === 'FAILED' ? 'bg-red-100 text-red-800' : 
                               'bg-amber-100 text-amber-800'
                             }`}>
-                              {txn.status}
+                              {txn.status === 'COMPLETED' ? 'Hoàn thành' : 
+                               txn.status === 'FAILED' ? 'Thất bại' : 
+                               txn.status === 'PENDING' ? 'Đang chờ' : txn.status}
                             </span>
                           </td>
                           <td className="px-6 py-4 text-slate-500 dark:text-slate-400">
@@ -621,7 +633,7 @@ export default function UserDetailPage() {
                   </table>
                   {transactions.length > 10 && (
                     <div className="p-4 text-center bg-slate-50 dark:bg-slate-800/30">
-                      <p className="text-sm text-slate-500 italic">Showing 10 most recent transactions.</p>
+                      <p className="text-sm text-slate-500 italic">Đang hiển thị 10 giao dịch gần nhất.</p>
                     </div>
                   )}
                 </div>
@@ -630,8 +642,8 @@ export default function UserDetailPage() {
                   <div className="size-16 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-4 text-slate-400">
                     <span className="material-symbols-outlined !text-3xl">receipt_long</span>
                   </div>
-                  <h3 className="text-lg font-bold mb-1">No Transactions Found</h3>
-                  <p className="text-slate-500 text-sm mb-6">This user has not made any transactions yet.</p>
+                  <h3 className="text-lg font-bold mb-1">Không tìm thấy giao dịch</h3>
+                  <p className="text-slate-500 text-sm mb-6">Người dùng này chưa thực hiện bất kỳ giao dịch nào.</p>
                 </div>
               )}
             </div>
@@ -647,7 +659,7 @@ export default function UserDetailPage() {
           <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-xl w-full max-w-md overflow-hidden border border-slate-200 dark:border-slate-800">
             <div className="flex justify-between items-center p-6 border-b border-slate-100 dark:border-slate-800">
               <h3 className="text-xl font-bold font-display text-slate-800 dark:text-slate-100">
-                Edit User Profile
+                Chỉnh sửa hồ sơ người dùng
               </h3>
               <button 
                 onClick={handleCloseEditModal}
@@ -659,7 +671,7 @@ export default function UserDetailPage() {
             <form onSubmit={handleSaveProfile} className="p-6 space-y-4">
               <div>
                 <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                  Username
+                  Tên đăng nhập
                 </label>
                 <input
                   type="text"
@@ -667,13 +679,13 @@ export default function UserDetailPage() {
                   value={editFormData.userName}
                   onChange={handleFormChange}
                   className="w-full px-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 text-slate-900 dark:text-white"
-                  placeholder="e.g. john_doe"
+                  placeholder="VD: john_doe"
                   required
                 />
               </div>
               <div>
                 <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                  Full Name
+                  Họ và tên
                 </label>
                 <input
                   type="text"
@@ -681,7 +693,7 @@ export default function UserDetailPage() {
                   value={editFormData.fullName}
                   onChange={handleFormChange}
                   className="w-full px-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 text-slate-900 dark:text-white"
-                  placeholder="e.g. John Doe"
+                  placeholder="VD: Nguyễn Văn A"
                   required
                 />
               </div>
@@ -701,7 +713,7 @@ export default function UserDetailPage() {
               </div>
               <div>
                 <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                  Phone Number
+                  Số điện thoại
                 </label>
                 <input
                   type="tel"
@@ -709,7 +721,7 @@ export default function UserDetailPage() {
                   value={editFormData.phone}
                   onChange={handleFormChange}
                   className="w-full px-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 text-slate-900 dark:text-white"
-                  placeholder="123-456-7890"
+                  placeholder="0123 456 789"
                 />
               </div>
               
@@ -722,10 +734,10 @@ export default function UserDetailPage() {
                   className="size-5 rounded border-slate-300 dark:border-slate-600 text-emerald-600 focus:ring-emerald-600 dark:bg-slate-700"
                 />
                 <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">
-                  Account is Active
+                  Tài khoản đang hoạt động
                 </span>
                 <span className={`ml-auto text-xs font-bold px-2 py-0.5 rounded-full ${editFormData.isActive ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400' : 'bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-400'}`}>
-                  {editFormData.isActive ? 'ON' : 'LOCKED'}
+                  {editFormData.isActive ? 'BẬT' : 'ĐÃ KHÓA'}
                 </span>
               </label>
 
@@ -735,7 +747,7 @@ export default function UserDetailPage() {
                   onClick={handleCloseEditModal}
                   className="flex-1 py-2.5 font-bold text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg transition-colors"
                 >
-                  Cancel
+                  Hủy
                 </button>
                 <button
                   type="submit"
@@ -743,8 +755,8 @@ export default function UserDetailPage() {
                   className="flex-1 py-2.5 font-bold text-white bg-primary hover:bg-primary/90 rounded-lg shadow-md transition-all disabled:opacity-50 flex items-center justify-center gap-2"
                 >
                   {isSaving ? (
-                    <><span className="material-symbols-outlined animate-spin !text-sm">refresh</span> Saving...</>
-                  ) : "Save Changes"}
+                    <><span className="material-symbols-outlined animate-spin !text-sm">refresh</span> Đang lưu...</>
+                  ) : "Lưu thay đổi"}
                 </button>
               </div>
             </form>

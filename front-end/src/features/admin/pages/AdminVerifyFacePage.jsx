@@ -46,7 +46,7 @@ export default function AdminVerifyFacePage() {
             const stream = await navigator.mediaDevices.getUserMedia({ video: true });
             if (videoRef.current) videoRef.current.srcObject = stream;
         } catch (err) {
-            showError("We could not access your camera.", "Lỗi");
+            showError("Không thể truy cập camera của bạn.", "Lỗi");
         }
     };
 
@@ -84,7 +84,7 @@ export default function AdminVerifyFacePage() {
         setResult(null);
         try {
             const base64 = captureImage();
-            if (!base64) throw new Error("Could not capture image from camera.");
+            if (!base64) throw new Error("Không thể chụp ảnh từ camera.");
 
             const blob = await fetch(base64).then(r => r.blob());
             const file = new File([blob], "verify.jpg", { type: "image/jpeg" });
@@ -99,24 +99,24 @@ export default function AdminVerifyFacePage() {
             if (res.result === "PASS") {
                 setResult({
                     success: true,
-                    message: "Face verified successfully! This matches the user's records.",
+                    message: "Xác thực khuôn mặt thành công! Khớp với dữ liệu người dùng.",
                     confidence: res.similarity || null
                 });
-                showSuccess("Verification successful", "Thành công");
+                showSuccess("Xác thực thành công", "Thành công");
             } else {
                 setResult({
                     success: false,
-                    message: res.message || "Face does not match the chosen user.",
+                    message: res.message || "Khuôn mặt không khớp với người dùng.",
                     errorDetail: res.error || null
                 });
-                showWarning("Verification failed", "Cảnh báo");
+                showWarning("Xác thực thất bại", "Cảnh báo");
             }
         } catch (err) {
             setResult({
                 success: false,
-                message: err.message || "An error occurred during verification."
+                message: err.message || "Đã xảy ra lỗi trong quá trình xác thực."
             });
-            showError("System Error", "Lỗi");
+            showError("Lỗi hệ thống", "Lỗi");
         } finally {
             setVerifying(false);
         }
@@ -126,28 +126,28 @@ export default function AdminVerifyFacePage() {
         <div className="flex min-h-screen bg-slate-50 dark:bg-slate-950 font-display">
             <SidebarAdmin />
             <main className="flex-1 flex flex-col min-w-0 bg-slate-50 dark:bg-slate-950 h-screen overflow-y-auto w-full">
-                <HeaderAdmin title="User Management" />
+                <HeaderAdmin title="Quản lý người dùng" />
 
                 <div className="p-6 lg:p-8">
                     <div className="max-w-5xl mx-auto flex flex-col gap-6">
                         <nav className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400 mb-2 font-display">
-                            <Link to="/user-manager" className="hover:text-primary transition-colors">Users</Link>
+                            <Link to="/user-manager" className="hover:text-primary transition-colors">Người dùng</Link>
                             <span className="material-symbols-outlined text-xs">chevron_right</span>
                             <Link to={`/admin/users/${id}`} className="hover:text-primary transition-colors">
-                                User Details
+                                Chi tiết người dùng
                             </Link>
                             <span className="material-symbols-outlined text-xs">chevron_right</span>
-                            <span className="text-slate-900 dark:text-slate-200 font-medium">Test Verification</span>
+                            <span className="text-slate-900 dark:text-slate-200 font-medium">Kiểm tra xác thực</span>
                         </nav>
 
                 <div className="max-w-4xl mx-auto space-y-6">
                     <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 p-6">
                         <div className="text-center mb-8">
                             <h2 className="text-2xl font-bold bg-gradient-to-r from-primary to-orange-400 bg-clip-text text-transparent mb-2">
-                                Face Verification Test
+                                Kiểm tra xác thực khuôn mặt
                             </h2>
                             <p className="text-slate-500">
-                                Testing biometric authentication for user: <strong>{user?.fullName || user?.userName || `ID: ${id}`}</strong>
+                                Thử nghiệm xác thực sinh trắc học cho: <strong>{user?.fullName || user?.userName || `ID: ${id}`}</strong>
                             </p>
                         </div>
 
@@ -160,8 +160,8 @@ export default function AdminVerifyFacePage() {
                                     <div className="absolute inset-0 z-10 flex items-center justify-center pointer-events-none">
                                         <div className="w-48 h-64 border-2 border-primary/50 border-dashed rounded-[100px] shadow-[0_0_0_9999px_rgba(0,0,0,0.4)]" />
                                     </div>
-                                    <div className="absolute top-4 right-4px-3 py-1 rounded-full bg-black/50 backdrop-blur text-white text-xs font-medium flex items-center gap-2">
-                                        <span className="size-2 bg-red-500 rounded-full animate-pulse" /> LIVE
+                                    <div className="absolute top-4 right-4 px-3 py-1 rounded-full bg-black/50 backdrop-blur text-white text-xs font-medium flex items-center gap-2">
+                                        <span className="size-2 bg-red-500 rounded-full animate-pulse" /> TRỰC TIẾP
                                     </div>
                                 </div>
                                 <button
@@ -172,12 +172,12 @@ export default function AdminVerifyFacePage() {
                                     {verifying ? (
                                         <>
                                             <span className="material-symbols-outlined animate-spin">refresh</span>
-                                            Verifying...
+                                            Đang xác thực...
                                         </>
                                     ) : (
                                         <>
                                             <span className="material-symbols-outlined">face</span>
-                                            Test Recognition
+                                            Thử nghiệm nhận diện
                                         </>
                                     )}
                                 </button>
@@ -188,7 +188,7 @@ export default function AdminVerifyFacePage() {
                                 {!result ? (
                                     <div className="text-center text-slate-400">
                                         <span className="material-symbols-outlined !text-6xl mb-2 opacity-50">data_object</span>
-                                        <p>Result will appear here</p>
+                                        <p>Kết quả sẽ hiển thị ở đây</p>
                                     </div>
                                 ) : (
                                     <div className="text-center space-y-4 animate-in zoom-in duration-300">
@@ -199,14 +199,14 @@ export default function AdminVerifyFacePage() {
                                         </div>
                                         <div>
                                             <h3 className={`text-xl font-bold ${result.success ? "text-emerald-600" : "text-red-600"}`}>
-                                                {result.success ? "Match Found" : "No Match"}
+                                                {result.success ? "Khớp dữ liệu" : "Không khớp"}
                                             </h3>
                                             <p className="text-slate-600 dark:text-slate-300 mt-2 font-medium">
                                                 {result.message}
                                             </p>
                                             {result.success && result.confidence && (
                                                 <div className="mt-4 px-4 py-2 bg-emerald-50 dark:bg-emerald-900/30 rounded-lg inline-block">
-                                                    <span className="text-sm font-bold text-emerald-700">Similarity Score: {(result.confidence * 100).toFixed(2)}%</span>
+                                                    <span className="text-sm font-bold text-emerald-700">Độ tương đồng: {(result.confidence * 100).toFixed(2)}%</span>
                                                 </div>
                                             )}
                                         </div>

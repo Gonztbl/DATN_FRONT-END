@@ -498,8 +498,8 @@ const LandingPage = () => {
                                     <span className="material-symbols-outlined text-white text-7xl drop-shadow-lg">lock</span>
                                 </div>
 
-                                <div className="absolute top-10 right-10 bg-white/10 backdrop-blur-md px-3 py-1 rounded-full text-xs border border-white/20 animate-float text-green-50">Encrypted</div>
-                                <div className="absolute bottom-10 left-10 bg-white/10 backdrop-blur-md px-3 py-1 rounded-full text-xs border border-white/20 animate-float-delayed text-green-50">Secured</div>
+                                <div className="absolute top-10 right-10 bg-white/10 backdrop-blur-md px-3 py-1 rounded-full text-xs border border-white/20 animate-float text-green-50">Đã mã hóa</div>
+                                <div className="absolute bottom-10 left-10 bg-white/10 backdrop-blur-md px-3 py-1 rounded-full text-xs border border-white/20 animate-float-delayed text-green-50">Bảo mật</div>
                             </div>
                         </div>
                     </div>
@@ -548,14 +548,14 @@ const LandingPage = () => {
                                 <a className="block px-4 py-2 bg-slate-900 text-white rounded-custom text-xs flex items-center space-x-2 hover:bg-primary transition-colors" href="#">
                                     <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M17.5 13c-.01-3.21 2.62-4.75 2.74-4.83-1.49-2.18-3.81-2.48-4.63-2.52-1.96-.2-3.82 1.16-4.82 1.16-1 0-2.52-1.14-4.16-1.11-2.15.03-4.13 1.25-5.24 3.17-2.24 3.88-.57 9.61 1.61 12.75 1.06 1.54 2.32 3.26 3.99 3.2 1.6-.06 2.21-1.03 4.14-1.03s2.48 1.03 4.16 1c1.72-.03 2.82-1.54 3.87-3.07 1.22-1.78 1.72-3.51 1.74-3.6-.04-.01-3.34-1.28-3.37-5.14zM14.6 3.51c.88-1.07 1.47-2.55 1.31-4.01-1.25.05-2.77.83-3.67 1.88-.81.93-1.52 2.45-1.33 3.86 1.39.11 2.82-.66 3.69-1.73z"></path></svg>
                                     <div>
-                                        <p className="text-[10px] opacity-70">Download on the</p>
+                                        <p className="text-[10px] opacity-70">Tải về trên</p>
                                         <p className="font-bold">App Store</p>
                                     </div>
                                 </a>
                                 <a className="block px-4 py-2 bg-slate-900 text-white rounded-custom text-xs flex items-center space-x-2 hover:bg-primary transition-colors" href="#">
                                     <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M5.5 3.5L12 10L18.5 3.5L5.5 3.5ZM4.5 4.5V19.5L11.5 12.5L4.5 4.5ZM19.5 4.5V19.5L12.5 12.5L19.5 4.5ZM5.5 20.5L12 14L18.5 20.5L5.5 20.5Z"></path></svg>
                                     <div>
-                                        <p className="text-[10px] opacity-70">Get it on</p>
+                                        <p className="text-[10px] opacity-70">Tải về trên</p>
                                         <p className="font-bold">Google Play</p>
                                     </div>
                                 </a>
@@ -563,7 +563,7 @@ const LandingPage = () => {
                         </div>
                     </div>
                     <div className="pt-8 border-t border-slate-200 flex flex-col md:flex-row justify-between items-center text-xs text-slate-500">
-                        <p>© 2023 SmartPay JSC. All rights reserved.</p>
+                        <p>© 2023 Công ty CP SmartPay. Đã đăng ký bản quyền.</p>
                         <div className="flex space-x-6 mt-4 md:mt-0">
                             <a className="hover:text-primary" href="#">Điều khoản sử dụng</a>
                             <a className="hover:text-primary" href="#">Chính sách bảo mật</a>

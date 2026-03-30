@@ -225,16 +225,16 @@ export default function AdminProductPage() {
 
             if (editingProduct) {
                 await productService.updateProduct(editingProduct.id, payload);
-                showSuccess("Success", "Cập nhật thành công!");
+                showSuccess("Thành công", "Cập nhật thành công!");
             } else {
                 await productService.createProduct(payload);
-                showSuccess("Success", "Thêm mới thành công!");
+                showSuccess("Thành công", "Thêm mới thành công!");
             }
             handleCloseModal();
             fetchProducts();
         } catch (error) {
             console.error("Lỗi khi lưu sản phẩm:", error);
-            showError("Error", "Đã xảy ra lỗi, vui lòng thử lại.");
+            showError("Lỗi", "Đã xảy ra lỗi, vui lòng thử lại.");
         }
     };
 
@@ -244,11 +244,11 @@ export default function AdminProductPage() {
             try {
                 await productService.deleteProduct(id);
                 fetchProducts();
-                showSuccess("Success", "Đã xóa thành công.");
+                showSuccess("Thành công", "Đã xóa thành công.");
             } catch (error) {
                 console.error("Lỗi xóa sản phẩm", error);
                 const errorMsg = error.response?.data?.message || "Lỗi khi xóa!";
-                showError("Error", errorMsg);
+                showError("Lỗi", errorMsg);
             }
         }
     };
@@ -275,7 +275,7 @@ export default function AdminProductPage() {
         <div className="flex bg-white dark:bg-slate-950 font-display text-slate-900 dark:text-slate-100 min-h-screen transition-colors duration-300">
             <SidebarAdmin />
             <main className="flex-1 flex flex-col min-w-0 bg-slate-50 dark:bg-slate-950 h-screen overflow-y-auto w-full">
-                <HeaderAdmin title="Product Management" />
+                <HeaderAdmin title="Quản lý món ăn" />
 
                 <div className="p-6 lg:p-8">
                     <div className="max-w-[1400px] mx-auto flex flex-col gap-6">
@@ -398,7 +398,7 @@ export default function AdminProductPage() {
                                                             <span className={`absolute top-0.5 size-4 bg-white rounded-full transition-all shadow ${(product.status || '').toLowerCase() === 'available' ? 'right-0.5' : 'left-0.5'}`}></span>
                                                         </button>
                                                         <span className={`text-xs font-bold uppercase tracking-wider ${(product.status || '').toLowerCase() === 'available' ? 'text-primary' : 'text-slate-400'}`}>
-                                                            {(product.status || '').toLowerCase() === 'available' ? 'Bật' : 'Tắt'}
+                                                            {(product.status || '').toLowerCase() === 'available' ? 'Bật (Đang bán)' : 'Tắt'}
                                                         </span>
                                                     </div>
                                                 </td>
@@ -554,8 +554,8 @@ export default function AdminProductPage() {
                                         onChange={handleChange}
                                         className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100"
                                     >
-                                        <option value="available">Còn hàng (Available)</option>
-                                        <option value="unavailable">Ngưng bán (Unavailable)</option>
+                                        <option value="available">Còn hàng (Đang hiển thị)</option>
+                                        <option value="unavailable">Ngưng bán (Ẩn)</option>
                                     </select>
                                 </label>
 
@@ -664,7 +664,7 @@ export default function AdminProductPage() {
                                         <p className="text-primary font-bold text-xl mt-2">{new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(viewingProduct.price)}</p>
                                     </div>
                                     <div className={`px-4 py-1.5 rounded-full text-sm font-bold whitespace-nowrap border ${(viewingProduct.status || '').toLowerCase() === 'available' ? 'bg-primary/10 text-primary border-primary/20' : (viewingProduct.status || '').toLowerCase() === 'unavailable' ? 'bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400 border-red-500/20' : 'bg-slate-200 text-slate-600 border-slate-300'} `}>
-                                        {(viewingProduct.status || '').toLowerCase() === 'available' ? 'Còn hàng' : (viewingProduct.status || '').toLowerCase() === 'unavailable' ? 'Ngưng bán' : 'Ẩn'}
+                                        {(viewingProduct.status || '').toLowerCase() === 'available' ? 'Đang bán' : (viewingProduct.status || '').toLowerCase() === 'unavailable' ? 'Ngưng bán' : 'Ẩn'}
                                     </div>
                                 </div>
                                 <div className="inline-block bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-widest mt-2 mb-4">

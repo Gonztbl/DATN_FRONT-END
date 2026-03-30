@@ -119,7 +119,7 @@ export default function VendorManagerPage() {
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (!formData.name) {
-            showWarning("Missing Name", "Vui lòng nhập tên danh mục");
+            showWarning("Thiếu tên", "Vui lòng nhập tên danh mục");
             return;
         }
 
@@ -134,7 +134,7 @@ export default function VendorManagerPage() {
                 const isDuplicate = checkData && checkData.exists;
 
                 if (isDuplicate) {
-                    showWarning("Duplicate Name", `Tên danh mục "${formData.name}" đã tồn tại!`);
+                    showWarning("Trùng tên", `Tên danh mục "${formData.name}" đã tồn tại!`);
                     return;
                 }
             } catch (error) {
@@ -151,10 +151,10 @@ export default function VendorManagerPage() {
         try {
             if (editingCategory) {
                 await vendorService.updateCategory(editingCategory.id, payload);
-                showSuccess("Success", "Cập nhật danh mục thành công!");
+                showSuccess("Thành công", "Cập nhật danh mục thành công!");
             } else {
                 await vendorService.createCategory(payload);
-                showSuccess("Success", "Thêm danh mục thành công!");
+                showSuccess("Thành công", "Thêm danh mục thành công!");
             }
 
             // Reload list
@@ -163,7 +163,7 @@ export default function VendorManagerPage() {
             fetchCategories();
         } catch (error) {
             const errorMsg = error.response?.data?.message || error.message;
-            showError("Error", errorMsg);
+            showError("Lỗi", errorMsg);
         }
     };
 
@@ -174,7 +174,7 @@ export default function VendorManagerPage() {
 
         try {
             await vendorService.deleteCategory(id);
-            showSuccess("Success", "Xóa thành công!");
+            showSuccess("Thành công", "Xóa thành công!");
             fetchCategories();
         } catch (error) {
             console.error(error);
@@ -205,7 +205,7 @@ export default function VendorManagerPage() {
             <SidebarAdmin />
 
             <main className="flex-1 flex flex-col min-w-0 bg-slate-50 dark:bg-slate-950 h-screen overflow-y-auto w-full">
-                <HeaderAdmin title="Category Management" />
+                <HeaderAdmin title="Quản lý danh mục" />
 
                 <div className="p-6 lg:p-8">
                     <div className="max-w-[1400px] mx-auto flex flex-col gap-6">

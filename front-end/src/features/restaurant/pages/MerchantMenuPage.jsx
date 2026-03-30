@@ -23,7 +23,7 @@ const MerchantMenuPage = () => {
     const [products, setProducts] = useState([]);
     const [categories, setCategories] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [activeTab, setActiveTab] = useState('All Items');
+    const [activeTab, setActiveTab] = useState('Tất cả');
     
     // Pagination
     const [page, setPage] = useState(0);
@@ -224,11 +224,11 @@ const MerchantMenuPage = () => {
     };
 
     // Filter products logically if we fetch all
-    const filteredProducts = activeTab === 'All Items' 
+    const filteredProducts = activeTab === 'Tất cả' 
         ? products 
         : products.filter(p => p.categoryName === activeTab || (categories.find(c => c.id === p.categoryId)?.name === activeTab));
 
-    const displayCategories = ['All Items', ...categories.map(c => c.name)];
+    const displayCategories = ['Tất cả', ...categories.map(c => c.name)];
 
     if (contextError?.isNotFound) {
         return (
@@ -275,7 +275,7 @@ const MerchantMenuPage = () => {
                                     {cat}
                                 </button>
                             )) : (
-                                <button className="px-5 py-2 rounded-full font-bold text-sm bg-primary text-background-dark shadow-lg shadow-primary/20">All Items</button>
+                                <button className="px-5 py-2 rounded-full font-bold text-sm bg-primary text-background-dark shadow-lg shadow-primary/20">Tất cả</button>
                             )}
                         </div>
                         <button onClick={() => handleOpenModal('add')} className="flex items-center gap-2 bg-primary text-background-dark px-4 py-2.5 rounded-xl font-bold text-sm hover:opacity-90 transition-opacity active:scale-95 shadow-lg shadow-primary/10">

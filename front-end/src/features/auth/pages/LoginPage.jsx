@@ -7,26 +7,26 @@ const slides = [
   {
     image: "/images/wallet_3d.png",
     icon: "lock",
-    category: "Authentication",
-    title: "Secure Login",
-    heading: "Welcome Back to E-Wallet",
-    description: "Manage your finances securely and efficiently. Access your dashboard to view transactions and more."
+    category: "Xác thực",
+    title: "Đăng nhập an toàn",
+    heading: "Chào mừng trở lại E-Wallet",
+    description: "Quản lý tài chính của bạn an toàn và hiệu quả. Truy cập bảng điều khiển để xem giao dịch và hơn thế nữa."
   },
   {
     image: "/images/dashboard_3d.png",
     icon: "analytics",
-    category: "Management",
-    title: "Smart Dashboard",
-    heading: "Track Your Spending",
-    description: "Real-time analytics and transaction history at your fingertips. Stay on top of your budget."
+    category: "Quản lý",
+    title: "Bảng điều khiển thông minh",
+    heading: "Theo dõi mức chi tiêu",
+    description: "Phân tích thời gian thực và lịch sử giao dịch ngay trong tầm tay bạn. Kiểm soát ngân sách tốt hơn."
   },
   {
     image: "/images/security_3d.png",
     icon: "verified_user",
-    category: "Protection",
-    title: "Bank-Grade Security",
-    heading: "Your Funds Are Safe",
-    description: "Industry-leading encryption protecting your assets 24/7. Peace of mind guaranteed."
+    category: "Bảo vệ",
+    title: "Bảo mật cấp ngân hàng",
+    heading: "Tiền của bạn luôn an toàn",
+    description: "Mã hóa hàng đầu bảo vệ tài sản của bạn 24/7."
   }
 ];
 
@@ -147,9 +147,9 @@ export default function LoginPage() {
           <div className="max-w-[480px] w-full mx-auto flex flex-col gap-8">
             {/* Title */}
             <div>
-              <h1 className="text-3xl lg:text-4xl font-bold">Welcome Back</h1>
+              <h1 className="text-3xl lg:text-4xl font-bold">Chào mừng trở lại</h1>
               <p className="text-base text-text-secondary mt-2">
-                Securely access your wallet to manage your finances.
+                Đăng nhập an toàn vào ví để quản lý tài chính của bạn.
               </p>
             </div>
 
@@ -171,13 +171,13 @@ export default function LoginPage() {
             <form onSubmit={handleSubmit} className="flex flex-col gap-6">
               {/* Username */}
               <div>
-                <label className="text-base font-medium">Username</label>
+                <label className="text-base font-medium">Tên người dùng</label>
                 <div className="relative mt-2">
                   <input
                     name="username"
                     value={formData.username}
                     onChange={handleChange}
-                    placeholder="Enter your username"
+                    placeholder="Nhập tên người dùng"
                     disabled={isSubmitting}
                     className="form-input w-full h-14 rounded-xl px-4 pr-12 border border-border-color dark:border-gray-700 bg-white dark:bg-gray-800 focus:ring-2 focus:ring-primary/50 text-lg disabled:opacity-50 disabled:cursor-not-allowed"
                   />
@@ -189,14 +189,14 @@ export default function LoginPage() {
 
               {/* Password */}
               <div>
-                <label className="text-base font-medium">Password</label>
+                <label className="text-base font-medium">Mật khẩu</label>
                 <div className="relative mt-2">
                   <input
                     type={showPassword ? "text" : "password"}
                     name="password"
                     value={formData.password}
                     onChange={handleChange}
-                    placeholder="Enter your password"
+                    placeholder="Nhập mật khẩu"
                     disabled={isSubmitting}
                     className="form-input w-full h-14 rounded-xl px-4 pr-12 border border-border-color dark:border-gray-700 bg-white dark:bg-gray-800 focus:ring-2 focus:ring-primary/50 text-lg disabled:opacity-50 disabled:cursor-not-allowed"
                   />
@@ -212,7 +212,7 @@ export default function LoginPage() {
               {/* Forgot */}
               <div className="flex justify-end">
                 <a className="text-sm font-bold hover:text-primary" href="#">
-                  Forgot Password?
+                  Quên mật khẩu?
                 </a>
               </div>
 
@@ -227,10 +227,10 @@ export default function LoginPage() {
                     <span className="material-symbols-outlined animate-spin">
                       progress_activity
                     </span>
-                    Logging in...
+                    Đang đăng nhập...
                   </>
                 ) : (
-                  "Log In"
+                  "Đăng nhập"
                 )}
               </button>
 
@@ -238,7 +238,7 @@ export default function LoginPage() {
               <div className="flex items-center gap-4">
                 <div className="flex-grow border-t border-border-color" />
                 <span className="text-sm text-text-secondary">
-                  or continue with
+                  hoặc tiếp tục với
                 </span>
                 <div className="flex-grow border-t border-border-color" />
               </div>
@@ -266,9 +266,9 @@ export default function LoginPage() {
 
             {/* Signup */}
             <p className="text-center text-sm text-text-secondary">
-              Don't have an account?
+              Chưa có tài khoản?
               <Link to="/register" className="ml-1 text-primary font-bold">
-                Sign up
+                Đăng ký
               </Link>
             </p>
           </div>
@@ -346,11 +346,11 @@ export default function LoginPage() {
           <div className="flex flex-wrap justify-center gap-3 mt-4">
             <span className="px-4 py-2 bg-white/60 dark:bg-black/20 backdrop-blur-sm rounded-full text-sm font-semibold text-gray-700 dark:text-gray-200 border border-white/50 dark:border-white/10 flex items-center gap-2">
               <span className="material-symbols-outlined text-primary text-[18px]">security</span>
-              Safe & Secure
+              An toàn &amp; Bảo mật
             </span>
             <span className="px-4 py-2 bg-white/60 dark:bg-black/20 backdrop-blur-sm rounded-full text-sm font-semibold text-gray-700 dark:text-gray-200 border border-white/50 dark:border-white/10 flex items-center gap-2">
               <span className="material-symbols-outlined text-primary text-[18px]">speed</span>
-              Fast Access
+              Truy cập nhanh
             </span>
           </div>
         </div>

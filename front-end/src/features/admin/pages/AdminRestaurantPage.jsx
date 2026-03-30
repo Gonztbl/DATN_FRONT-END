@@ -164,9 +164,8 @@ export default function AdminRestaurantPage() {
     // Submit
     const handleSubmit = async (e) => {
         e.preventDefault();
-
         if (!formData.name || !formData.address || !formData.userId) {
-            showWarning("Missing Data", "Vui lòng nhập tên, địa chỉ và chọn chủ nhà hàng.");
+            showWarning("Thiếu dữ liệu", "Vui lòng nhập tên, địa chỉ và chọn chủ nhà hàng.");
             return;
         }
 
@@ -179,7 +178,7 @@ export default function AdminRestaurantPage() {
                 );
 
                 if (checkData && checkData.exists) {
-                    showWarning("Duplicate Name", `Tên nhà hàng "${formData.name}" đã tồn tại!`);
+                    showWarning("Trùng tên", `Tên nhà hàng "${formData.name}" đã tồn tại!`);
                     return;
                 }
             } catch (error) {
@@ -194,10 +193,10 @@ export default function AdminRestaurantPage() {
         try {
             if (editingRestaurant) {
                 await restaurantService.updateRestaurant(editingRestaurant.id, payload);
-                showSuccess("Success", "Cập nhật nhà hàng thành công!");
+                showSuccess("Thành công", "Cập nhật nhà hàng thành công!");
             } else {
                 await restaurantService.createRestaurant(payload);
-                showSuccess("Success", "Thêm nhà hàng thành công!");
+                showSuccess("Thành công", "Thêm nhà hàng thành công!");
             }
 
             handleCloseModal();
@@ -219,7 +218,7 @@ export default function AdminRestaurantPage() {
 
         try {
             await restaurantService.deleteRestaurant(id);
-            showSuccess("Success", "Xóa thành công!");
+            showSuccess("Thành công", "Xóa thành công!");
             fetchRestaurants();
         } catch (error) {
             const errorMsg = error.response?.data?.message || "Không thể xóa nhà hàng. Có thể nhà hàng này đang chứa sản phẩm.";
@@ -255,7 +254,7 @@ export default function AdminRestaurantPage() {
             <SidebarAdmin />
 
             <main className="flex-1 flex flex-col min-w-0 bg-slate-50 dark:bg-slate-950 h-screen overflow-y-auto w-full">
-                <HeaderAdmin title="Restaurant Management" />
+                <HeaderAdmin title="Quản lý nhà hàng" />
 
                 <div className="p-6 lg:p-8">
                     <div className="max-w-[1400px] mx-auto flex flex-col gap-6">

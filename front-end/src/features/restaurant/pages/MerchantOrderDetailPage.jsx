@@ -54,7 +54,7 @@ const MerchantOrderDetailPage = () => {
             case 'COMPLETED': return { text: 'Hoàn thành', styles: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400 border-emerald-200' };
             case 'CANCELLED': 
             case 'FAILED': return { text: 'Thất bại/Hủy', styles: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400 border-red-200' };
-            default: return { text: status || 'N/A', styles: 'bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-400 border-slate-200' };
+            default: return { text: status || 'Không rõ', styles: 'bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-400 border-slate-200' };
         }
     };
 
@@ -157,8 +157,11 @@ const MerchantOrderDetailPage = () => {
     }
 
     const statusInfo = getStatusLabelStyles(order.status);
-    const orderItems = order.orderItems || [];
-    const timeline = order.statusHistory || [];
+    const orderItems = order.items || order.orderItems || [];
+    const timeline = order.statusHistory || [
+        { status: 'CREATED', timestamp: order.createdAt },
+        { status: order.status, timestamp: order.updatedAt || order.createdAt }
+    ].filter((v, i, a) => i === 0 || v.status !== a[i-1].status);
 
     return (
         <div className="bg-white text-slate-900 h-screen flex font-display">
@@ -175,7 +178,7 @@ const MerchantOrderDetailPage = () => {
                             <button onClick={() => navigate('/merchant/orders')} className="hover:bg-slate-200 dark:hover:bg-slate-800 p-2 rounded-full transition-colors flex items-center justify-center -ml-2">
                                 <span className="material-symbols-outlined">arrow_back</span>
                             </button>
-                            Chi tiết #ORD-{order.id}
+                            Chi tiết {order.orderCode || `#ORD-${order.id}`}
                         </h1>
                         <div className="flex items-center gap-3">
                             <span className="text-sm text-slate-500 font-medium">Trạng thái:</span>
@@ -210,7 +213,7 @@ const MerchantOrderDetailPage = () => {
                                                 <h3 className="font-bold text-base md:text-lg text-slate-800 dark:text-slate-100 line-clamp-1">{item.productName}</h3>
                                                 <div className="flex justify-between items-center mt-2">
                                                     <p className="font-black text-primary text-base">x {item.quantity}</p>
-                                                    <p className="text-sm text-slate-600 dark:text-slate-400 font-bold">{formatCurrency(item.priceAtTime * item.quantity)}</p>
+                                                    <p className="text-sm text-slate-600 dark:text-slate-400 font-bold">{formatCurrency((item.price || item.priceAtTime) * item.quantity)}</p>
                                                 </div>
                                             </div>
                                         </div>
@@ -265,11 +268,11 @@ const MerchantOrderDetailPage = () => {
                                 <div className="space-y-4">
                                     <div>
                                         <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Tên khách hàng</p>
-                                        <p className="font-bold text-slate-800 dark:text-slate-100 text-lg">{order.recipientName}</p>
+                                        <p className="font-bold text-slate-800 dark:text-slate-100 text-lg">{order.customerName || order.recipientName}</p>
                                     </div>
                                     <div>
                                         <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Số điện thoại</p>
-                                        <p className="font-bold text-slate-800 dark:text-slate-100 font-mono tracking-tight">{order.recipientPhone}</p>
+                                        <p className="font-bold text-slate-800 dark:text-slate-100 font-mono tracking-tight">{order.customerPhone || order.recipientPhone}</p>
                                     </div>
                                     <div>
                                         <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">Địa chỉ giao hàng</p>

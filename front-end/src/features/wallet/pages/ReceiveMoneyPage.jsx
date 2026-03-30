@@ -190,7 +190,7 @@ export default function ReceiveMoneyPage() {
             <div className="min-h-screen bg-background-light dark:bg-slate-900 flex items-center justify-center">
                 <div className="text-center">
                     <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
-                    <p className="mt-4 text-text-sub dark:text-slate-400">Loading...</p>
+                    <p className="mt-4 text-text-sub dark:text-slate-400">Đang tải...</p>
                 </div>
             </div>
         );
@@ -242,7 +242,7 @@ export default function ReceiveMoneyPage() {
                     <div className="lg:hidden flex items-center justify-between p-4 bg-white dark:bg-slate-800 border-b border-[#e6ece9] dark:border-slate-800">
                         <div className="flex items-center gap-2">
                             <span className="material-symbols-outlined text-primary">qr_code_2</span>
-                            <span className="font-bold text-lg">Receive</span>
+                            <span className="font-bold text-lg">Nhận tiền</span>
                         </div>
                         <button className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800">
                             <span className="material-symbols-outlined">menu</span>
@@ -255,10 +255,10 @@ export default function ReceiveMoneyPage() {
                         <div className="flex justify-between items-start mb-10">
                             <div className="flex flex-col gap-2">
                                 <h2 className="text-[#111714] dark:text-white text-3xl md:text-4xl font-black leading-tight tracking-[-0.02em]">
-                                    Receive Money
+                                    Nhận tiền
                                 </h2>
                                 <p className="text-[#648772] dark:text-slate-400 text-base font-normal">
-                                    Share your QR code to receive payments instantly.
+                                    Chia sẻ mã QR của bạn để nhận thanh toán ngay lập tức.
                                 </p>
                             </div>
                             <button
@@ -297,7 +297,7 @@ export default function ReceiveMoneyPage() {
                                                     {wallet?.accountName || profile?.fullName || 'User'}
                                                 </h3>
                                                 <p className="text-sm text-[#648772] dark:text-slate-400">
-                                                    Wallet ID: {wallet?.walletId || '@wallet'}
+                                                    ID Ví: {wallet?.walletId || '@wallet'}
                                                 </p>
                                             </div>
                                         </div>
@@ -312,19 +312,19 @@ export default function ReceiveMoneyPage() {
                                                 />
                                             ) : (
                                                 <div className="size-52 md:size-60 flex items-center justify-center bg-gray-100 dark:bg-gray-800 rounded">
-                                                    <span className="text-text-sub">No QR Code</span>
+                                                    <span className="text-text-sub">Không có mã QR</span>
                                                 </div>
                                             )}
                                             {/* Scan me helper */}
                                             <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 bg-[#111714] text-white text-[10px] font-bold px-3 py-1 rounded-full shadow-md">
-                                                SCAN ME
+                                                QUÉT MÃ
                                             </div>
                                         </div>
 
                                         {/* Copy Address Field */}
                                         <div className="w-full">
                                             <label className="block text-xs font-bold text-[#648772] dark:text-slate-400 mb-1.5 ml-1 uppercase tracking-wider">
-                                                Account Number
+                                                Số tài khoản
                                             </label>
                                             <div className="flex items-center justify-between gap-3 p-3 bg-[#f6f8f7] dark:bg-slate-800 rounded-xl border border-transparent hover:border-primary/30 transition-colors">
                                                 <div className="flex items-center gap-3 overflow-hidden">
@@ -354,21 +354,21 @@ export default function ReceiveMoneyPage() {
                                         className="flex items-center justify-center gap-2 h-12 px-4 rounded-xl bg-primary text-[#111714] font-bold text-sm shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all"
                                     >
                                         <span className="material-symbols-outlined text-[20px]">download</span>
-                                        Save Img
+                                        Lưu ảnh
                                     </button>
                                     <button
                                         onClick={handleShare}
                                         className="flex items-center justify-center gap-2 h-12 px-4 rounded-xl bg-white dark:bg-slate-800 border border-[#e6ece9] dark:border-slate-800 text-[#111714] dark:text-white font-bold text-sm hover:bg-[#f6f8f7] dark:hover:bg-slate-700 transition-all"
                                     >
                                         <span className="material-symbols-outlined text-[20px]">share</span>
-                                        Share
+                                        Chia sẻ
                                     </button>
                                     <button
                                         onClick={() => setShowAmountModal(true)}
                                         className="flex items-center justify-center gap-2 h-12 px-4 rounded-xl bg-white dark:bg-slate-800 border border-[#e6ece9] dark:border-slate-800 text-[#111714] dark:text-white font-bold text-sm hover:bg-[#f6f8f7] dark:hover:bg-slate-700 transition-all"
                                     >
                                         <span className="material-symbols-outlined text-[20px]">edit</span>
-                                        Set Amount
+                                        Đặt số tiền
                                     </button>
                                 </div>
                             </div>
@@ -378,9 +378,9 @@ export default function ReceiveMoneyPage() {
                                 {/* Transaction List Widget */}
                                 <div className="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-[0_2px_12px_rgba(0,0,0,0.03)] border border-[#e6ece9] dark:border-slate-800">
                                     <div className="flex items-center justify-between mb-6">
-                                        <h3 className="text-lg font-bold text-[#111714] dark:text-white">Recent Incoming</h3>
+                                        <h3 className="text-lg font-bold text-[#111714] dark:text-white">Tiền nhận gần đây</h3>
                                         <a className="text-xs font-bold text-primary hover:text-[#2bc465] flex items-center gap-1" href="#">
-                                            View All <span className="material-symbols-outlined text-[14px]">arrow_forward</span>
+                                            Xem tất cả <span className="material-symbols-outlined text-[14px]">arrow_forward</span>
                                         </a>
                                     </div>
                                     <div className="flex flex-col gap-1">
@@ -399,7 +399,7 @@ export default function ReceiveMoneyPage() {
                                                         </div>
                                                         <div className="flex flex-col">
                                                             <span className="text-sm font-bold text-[#111714] dark:text-white">
-                                                                {tx.description || 'Incoming Money'}
+                                                                {tx.description || 'Tiền nhận'}
                                                             </span>
                                                             <span className="text-xs text-[#648772] dark:text-slate-400">
                                                                 {formatDate(tx.date)}
@@ -414,14 +414,14 @@ export default function ReceiveMoneyPage() {
                                                             ? 'text-primary bg-primary/10 border border-primary/20'
                                                             : 'text-yellow-600 dark:text-yellow-400 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200/30'
                                                             }`}>
-                                                            {tx.status || 'Pending'}
+                                                            {tx.status || 'Đang chờ'}
                                                         </span>
                                                     </div>
                                                 </div>
                                             ))
                                         ) : (
                                             <p className="text-center text-[#648772] dark:text-slate-400 py-8">
-                                                No recent incoming transactions
+                                                Không có giao dịch nhận tiền gần đây
                                             </p>
                                         )}
                                     </div>
@@ -434,12 +434,12 @@ export default function ReceiveMoneyPage() {
                                             <span className="material-symbols-outlined text-[24px]">contact_support</span>
                                         </div>
                                         <div className="flex flex-col gap-2">
-                                            <h4 className="text-[#111714] dark:text-white font-bold text-sm">Scan trouble?</h4>
+                                            <h4 className="text-[#111714] dark:text-white font-bold text-sm">Gặp sự cố khi quét?</h4>
                                             <p className="text-[#648772] dark:text-slate-400 text-xs leading-relaxed">
-                                                Ensure you are in a well-lit environment and the camera lens is clean.
+                                                Đảm bảo bạn đang ở môi trường đủ ánh sáng và ống kính camera sạch sẽ.
                                             </p>
                                             <button className="text-left text-xs font-bold text-[#111714] dark:text-white underline decoration-primary decoration-2 underline-offset-2 hover:text-primary transition-colors">
-                                                View Troubleshooting
+                                                Xem hướng dẫn khắc phục
                                             </button>
                                         </div>
                                     </div>
@@ -456,12 +456,12 @@ export default function ReceiveMoneyPage() {
             {showAmountModal && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
                     <div className="bg-white dark:bg-slate-800 rounded-2xl w-full max-w-md p-6 shadow-2xl border border-gray-100 dark:border-slate-800">
-                        <h3 className="text-xl font-bold mb-4 text-text-main dark:text-white">Set Amount</h3>
+                        <h3 className="text-xl font-bold mb-4 text-text-main dark:text-white">Đặt số tiền</h3>
                         <p className="text-sm text-text-sub dark:text-slate-400 mb-4">
-                            Generate a QR code with a specific amount for easy payment collection.
+                            Tạo mã QR với số tiền cụ thể để thu tiền dễ dàng hơn.
                         </p>
                         <div className="mb-6">
-                            <label className="block text-sm font-medium mb-2 text-text-main dark:text-white">Amount</label>
+                            <label className="block text-sm font-medium mb-2 text-text-main dark:text-white">Số tiền</label>
                             <div className="flex items-center gap-2 bg-gray-50 dark:bg-slate-800 rounded-xl px-4 py-3 border border-gray-200 dark:border-slate-800">
                                 <span className="text-text-main dark:text-white font-medium">$</span>
                                 <input
@@ -482,13 +482,13 @@ export default function ReceiveMoneyPage() {
                                 }}
                                 className="px-5 py-2.5 rounded-xl text-text-sub hover:bg-gray-100 dark:hover:bg-gray-800 font-medium transition-colors"
                             >
-                                Cancel
+                                Hủy
                             </button>
                             <button
                                 onClick={handleSetAmount}
                                 className="px-5 py-2.5 rounded-xl bg-primary text-text-main font-bold hover:bg-primary/90 shadow-lg shadow-primary/20 transition-all"
                             >
-                                Generate QR
+                                Tạo mã QR
                             </button>
                         </div>
                     </div>

@@ -3,19 +3,24 @@ import { useNavigate, useLocation } from "react-router-dom";
 import Sidebar from "../../../components/layout/Sidebar";
 import faceService from "../services/faceService";
 import { useNotification } from "../../../context/NotificationContext";
+import { useTheme } from "../../../context/ThemeContext";
+import { useAuth } from "../context/AuthContext";
 
 export default function FaceRegisterPage() {
     const navigate = useNavigate();
     const location = useLocation();
     const { showSuccess, showError } = useNotification();
+    const { isDarkMode, toggleDarkMode } = useTheme();
+    const { user: authUser } = useAuth(); // Lấy user từ AuthContext
 
-    const initialPose = location.state?.pose || "front"; // nếu truyền từ ADD NOW
+    const initialPose = location.state?.pose || "front"; 
     const poseToStep = { "front": 1, "left": 2, "right": 3 };
 
     const [currentStep, setCurrentStep] = useState(poseToStep[initialPose] || 1); 
     const [capturedImages, setCapturedImages] = useState({}); // { front: base64, ... }
     const [loading, setLoading] = useState(false);
-    const [isSinglePose, setIsSinglePose] = useState(!!location.state?.pose);
+    const [isSinglePose] = useState(!!location.state?.pose);
+    const [showFlash, setShowFlash] = useState(false);
 
     const videoRef = useRef(null);
     const canvasRef = useRef(null);
@@ -23,7 +28,6 @@ export default function FaceRegisterPage() {
     useEffect(() => {
         startCamera();
         return () => {
-            // Cleanup camera khi thoát trang
             if (videoRef.current?.srcObject) {
                 videoRef.current.srcObject.getTracks().forEach(track => track.stop());
             }
@@ -32,10 +36,19 @@ export default function FaceRegisterPage() {
 
     const startCamera = async () => {
         try {
-            const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-            if (videoRef.current) videoRef.current.srcObject = stream;
+            const stream = await navigator.mediaDevices.getUserMedia({ 
+                video: { 
+                    facingMode: "user",
+                    width: { ideal: 1280 },
+                    height: { ideal: 720 }
+                } 
+            });
+            if (videoRef.current) {
+                videoRef.current.srcObject = stream;
+            }
         } catch (err) {
-            showError("Không thể mở camera. Vui lòng cấp quyền.", "Lỗi");
+            console.error("Camera error:", err);
+            showError("Không thể mở camera. Vui lòng cấp quyền truy cập camera trong cài đặt trình duyệt.", "Lỗi Truy Cập");
         }
     };
 
@@ -45,40 +58,37 @@ export default function FaceRegisterPage() {
 
         const canvas = canvasRef.current;
         const targetSize = 640;
-
         canvas.width = targetSize;
         canvas.height = targetSize;
-
         const ctx = canvas.getContext("2d");
         ctx.imageSmoothingEnabled = true;
-        ctx.imageSmoothingQuality = 'high';
 
-        // Center crop vuông từ video (giữ nguyên tỷ lệ)
         const videoAspect = video.videoWidth / video.videoHeight;
         let drawWidth = targetSize;
         let drawHeight = targetSize;
         let offsetX = 0;
         let offsetY = 0;
 
-        if (videoAspect > 1) { // video ngang
+        if (videoAspect > 1) {
             drawHeight = targetSize / videoAspect;
             offsetY = (targetSize - drawHeight) / 2;
-        } else { // video dọc hoặc vuông
+        } else {
             drawWidth = targetSize * videoAspect;
             offsetX = (targetSize - drawWidth) / 2;
         }
 
-        ctx.drawImage(video, 0, 0, video.videoWidth, video.videoHeight,
-                      offsetX, offsetY, drawWidth, drawHeight);
-
-        return canvas.toDataURL("image/jpeg", 0.92); // Tăng quality lên 92%
+        ctx.drawImage(video, 0, 0, video.videoWidth, video.videoHeight, offsetX, offsetY, drawWidth, drawHeight);
+        return canvas.toDataURL("image/jpeg", 0.92);
     };
 
     const handleCapture = async () => {
         setLoading(true);
+        setShowFlash(true);
+        setTimeout(() => setShowFlash(false), 300);
+
         const base64 = captureImage();
         if (!base64) {
-            showError("Không chụp được ảnh", "Lỗi");
+            showError("Lỗi capture ảnh. Vui lòng thử lại.", "Lỗi");
             setLoading(false);
             return;
         }
@@ -89,149 +99,163 @@ export default function FaceRegisterPage() {
         try {
             const blob = await fetch(base64).then(r => r.blob());
             const file = new File([blob], `${pose}.jpg`, { type: "image/jpeg" });
-
             const formData = new FormData();
             formData.append("image", file);
             formData.append("pose", pose);
             
-            // Nếu không, faceService sẽ tự động thêm userId của chính Admin (nếu self-register)
+            // Thêm userId vào FormData (lấy từ AuthContext)
+            if (authUser?.id) {
+                formData.append("userId", authUser.id);
+                console.log("📤 [FaceRegister] Using userId from AuthContext:", authUser.id);
+            }
 
-            await faceService.registerFace(formData);
-            showSuccess(`Đăng ký pose ${pose.toUpperCase()} thành công!`, "Hoàn tất");
+            // Luôn dùng registerFace cho tất cả các bước (giống admin)
+            console.log("📤 [FaceRegister] Calling registerFace for pose:", pose);
+            const response = await faceService.registerFace(formData);
 
             setCapturedImages(prev => ({ ...prev, [pose]: base64 }));
+            showSuccess(`Đã lưu góc mặt ${pose.toUpperCase()}`, "Thành công");
 
+            // Chờ một chút để user thấy ảnh vừa chụp
             if (isSinglePose || currentStep >= 3) {
-                // Hoàn tất nếu là pose đơn lẻ hoặc đã xong bước cuối
-                const msg = isSinglePose ? `Đã cập nhật pose ${pose.toUpperCase()}` : "Đăng ký hoàn tất 3 pose!";
-                showSuccess(msg, "Thành công");
-                
-                    navigate("/security/face");
+                setTimeout(() => navigate("/security/face"), 1000);
             } else {
-                setCurrentStep(currentStep + 1);
+                setCurrentStep(prev => prev + 1);
             }
         } catch (err) {
-            console.error("FE caught error:", err);
-            showError(err.message || "Lỗi không xác định", "Lỗi");
+            showError(err.message || "Lỗi giao tiếp với server", "Lỗi");
         } finally {
             setLoading(false);
         }
     };
 
-    const getStepTitle = () => {
-        const titles = ["", "Chụp Ảnh Chính Diện", "Quay Mặt Sang Trái", "Quay Mặt Sang Phải"];
-        return titles[currentStep];
-    };
-
-    const getStepGuidance = () => {
-        const guidance = [
-            "",
-            "Vui lòng nhìn thẳng vào camera, giữ khuôn mặt trong khung hình.",
-            "Vui lòng từ từ quay mặt sang bên trái (góc khoảng 45 độ).",
-            "Vui lòng từ từ quay mặt sang bên phải (góc khoảng 45 độ)."
-        ];
-        return guidance[currentStep];
-    };
+    const steps = [
+        { id: 1, label: "Mặt trước", icon: "face", key: "front" },
+        { id: 2, label: "Quay trái", icon: "face_6", key: "left" },
+        { id: 3, label: "Quay phải", icon: "face_5", key: "right" }
+    ];
 
     return (
-        <div className="relative flex min-h-screen w-full flex-col bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100">
-            <div className="flex flex-1">
-                <Sidebar activeRoute="security" />
+        <div className="relative flex min-h-screen w-full bg-[#f6f8f7] dark:bg-slate-900 font-display text-[#111714] dark:text-white transition-colors duration-300">
+            <Sidebar activeRoute="security" />
 
-                <main className="flex-1 flex flex-col items-center py-8 px-6">
-                    <div className="w-full max-w-4xl">
-                        {/* Progress Stepper */}
-                        <div className="flex items-center justify-between mb-12 px-2">
-                            {[1, 2, 3].map(step => (
-                                <div key={step} className="flex flex-col items-center gap-2 flex-1">
-                                    <div className={`size-10 rounded-full flex items-center justify-center text-sm font-bold ${step <= currentStep ? "bg-primary text-background-dark shadow-[0_0_15px_rgba(25,230,107,0.4)]" : "bg-slate-200 dark:bg-slate-800 opacity-50"}`}>
-                                        {step}
-                                    </div>
-                                    <span className={`text-xs ${step <= currentStep ? "font-bold" : "font-medium opacity-50"}`}>
-                                        {step === 1 ? "Front" : step === 2 ? "Left" : "Right"}
-                                    </span>
-                                    {step < 3 && (
-                                        <div className={`h-[2px] flex-1 mx-4 ${step < currentStep ? "bg-primary" : "bg-slate-200 dark:bg-slate-700"}`} />
+            <main className="flex-1 flex flex-col items-center py-10 px-6 overflow-y-auto">
+                <div className="w-full max-w-4xl">
+                    {/* Header */}
+                    <div className="flex justify-between items-center mb-10">
+                        <div className="flex flex-col gap-2">
+                            <h1 className="text-4xl font-black leading-tight tracking-tight">Đăng ký khuôn mặt</h1>
+                            <p className="text-[#648772] dark:text-slate-400">
+                                {isSinglePose ? `Bổ sung góc mặt ${steps[currentStep-1].label}` : "Hoàn tất 3 bước để tối ưu nhận diện"}
+                            </p>
+                        </div>
+                        <button
+                            onClick={toggleDarkMode}
+                            className="size-12 rounded-2xl bg-white dark:bg-slate-800 shadow-sm border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:bg-primary/10 hover:text-primary transition-all flex items-center justify-center"
+                        >
+                            <span className="material-symbols-outlined">{isDarkMode ? "light_mode" : "dark_mode"}</span>
+                        </button>
+                    </div>
+
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                        {/* Left: Camera View */}
+                        <div className="lg:col-span-2 flex flex-col gap-6">
+                            <div className="relative aspect-[4/3] w-full rounded-3xl bg-black overflow-hidden border-4 border-white dark:border-slate-800 shadow-2xl group">
+                                {/* Video Mirror View */}
+                                <video
+                                    ref={videoRef}
+                                    autoPlay
+                                    playsInline
+                                    className="h-full w-full object-cover scale-x-[-1]"
+                                />
+
+                                {/* Scanning Animation Overlay */}
+                                <div className="absolute inset-x-8 top-1/2 -translate-y-1/2 h-[320px] pointer-events-none">
+                                    {/* Focus Brackets */}
+                                    <div className="absolute top-0 left-0 size-16 border-t-4 border-l-4 border-primary rounded-tl-3xl opacity-60"></div>
+                                    <div className="absolute top-0 right-0 size-16 border-t-4 border-r-4 border-primary rounded-tr-3xl opacity-60"></div>
+                                    <div className="absolute bottom-0 left-0 size-16 border-b-4 border-l-4 border-primary rounded-bl-3xl opacity-60"></div>
+                                    <div className="absolute bottom-0 right-0 size-16 border-b-4 border-r-4 border-primary rounded-br-3xl opacity-60"></div>
+                                    
+                                    {/* Moving Scanning Bar */}
+                                    {!loading && (
+                                        <div className="absolute inset-x-0 h-1 bg-gradient-to-r from-transparent via-primary to-transparent shadow-[0_0_15px_rgba(25,214,147,0.8)] animate-[nav-scan_3s_ease-in-out_infinite]" />
                                     )}
                                 </div>
-                            ))}
+
+                                {/* Flash Effect */}
+                                {showFlash && <div className="absolute inset-0 bg-white z-50 animate-pulse"></div>}
+
+                                {/* Loading Overlay */}
+                                {loading && (
+                                    <div className="absolute inset-0 bg-black/60 backdrop-blur-sm flex flex-col items-center justify-center z-40">
+                                        <div className="size-16 border-4 border-primary/20 border-t-primary rounded-full animate-spin mb-4" />
+                                        <p className="font-bold text-primary animate-pulse">ĐANG PHÂN TÍCH...</p>
+                                    </div>
+                                )}
+                            </div>
+
+                            <button
+                                onClick={handleCapture}
+                                disabled={loading}
+                                className="group relative w-full h-16 bg-primary hover:bg-emerald-400 disabled:bg-slate-300 dark:disabled:bg-slate-800 text-slate-900 font-bold rounded-2xl shadow-xl shadow-primary/20 flex items-center justify-center gap-3 transition-all active:scale-[0.98]"
+                            >
+                                <span className="material-symbols-outlined text-2xl group-hover:scale-110 transition-transform">photo_camera</span>
+                                {loading ? "ĐANG XỬ LÝ..." : `CHỤP ẢNH ${steps[currentStep - 1].label?.toUpperCase()}`}
+                            </button>
                         </div>
 
-                        {/* Main Content */}
-                        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
-                            {/* Left - Instructions */}
-                            <div className="lg:col-span-5 space-y-6">
-                                <div>
-                                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-bold uppercase tracking-wider mb-4 border border-primary/20">
-                                        <span className="relative flex h-2 w-2">
-                                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
-                                            <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
-                                        </span>
-                                        Pose {currentStep} of 3
-                                    </div>
-                                    <h1 className="text-4xl font-black leading-tight mb-4 text-slate-900 dark:text-white">{getStepTitle()}</h1>
-                                    <p className="text-slate-600 dark:text-slate-400 text-lg leading-relaxed font-medium">
-                                        {getStepGuidance()}
-                                    </p>
-                                    <p className="text-slate-500 dark:text-slate-500 text-sm mt-2">
-                                        Đảm bảo ánh sáng tốt, mặt rõ nét và không bị che khuất.
-                                    </p>
-                                </div>
-
-                                <div className="space-y-4">
-                                    <div className="flex items-start gap-3 p-4 rounded-xl bg-primary/5 border border-primary/20">
-                                        <span className="material-symbols-outlined text-primary">light_mode</span>
-                                        <p className="text-sm">Avoid backlighting or heavy shadows on your face.</p>
-                                    </div>
-                                    <div className="flex items-start gap-3 p-4 rounded-xl bg-primary/5 border border-primary/20">
-                                        <span className="material-symbols-outlined text-primary">face</span>
-                                        <p className="text-sm">Keep a neutral expression and remove sunglasses or masks.</p>
-                                    </div>
-                                </div>
-
-                                <div className="pt-4">
-                                    <button
-                                        onClick={handleCapture}
-                                        disabled={loading}
-                                        className={`w-full bg-primary text-background-dark font-bold py-4 rounded-xl hover:opacity-90 transition-all shadow-lg shadow-primary/20 ${loading ? "opacity-50 cursor-not-allowed" : ""}`}
-                                    >
-                                        {loading ? "Đang xử lý..." : "Start Capture"}
-                                    </button>
+                        {/* Right: Steps & Progress */}
+                        <div className="flex flex-col gap-6">
+                            <div className="bg-white dark:bg-slate-800 rounded-3xl p-8 border border-slate-200 dark:border-slate-700 shadow-sm transition-all">
+                                <h3 className="text-xl font-bold mb-6 flex items-center gap-2">
+                                    <span className="material-symbols-outlined text-primary">analytics</span>
+                                    Tiến trình
+                                </h3>
+                                
+                                <div className="flex flex-col gap-6">
+                                    {steps.map((step) => {
+                                        const isDone = capturedImages[step.key] || (currentStep > step.id && !isSinglePose);
+                                        const isCurrent = currentStep === step.id;
+                                        
+                                        return (
+                                            <div 
+                                                key={step.id} 
+                                                className={`flex items-center gap-4 transition-all ${isCurrent ? "scale-105" : "opacity-60"}`}
+                                            >
+                                                <div className={`size-12 rounded-2xl flex items-center justify-center transition-all ${
+                                                    isDone ? "bg-primary text-slate-900" : 
+                                                    isCurrent ? "bg-primary/20 text-primary border-2 border-primary" : 
+                                                    "bg-slate-100 dark:bg-slate-900 text-slate-400"
+                                                }`}>
+                                                    <span className="material-symbols-outlined">
+                                                        {isDone ? "check" : step.icon}
+                                                    </span>
+                                                </div>
+                                                <div className="flex flex-col">
+                                                    <span className={`text-sm font-black ${isCurrent ? "text-primary" : ""}`}>
+                                                        {step.label}
+                                                    </span>
+                                                    <span className="text-xs text-slate-400 font-medium">
+                                                        {isDone ? "Đã hoàn tất" : isCurrent ? "Đang chờ chụp..." : "Chưa chụp"}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
                                 </div>
                             </div>
 
-                            {/* Right - Camera Preview */}
-                            <div className="lg:col-span-7">
-                                <div className="relative w-full aspect-[4/3] rounded-3xl overflow-hidden bg-slate-900 shadow-2xl ring-8 ring-primary/5">
-                                    <video ref={videoRef} autoPlay playsInline className="w-full h-full object-cover" />
-                                    <canvas ref={canvasRef} className="hidden" />
-
-                                    {/* Green Oval Overlay */}
-                                    <div className="absolute inset-0 z-10 flex items-center justify-center pointer-events-none">
-                                        <div className="w-64 h-80 face-oval-overlay" />
-                                    </div>
-
-                                    {/* Live Preview Badge */}
-                                    <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20 px-6 py-2 rounded-full bg-black/40 backdrop-blur-md border border-white/20">
-                                        <div className="flex items-center gap-2">
-                                            <div className="size-2 bg-primary rounded-full animate-pulse" />
-                                            <span className="text-white text-xs font-medium uppercase tracking-widest">Live Preview</span>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <p className="text-center mt-6 text-slate-500 dark:text-slate-400 text-sm italic">
-                                    Data is processed locally and securely encrypted.
+                            <div className="bg-emerald-500/10 dark:bg-emerald-400/5 rounded-3xl p-6 border border-emerald-500/20">
+                                <p className="text-sm font-bold text-emerald-700 dark:text-emerald-400 leading-relaxed">
+                                    💡 <b>Mẹo:</b> Giữ khuôn mặt ổn định trong khung hình, đảm bảo ánh sáng tốt và không đeo kính đen.
                                 </p>
                             </div>
                         </div>
                     </div>
-                </main>
-            </div>
-
-            <footer className="mt-auto py-8 border-t border-primary/5 text-center text-slate-400 text-xs">
-                © 2024 SmartPay Biometrics. All rights reserved.
-            </footer>
+                </div>
+            </main>
+            <canvas ref={canvasRef} className="hidden" />
         </div>
     );
 }

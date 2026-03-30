@@ -6,10 +6,9 @@ const API_BASE_URL = 'http://localhost:8080';
 // Tạo axios instance
 const apiClient = axios.create({
     baseURL: API_BASE_URL,
-    headers: {
-        'Content-Type': 'application/json',
-    },
-    timeout: 10000, // 10 seconds
+    // Note: Do NOT set a default Content-Type here. 
+    // Axios will automatically set it based on the data type (JSON vs FormData).
+    timeout: 30000, 
 });
 
 // Request interceptor - Tự động thêm JWT token vào headers
@@ -28,6 +27,16 @@ apiClient.interceptors.request.use(
             config.headers.Authorization = `Bearer ${token}`;
             console.log('🔑 Token attached');
         }
+
+        // Fix: Nếu data là FormData, đảm bảo không có Content-Type cứng (để trình duyệt tự tạo boundary)
+        if (config.data instanceof FormData) {
+            if (config.headers) {
+                delete config.headers['Content-Type'];
+                if (config.headers.delete) config.headers.delete('Content-Type');
+            }
+            console.log('📦 [apiClient] FormData detected - Allowing browser to set boundary');
+        }
+
         return config;
     },
     (error) => {

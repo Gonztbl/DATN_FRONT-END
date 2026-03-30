@@ -1,0 +1,49 @@
+# Sequence Diagram – Admin User Creation
+
+## UC-72: Khởi tạo tài khoản hệ thống (Admin Create)
+
+```plantuml
+@startuml UC72_AdminTaoNguoiDung
+actor Admin
+boundary ":AdminUserCreateUI" as UI
+control ":AdminController" as CTRL
+entity ":UserAccount" as ENT
+entity ":CSDL" as DB
+
+Admin -> UI : 1: Truy cập trang "Create User"
+activate UI
+
+UI --> Admin : 2: Hiển thị Form (Username, Fullname, Email, Role...)
+
+Admin -> UI : 3: Nhập thông tin, chọn Role, nhấn "Create Account"
+
+UI -> UI : 4: Validate (Email format, Password strength...)
+
+UI -> CTRL : 5: createUser(userData)
+activate CTRL
+
+CTRL -> DB : 6: POST /api/admin/users/create
+activate DB
+
+alt Lỗi trùng dữ liệu (Conflict)
+    DB --> CTRL : 6.1: 409 Conflict {field: "email"}
+    CTRL --> UI : 6.2: Trả về lỗi trùng email
+    UI --> Admin : 6.3: Báo đỏ trường Email
+else Thành công
+    DB --> CTRL : 7.1: 201 Created {user, wallet}
+    deactivate DB
+    
+    CTRL -> ENT : 7.2: Khởi tạo UserAccount
+    activate ENT
+    ENT --> CTRL : 7.3: Đã tạo
+    deactivate ENT
+    
+    CTRL --> UI : 7.4: Thành công
+    deactivate CTRL
+    
+    UI --> Admin : 8: Hiện thông báo thành công + AccountNumber, quay lại Dashboard
+end
+
+deactivate UI
+@enduml
+```

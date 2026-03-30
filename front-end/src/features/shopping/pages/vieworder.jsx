@@ -226,7 +226,7 @@ const ViewOrder = () => {
                 <button
                     onClick={toggleDarkMode}
                     className="size-10 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-primary/10 hover:text-primary transition-all flex items-center justify-center"
-                    title={isDarkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}
+                    title={isDarkMode ? "Chế độ sáng" : "Chế độ tối"}
                 >
                     <span className="material-symbols-outlined transition-all">
                         {isDarkMode ? "light_mode" : "dark_mode"}
@@ -426,7 +426,7 @@ const ViewOrder = () => {
                         {/* Actions */}
                         <div className="space-y-3 pt-4">
                             <button onClick={handleReorder} disabled={actionLoading} className="w-full bg-emerald-600 text-white py-4 rounded-xl font-bold shadow-lg shadow-emerald-600/20 active:scale-[0.98] transition-all disabled:opacity-50">
-                                {actionLoading ? 'Đang lý...' : 'Đặt lại ngay'}
+                                {actionLoading ? 'Đang xử lý...' : 'Đặt lại ngay'}
                             </button>
                             {!isCancelled && order.status !== 'COMPLETED' && (
                                 <button onClick={handleCancel} disabled={actionLoading || currentWeight > 1} className="w-full border border-red-100 dark:border-red-900/30 text-red-600 py-3 rounded-xl font-bold hover:bg-red-50 dark:hover:bg-red-900/10 transition-all disabled:opacity-30 disabled:border-slate-100 disabled:text-slate-300">

@@ -1,21 +1,99 @@
 import apiClient from "../../../api/apiClient";
 
 const faceService = {
-    // Helper để lấy userId từ api /api/me nếu không được truyền vào
+    /**
+     * Helper to resolve the current user's ID reliably.
+     * Checks localStorage first, then JWT token, then /api/me as fallback.
+     */
     _getUserId: async (userId) => {
-        if (userId) return userId;
+        console.log("🔍 [faceService._getUserId] Input userId:", userId);
+        
+        if (userId) {
+            console.log("✅ [faceService._getUserId] Using provided userId:", userId);
+            return userId;
+        }
+        
+        // Try localStorage first (faster and more reliable)
+        try {
+            const userStr = localStorage.getItem('user');
+            console.log("🔍 [faceService._getUserId] localStorage user string:", userStr);
+            
+            if (userStr) {
+                const user = JSON.parse(userStr);
+                console.log("🔍 [faceService._getUserId] Parsed user object:", user);
+                
+                const id = user.id ?? user.userId;
+                if (id) {
+                    console.log("✅ [faceService._getUserId] Resolved userId from localStorage:", id);
+                    return id;
+                } else {
+                    console.warn("⚠️ [faceService._getUserId] No id or userId field in localStorage user object");
+                }
+            } else {
+                console.warn("⚠️ [faceService._getUserId] No user in localStorage");
+            }
+        } catch (err) {
+            console.error("❌ [faceService._getUserId] Could not parse user from localStorage", err);
+        }
+        
+        // Try to extract from JWT token
+        try {
+            const token = localStorage.getItem('token');
+            if (token) {
+                console.log("🔍 [faceService._getUserId] Trying to parse JWT token...");
+                const base64Url = token.split('.')[1];
+                const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+                const jsonPayload = decodeURIComponent(
+                    atob(base64)
+                        .split('')
+                        .map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+                        .join('')
+                );
+                const payload = JSON.parse(jsonPayload);
+                console.log("🔍 [faceService._getUserId] JWT payload:", payload);
+                
+                // Try common JWT claim names for user ID
+                const id = payload.userId ?? payload.id ?? payload.sub ?? payload.user_id;
+                if (id) {
+                    console.log("✅ [faceService._getUserId] Resolved userId from JWT token:", id);
+                    return id;
+                } else {
+                    console.warn("⚠️ [faceService._getUserId] No userId field in JWT token");
+                }
+            }
+        } catch (err) {
+            console.error("❌ [faceService._getUserId] Could not parse JWT token", err);
+        }
+        
+        // Fallback to /api/me
+        console.log("🔍 [faceService._getUserId] Falling back to /api/me...");
         try {
             const res = await apiClient.get('/api/me');
-            // Dựa theo doc, response của /api/me chứa thông tin user
-            return res.data.id || res.data.userId; 
+            console.log("🔍 [faceService._getUserId] /api/me response:", res.data);
+            
+            // Try different paths: directly, in user object, or as userId field
+            const id = res.data.id ?? 
+                       res.data.userId ?? 
+                       res.data.user?.id ?? 
+                       res.data.user?.userId;
+            
+            if (id === undefined || id === null) {
+                console.error("❌ [faceService._getUserId] CRITICAL: Could not find User ID in /api/me response");
+                console.error("❌ [faceService._getUserId] /api/me full response:", JSON.stringify(res.data, null, 2));
+            } else {
+                console.log("✅ [faceService._getUserId] Resolved userId from /api/me:", id);
+            }
+            return id;
         } catch (err) {
-            console.error("Failed to get current userId", err);
+            console.error("❌ [faceService._getUserId] Failed to get session info from /api/me", err);
             return null;
         }
     },
 
-    // 1. Lấy danh sách metadata của các embedding đã đăng ký
-    // Endpoint: GET /api/face/list/{userId}
+    /**
+     * List registered face embeddings for a user.
+     * GET /api/face/list/{userId}
+     */
     listEmbeddings: async (userId) => {
         try {
             const id = await faceService._getUserId(userId);
@@ -29,88 +107,139 @@ const faceService = {
         }
     },
 
-    // 2. Đăng ký một pose khuôn mặt (multipart/form-data)
-    // Endpoint: POST /api/face/register
+    /**
+     * Register a face pose (Front, Left, or Right).
+     * POST /api/face/register?userId=&pose=
+     * Backend expects multipart/form-data with image field
+     */
     registerFace: async (formData) => {
         try {
-            // Tự động bổ sung userId nếu chưa có trong formData
-            if (!formData.has("userId")) {
-                const id = await faceService._getUserId();
-                if (id) formData.append("userId", id);
-            }
+            // 1. Resolve userId
+            const userIdFromForm = formData.get("userId");
+            const id = await faceService._getUserId(userIdFromForm || undefined);
+            if (!id) throw new Error("Không tìm thấy User ID. Vui lòng đăng nhập lại.");
 
-            // Log FormData trước khi gửi (debug)
-            for (let [key, value] of formData.entries()) {
-                console.log(`FormData entry: ${key} =`, value instanceof Blob ? 'Blob/File' : value);
-            }
+            // 2. Extract pose from FormData (backend expects it in query params only)
+            const pose = formData.get("pose");
+            
+            console.log("📤 [registerFace] BEFORE delete - FormData keys:", Array.from(formData.keys()));
+            console.log("📤 [registerFace] userId:", id, "pose:", pose);
+            
+            // 3. Remove pose and userId from FormData body (backend uses @RequestParam for these)
+            formData.delete("pose");
+            formData.delete("userId");
+            
+            console.log("📤 [registerFace] AFTER delete - FormData keys:", Array.from(formData.keys()));
 
-            const res = await apiClient.post(`/api/face/register`, formData, {
-                headers: {
-                    'Content-Type': 'multipart/form-data',  // Bắt buộc
-                },
-            });
+            // 4. Build query params (backend uses @RequestParam)
+            const config = {
+                params: { userId: id, ...(pose ? { pose } : {}) }
+            };
 
-            console.log('Register success:', res.data);
+            console.log(`📤 [registerFace] Sending request with query params:`, config.params);
+
+            // 5. Send FormData directly (multipart/form-data with only image field)
+            const res = await apiClient.post(`/api/face/register`, formData, config);
+
+            console.log('✅ Register success:', res.data);
             return res.data;
         } catch (err) {
-            // Log chi tiết lỗi từ backend
-            console.error('Register error full:', {
+            console.error('❌ Register error detail:', {
                 status: err.response?.status,
                 data: err.response?.data,
-                message: err.message,
-                headers: err.response?.headers,
+                message: err.message
             });
 
-            // Hiển thị message từ backend nếu có
-            const errorMsg = err.response?.data?.message 
-                || err.response?.data?.error 
-                || "Đăng ký thất bại. Vui lòng kiểm tra ảnh và thử lại.";
-
-            throw new Error(errorMsg);  // Để showError ở FE bắt được
+            const errorMsg = err.response?.data?.message || err.response?.data?.error || "Đăng ký thất bại.";
+            throw new Error(errorMsg);
         }
     },
 
-    // 3. Xóa một embedding theo ID
-    // Endpoint: DELETE /api/face/{embeddingId}
+    /**
+     * Verify face (Authentication).
+     * POST /api/face/verify?userId=
+     * Backend expects multipart/form-data with image field
+     */
+    verifyFace: async (formData) => {
+        try {
+            // 1. Resolve userId
+            const userIdFromForm = formData.get("userId");
+            const id = await faceService._getUserId(userIdFromForm || undefined);
+
+            // 2. Remove userId from FormData body (backend uses @RequestParam)
+            formData.delete("userId");
+
+            const config = {
+                params: id ? { userId: id } : {}
+            };
+
+            // 3. Send FormData directly (multipart/form-data with only image field)
+            const res = await apiClient.post(`/api/face/verify`, formData, config);
+            return res.data;
+        } catch (err) {
+            throw new Error(err.response?.data?.message || "Xác thực thất bại.");
+        }
+    },
+
+    /**
+     * Delete an existing face embedding.
+     * DELETE /api/face/{embeddingId}
+     */
     deleteEmbedding: async (embeddingId) => {
         const res = await apiClient.delete(`/api/face/${embeddingId}`);
         return res.data;
     },
 
-    // 4. Xác thực khuôn mặt (Verify)
-    // Endpoint: POST /api/face/verify
-    verifyFace: async (formData) => {
-        if (!formData.has("userId")) {
-            const id = await faceService._getUserId();
-            if (id) formData.append("userId", id);
-        }
-
-        const res = await apiClient.post(`/api/face/verify`, formData, {
-            headers: { "Content-Type": "multipart/form-data" },
-        });
-        return res.data;
-    },
-
-    // 5. Generate Embedding (Utility) - POST /api/face/embedding
+    /**
+     * Generate embedding (Utility tool).
+     */
     generateEmbedding: async (file) => {
         const formData = new FormData();
         formData.append("file", file);
-        const res = await apiClient.post(`/api/face/embedding`, formData, {
-            headers: { "Content-Type": "multipart/form-data" },
-        });
+        const res = await apiClient.post(`/api/face/embedding`, formData);
         return res.data;
     },
 
-    // 6. Compare Two Faces (Utility) - POST /api/face/compare
+    /**
+     * Compare two faces (Utility tool).
+     */
     compareFaces: async (img1, img2) => {
         const formData = new FormData();
         formData.append("img1", img1);
         formData.append("img2", img2);
-        const res = await apiClient.post(`/api/face/compare`, formData, {
-            headers: { "Content-Type": "multipart/form-data" },
-        });
+        const res = await apiClient.post(`/api/face/compare`, formData);
         return res.data;
     },
+
+    /**
+     * Add face after user is already registered.
+     * POST /api/face/add?userId=&pose=
+     * Backend expects multipart/form-data with image field
+     */
+    addFace: async (formData) => {
+        try {
+            // 1. Resolve userId
+            const userIdFromForm = formData.get("userId");
+            const id = await faceService._getUserId(userIdFromForm || undefined);
+
+            // 2. Extract pose from FormData (backend expects it in query params only)
+            const pose = formData.get("pose");
+            
+            // 3. Remove pose and userId from FormData body (backend uses @RequestParam for these)
+            formData.delete("pose");
+            formData.delete("userId");
+
+            const config = {
+                params: { ...(id ? { userId: id } : {}), ...(pose ? { pose } : {}) }
+            };
+
+            // 4. Send FormData directly (multipart/form-data with only image field)
+            const res = await apiClient.post(`/api/face/add`, formData, config);
+            return res.data;
+        } catch (err) {
+            throw new Error(err.response?.data?.message || "Thêm khuôn mặt thất bại.");
+        }
+    }
 };
 
 export default faceService;

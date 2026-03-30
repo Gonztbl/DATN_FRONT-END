@@ -47,7 +47,7 @@ export default function AdminWalletPage() {
             setWallets(list);
         } catch (err) {
             console.error("Failed to fetch wallets", err);
-            setError("Failed to load wallets.");
+            setError("Không thể tải danh sách ví.");
             setWallets([]);
         } finally {
             setLoading(false);
@@ -83,7 +83,7 @@ export default function AdminWalletPage() {
 
     const formatDate = (dateString) => {
         if (!dateString) return '';
-        return new Date(dateString).toLocaleString('en-GB');
+        return new Date(dateString).toLocaleString('vi-VN');
     };
 
     const getStatusColor = (status) => {
@@ -127,12 +127,12 @@ export default function AdminWalletPage() {
 
             // Show success notification
             showSuccess(
-                `Wallet ${isLocked ? 'unlocked' : 'locked'} successfully`,
-                'Success'
+                `Đã ${isLocked ? 'mở khóa' : 'khóa'} ví thành công`,
+                'Thành công'
             );
         } catch (err) {
             console.error(`Failed to toggle wallet status`, err);
-            showError(err.response?.data?.message || 'Failed to update wallet status. Please try again.', 'Error');
+            showError(err.response?.data?.message || 'Không thể cập nhật trạng thái ví. Vui lòng thử lại.', 'Lỗi');
         }
     };
 
@@ -146,7 +146,7 @@ export default function AdminWalletPage() {
 
     const handleTopupSubmit = async () => {
         if (!topupAmount || parseFloat(topupAmount) <= 0) {
-            showError('Please enter a valid amount greater than 0', 'Invalid Amount');
+            showError('Vui lòng nhập số tiền hợp lệ lớn hơn 0', 'Số tiền không hợp lệ');
             return;
         }
 
@@ -173,7 +173,7 @@ export default function AdminWalletPage() {
             // Show error notification
             setNotificationData({
                 status: 'FAILED',
-                message: error.response?.data?.message || 'Topup failed. Please try again.',
+                message: error.response?.data?.message || 'Nạp tiền thất bại. Vui lòng thử lại.',
                 walletId: selectedWallet.id,
                 accountNumber: selectedWallet.accountNumber
             });
@@ -188,7 +188,7 @@ export default function AdminWalletPage() {
             <SidebarAdmin />
 
             <main className="flex-1 flex flex-col min-w-0 bg-slate-50 dark:bg-slate-950 h-screen overflow-y-auto w-full">
-                <HeaderAdmin title="Wallet Management" />
+                <HeaderAdmin title="Quản lý ví" />
 
                 <div className="p-6 lg:p-8">
                     <div className="max-w-[1400px] mx-auto flex flex-col gap-6">
@@ -199,7 +199,7 @@ export default function AdminWalletPage() {
                             {/* SEARCH */}
                             <div className="flex-1">
                                 <label className="block mb-1 text-sm font-medium text-slate-600 dark:text-slate-400">
-                                    Search by ID, UserID, Account
+                                    Tìm kiếm theo ID, ID Người dùng, Số tài khoản
                                 </label>
                                 <div className="relative">
                                     <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500">
@@ -207,7 +207,7 @@ export default function AdminWalletPage() {
                                     </span>
                                     <input
                                         className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl h-12 pl-11 pr-4 focus:ring-1 focus:ring-primary focus:border-primary text-slate-900 dark:text-white transition-all placeholder:text-slate-400 dark:placeholder:text-slate-500"
-                                        placeholder="Enter ID, User ID or Account Number..."
+                                        placeholder="Nhập ID, ID Người dùng hoặc Số tài khoản..."
                                         value={searchText}
                                         onChange={(e) => {
                                             setSearchText(e.target.value);
@@ -220,7 +220,7 @@ export default function AdminWalletPage() {
                             {/* STATUS FILTER */}
                             {/* STATUS FILTER - Copy style từ phần không lỗi */}
                             <div className="space-y-1.5 w-full sm:w-48">
-                                <label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Status</label>
+                                <label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Trạng thái</label>
                                 <select
                                     className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-sm text-slate-900 dark:text-white focus:ring-primary focus:border-primary h-10 transition-colors"
                                     value={statusFilter}
@@ -229,9 +229,9 @@ export default function AdminWalletPage() {
                                         setCurrentPage(0);
                                     }}
                                 >
-                                    <option value="ALL">All Status</option>
-                                    <option value="ACTIVE">Active</option>
-                                    <option value="LOCKED">Locked / Frozen</option>
+                                    <option value="ALL">Tất cả trạng thái</option>
+                                    <option value="ACTIVE">Hoạt động</option>
+                                    <option value="LOCKED">Khóa / Đóng băng</option>
                                 </select>
                             </div>
                         </div>
@@ -245,7 +245,7 @@ export default function AdminWalletPage() {
                                 }}
                                 className="h-12 px-6 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-bold hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
                             >
-                                Reset
+                                Đặt lại
                             </button>
                         </div>
                     </div>
@@ -256,22 +256,22 @@ export default function AdminWalletPage() {
                                 <thead>
                                     <tr className="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-800">
                                         <th className="px-6 py-4 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase">ID</th>
-                                        <th className="px-6 py-4 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase">Account Number</th>
-                                        <th className="px-6 py-4 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase">User ID</th>
-                                        <th className="px-6 py-4 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase text-right">Balance</th>
-                                        <th className="px-6 py-4 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase">Status</th>
-                                        <th className="px-6 py-4 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase">Created At</th>
-                                        <th className="px-6 py-4 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase text-right">Action</th>
+                                        <th className="px-6 py-4 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase">Số tài khoản</th>
+                                        <th className="px-6 py-4 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase">ID Người dùng</th>
+                                        <th className="px-6 py-4 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase text-right">Số dư</th>
+                                        <th className="px-6 py-4 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase">Trạng thái</th>
+                                        <th className="px-6 py-4 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase">Ngày tạo</th>
+                                        <th className="px-6 py-4 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase text-right">Thao tác</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                                     {loading ? (
                                         <tr>
-                                            <td colSpan="7" className="px-6 py-12 text-center text-slate-500 dark:text-slate-400">Loading...</td>
+                                            <td colSpan="7" className="px-6 py-12 text-center text-slate-500 dark:text-slate-400">Đang tải...</td>
                                         </tr>
                                     ) : currentWallets.length === 0 ? (
                                         <tr>
-                                            <td colSpan="7" className="px-6 py-12 text-center text-slate-500 dark:text-slate-400">No wallets found matching your criteria.</td>
+                                            <td colSpan="7" className="px-6 py-12 text-center text-slate-500 dark:text-slate-400">Không tìm thấy ví nào phù hợp với tìm kiếm.</td>
                                         </tr>
                                     ) : (
                                         currentWallets.map((wallet) => (
@@ -284,7 +284,9 @@ export default function AdminWalletPage() {
                                                 </td>
                                                 <td className="px-6 py-4">
                                                     <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold ${getStatusColor(wallet.status)}`}>
-                                                        {wallet.status}
+                                                        {wallet.status === 'ACTIVE' ? 'Hoạt động' : 
+                                                         (wallet.status === 'LOCKED' || wallet.status === 'FROZEN') ? 'Đã khóa' : 
+                                                         wallet.status === 'INACTIVE' ? 'Ngưng dùng' : wallet.status}
                                                     </span>
                                                 </td>
                                                 <td className="px-6 py-4 text-sm text-slate-500 dark:text-slate-400">
@@ -296,7 +298,7 @@ export default function AdminWalletPage() {
                                                             onClick={() => handleTopupClick(wallet)}
                                                             className="px-3 py-1.5 rounded-lg text-xs font-bold transition-colors bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/30 border border-blue-200 dark:border-blue-800"
                                                         >
-                                                            Topup
+                                                            Nạp tiền
                                                         </button>
                                                         <button
                                                             onClick={() => handleLockUnlock(wallet)}
@@ -325,15 +327,15 @@ export default function AdminWalletPage() {
                                 disabled={currentPage === 0}
                                 className="px-3 py-1 rounded border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-50 transition-colors"
                             >
-                                Previous
+                                Trước
                             </button>
-                            <span className="text-sm text-slate-600 dark:text-slate-400">Page {currentPage + 1} of {pageCount || 1}</span>
+                            <span className="text-sm text-slate-600 dark:text-slate-400">Trang {currentPage + 1} / {pageCount || 1}</span>
                             <button
                                 onClick={() => setCurrentPage(p => p + 1)}
                                 disabled={currentPage >= pageCount - 1}
                                 className="px-3 py-1 rounded border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-50 transition-colors"
                             >
-                                Next
+                                Tiếp
                             </button>
                         </div>
                     </div>
@@ -352,8 +354,8 @@ export default function AdminWalletPage() {
                                     <span className="material-symbols-outlined text-blue-600 dark:text-blue-400">account_balance_wallet</span>
                                 </div>
                                 <div>
-                                    <h3 className="text-lg font-bold text-slate-900 dark:text-white">Topup Wallet</h3>
-                                    <p className="text-sm text-slate-500 dark:text-slate-400">Add balance to wallet</p>
+                                    <h3 className="text-lg font-bold text-slate-900 dark:text-white">Nạp tiền vào ví</h3>
+                                    <p className="text-sm text-slate-500 dark:text-slate-400">Thêm số dư vào ví</p>
                                 </div>
                             </div>
                             <button
@@ -369,33 +371,33 @@ export default function AdminWalletPage() {
                             {/* Wallet Info */}
                             <div className="bg-slate-50 dark:bg-slate-800 rounded-lg p-4 space-y-2">
                                 <div className="flex justify-between">
-                                    <span className="text-sm text-slate-600 dark:text-slate-400">Wallet ID:</span>
+                                    <span className="text-sm text-slate-600 dark:text-slate-400">ID Ví:</span>
                                     <span className="text-sm font-semibold text-slate-900 dark:text-white">{selectedWallet.walletId || selectedWallet.id}</span>
                                 </div>
                                 <div className="flex justify-between">
-                                    <span className="text-sm text-slate-600 dark:text-slate-400">Account Number:</span>
+                                    <span className="text-sm text-slate-600 dark:text-slate-400">Số tài khoản:</span>
                                     <span className="text-sm font-mono font-semibold text-slate-900 dark:text-white">{selectedWallet.accountNumber}</span>
                                 </div>
                                 <div className="flex justify-between">
-                                    <span className="text-sm text-slate-600 dark:text-slate-400">User ID:</span>
+                                    <span className="text-sm text-slate-600 dark:text-slate-400">ID Người dùng:</span>
                                     <span className="text-sm font-semibold text-slate-900 dark:text-white">{selectedWallet.userId}</span>
                                 </div>
                                 <div className="flex justify-between">
-                                    <span className="text-sm text-slate-600 dark:text-slate-400">Current Balance:</span>
+                                    <span className="text-sm text-slate-600 dark:text-slate-400">Số dư hiện tại:</span>
                                     <span className="text-sm font-bold text-green-600 dark:text-green-400">{formatCurrency(selectedWallet.availableBalance)}</span>
                                 </div>
                             </div>
 
                             {/* Amount Input */}
                             <div className="space-y-2">
-                                <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Topup Amount</label>
+                                <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Số tiền cần nạp</label>
                                 <div className="relative">
                                     <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 dark:text-slate-400">₫</span>
                                     <input
                                         type="number"
                                         value={topupAmount}
                                         onChange={(e) => setTopupAmount(e.target.value)}
-                                        placeholder="Enter amount"
+                                        placeholder="Nhập số tiền"
                                         className="w-full pl-8 pr-4 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-slate-900 dark:text-white"
                                         min="0"
                                         step="10000"
@@ -423,7 +425,7 @@ export default function AdminWalletPage() {
                                 onClick={() => setShowTopupModal(false)}
                                 className="flex-1 px-4 py-2.5 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
                             >
-                                Cancel
+                                Hủy
                             </button>
                             <button
                                 onClick={handleTopupSubmit}
@@ -433,10 +435,10 @@ export default function AdminWalletPage() {
                                 {topupLoading ? (
                                     <>
                                         <span className="material-symbols-outlined animate-spin text-lg">progress_activity</span>
-                                        Processing...
+                                        Đang xử lý...
                                     </>
                                 ) : (
-                                    'Topup'
+                                    'Nạp tiền'
                                 )}
                             </button>
                         </div>
@@ -459,7 +461,7 @@ export default function AdminWalletPage() {
 
                             {/* Title */}
                             <h3 className={`text-xl font-bold ${notificationData.status === 'SUCCESS' || notificationData.status === 'COMPLETED' ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
-                                {notificationData.status === 'SUCCESS' || notificationData.status === 'COMPLETED' ? 'Topup Successful!' : 'Topup Failed'}
+                                {notificationData.status === 'SUCCESS' || notificationData.status === 'COMPLETED' ? 'Nạp tiền thành công!' : 'Nạp tiền thất bại'}
                             </h3>
 
                             {/* Message */}
@@ -471,15 +473,15 @@ export default function AdminWalletPage() {
                             {(notificationData.status === 'SUCCESS' || notificationData.status === 'COMPLETED') && (
                                 <div className="bg-slate-50 dark:bg-slate-800 rounded-lg p-4 space-y-2 text-left">
                                     <div className="flex justify-between">
-                                        <span className="text-sm text-slate-600 dark:text-slate-400">Amount Added:</span>
+                                        <span className="text-sm text-slate-600 dark:text-slate-400">Số tiền đã nạp:</span>
                                         <span className="text-sm font-bold text-green-600 dark:text-green-400">+{formatCurrency(notificationData.amountAdded)}</span>
                                     </div>
                                     <div className="flex justify-between">
-                                        <span className="text-sm text-slate-600 dark:text-slate-400">Previous Balance:</span>
+                                        <span className="text-sm text-slate-600 dark:text-slate-400">Số dư trước đó:</span>
                                         <span className="text-sm font-semibold text-slate-900 dark:text-white">{formatCurrency(notificationData.previousBalance)}</span>
                                     </div>
                                     <div className="flex justify-between border-t border-slate-200 dark:border-slate-700 pt-2">
-                                        <span className="text-sm font-bold text-slate-700 dark:text-slate-300">New Balance:</span>
+                                        <span className="text-sm font-bold text-slate-700 dark:text-slate-300">Số dư mới:</span>
                                         <span className="text-sm font-bold text-green-600 dark:text-green-400">{formatCurrency(notificationData.newBalance)}</span>
                                     </div>
                                 </div>
@@ -492,7 +494,7 @@ export default function AdminWalletPage() {
                                 onClick={() => setShowNotification(false)}
                                 className="w-full px-4 py-2.5 bg-primary hover:bg-primary/90 text-white font-bold rounded-lg transition-colors"
                             >
-                                Close
+                                Đóng
                             </button>
                         </div>
                     </div>

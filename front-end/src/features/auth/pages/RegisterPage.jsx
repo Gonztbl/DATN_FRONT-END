@@ -7,26 +7,26 @@ const slides = [
   {
     image: "/images/wallet_3d.png",
     icon: "lock",
-    category: "Authentication",
-    title: "Secure Registration",
-    heading: "Financial Freedom Starts Here",
-    description: "Experience the fastest, most secure way to send, spend, and save money globally. No hidden fees."
+    category: "Xác thực",
+    title: "Đăng ký an toàn",
+    heading: "Tự do tài chính đích thực",
+    description: "Trải nghiệm cách gửi, chi tiêu và gửi tiết kiệm an toàn, nhanh chóng nhất. Không phí ẩn."
   },
   {
     image: "/images/dashboard_3d.png",
     icon: "analytics",
-    category: "Management",
-    title: "Smart Dashboard",
-    heading: "Track Your Wealth",
-    description: "Real-time analytics and transaction history at your fingertips. Stay on top of your budget."
+    category: "Quản lý",
+    title: "Bảng điều khiển thông minh",
+    heading: "Theo dõi mức chi tiêu",
+    description: "Phân tích thời gian thực và lịch sử giao dịch ngay trong tầm tay bạn. Kiểm soát ngân sách tốt hơn."
   },
   {
     image: "/images/security_3d.png",
     icon: "verified_user",
-    category: "Protection",
-    title: "Bank-Grade Security",
-    heading: "Your Funds Are Safe",
-    description: "Industry-leading encryption protecting your assets 24/7. Peace of mind guaranteed."
+    category: "Bảo vệ",
+    title: "Bảo mật cấp ngân hàng",
+    heading: "Tiền của bạn luôn an toàn",
+    description: "Mã hóa hàng đầu bảo vệ tài sản của bạn 24/7."
   }
 ];
 
@@ -57,46 +57,46 @@ export default function RegisterPage() {
 
     // USERNAME
     if (!username.trim()) {
-      newErrors.userName = "Username is required";
+      newErrors.userName = "Tên người dùng là bắt buộc";
     } else if (!/^[a-zA-Z0-9_]{4,20}$/.test(username)) {
       newErrors.userName =
-        "Username must be 4–20 chars, letters, numbers, underscore only";
+        "Tên người dùng phải từ 4–20 ký tự, chỉ bao gồm chữ cái, số và dấu gạch dưới";
     }
 
     // FULL NAME
     if (!fullName.trim()) {
-      newErrors.fullName = "Full name is required";
+      newErrors.fullName = "Họ và tên là bắt buộc";
     } else if (!/^[a-zA-ZÀ-ỹ\s]+$/.test(fullName)) {
-      newErrors.fullName = "Full name is invalid";
+      newErrors.fullName = "Họ và tên không hợp lệ";
     }
 
     // EMAIL
     if (!email) {
-      newErrors.email = "Email is required";
+      newErrors.email = "Email là bắt buộc";
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      newErrors.email = "Email is invalid";
+      newErrors.email = "Email không hợp lệ";
     }
 
     // PHONE
     if (!phoneNumber) {
-      newErrors.phoneNumber = "Phone number is required";
+      newErrors.phoneNumber = "Số điện thoại là bắt buộc";
     } else if (!/^0\d{9,10}$/.test(phoneNumber)) {
-      newErrors.phoneNumber = "Phone number is invalid";
+      newErrors.phoneNumber = "Số điện thoại không hợp lệ";
     }
 
     // PASSWORD
     if (!passwordHash) {
-      newErrors.password = "Password is required";
+      newErrors.password = "Mật khẩu là bắt buộc";
     } else if (!/^(?=.*[A-Za-z])(?=.*\d).{8,}$/.test(passwordHash)) {
       newErrors.password =
-        "Password must be at least 8 chars and contain letters & numbers";
+        "Mật khẩu phải có ít nhất 8 ký tự, bao gồm cả chữ và số";
     }
 
     // CONFIRM PASSWORD
     if (!confirmPassword) {
-      newErrors.confirmPassword = "Confirm password is required";
+      newErrors.confirmPassword = "Xác nhận mật khẩu là bắt buộc";
     } else if (confirmPassword !== passwordHash) {
-      newErrors.confirmPassword = "Passwords do not match";
+      newErrors.confirmPassword = "Mật khẩu xác nhận không khớp";
     }
 
     setErrors(newErrors);
@@ -120,7 +120,7 @@ export default function RegisterPage() {
       });
 
       const { accountNumber } = response.data;
-      showSuccess(`Your account has been created successfully!\n\nAccount Number: ${accountNumber || phoneNumber}\n\nPlease login to continue.`, "Registration Successful");
+      showSuccess(`Tài khoản của bạn đã được tạo thành công!\n\nSố tài khoản: ${accountNumber || phoneNumber}\n\nVui lòng đăng nhập để tiếp tục.`, "Đăng ký thành công");
       navigate("/login");
     } catch (err) {
       if (err.response?.status === 409) {
@@ -144,7 +144,7 @@ export default function RegisterPage() {
           return newErrors;
         });
       } else {
-        showError(err.response?.data?.message || "Registration failed. Please try again later.", "Server Error");
+        showError(err.response?.data?.message || "Đăng ký thất bại. Vui lòng thử lại sau.", "Lỗi máy chủ");
       }
     }
   };
@@ -175,7 +175,7 @@ export default function RegisterPage() {
 
           {/* Header */}
           <div className="space-y-2">
-            <h1 className="text-3xl lg:text-4xl font-black">Create your account</h1>
+            <h1 className="text-3xl lg:text-4xl font-black">Tạo tài khoản</h1>
           </div>
 
           {/* Form */}
@@ -183,7 +183,7 @@ export default function RegisterPage() {
             <div>
               <input
                 type="text"
-                placeholder="User Name"
+                placeholder="Tên người dùng"
                 className={inputClass("userName")}
                 value={username}
                 onChange={(e) => setUserName(e.target.value)}
@@ -195,7 +195,7 @@ export default function RegisterPage() {
             <div>
               <input
                 type="text"
-                placeholder="Full Name"
+                placeholder="Họ và tên"
                 className={inputClass("fullName")}
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
@@ -208,7 +208,7 @@ export default function RegisterPage() {
             <div>
               <input
                 type="email"
-                placeholder="Email Address"
+                placeholder="Địa chỉ Email"
                 className={inputClass("email")}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -221,7 +221,7 @@ export default function RegisterPage() {
             <div>
               <input
                 type="tel"
-                placeholder="Phone Number"
+                placeholder="Số điện thoại"
                 className={inputClass("phoneNumber")}
                 value={phoneNumber}
                 onChange={(e) => setPhoneNumber(e.target.value)}
@@ -238,7 +238,7 @@ export default function RegisterPage() {
                 <div className="relative">
                   <input
                     type={showPassword ? "text" : "password"}
-                    placeholder="Enter password"
+                    placeholder="Nhập mật khẩu"
                     className={`${inputClass("password")} pr-12`}
                     value={passwordHash}
                     onChange={(e) => setPassWord(e.target.value)}
@@ -263,7 +263,7 @@ export default function RegisterPage() {
                 <div className="relative">
                   <input
                     type={showConfirmPassword ? "text" : "password"}
-                    placeholder="Confirm password"
+                    placeholder="Xác nhận mật khẩu"
                     className={`${inputClass("confirmPassword")} pr-12`}
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
@@ -290,14 +290,14 @@ export default function RegisterPage() {
               type="submit"
               className="w-full bg-primary text-text-dark font-bold text-xl h-14 flex items-center justify-center rounded-xl shadow hover:opacity-90 mt-4"
             >
-              Create Free Account
+              Tạo tài khoản miễn phí
             </button>
           </form>
 
           <p className="text-center text-sm text-gray-500">
-            Already have an account?{" "}
+            Đã có tài khoản?{" "}
             <a href="/Login" className="font-bold hover:text-primary">
-              Log in
+              Đăng nhập
             </a>
           </p>
         </div>
@@ -374,15 +374,15 @@ export default function RegisterPage() {
           <div className="flex flex-wrap justify-center gap-3 mt-4">
             <span className="px-4 py-2 bg-white/60 dark:bg-black/20 backdrop-blur-sm rounded-full text-sm font-semibold text-gray-700 dark:text-gray-200 border border-white/50 dark:border-white/10 flex items-center gap-2">
               <span className="material-symbols-outlined text-primary text-[18px]">bolt</span>
-              Instant Transfers
+              Chuyển tiền nhanh
             </span>
             <span className="px-4 py-2 bg-white/60 dark:bg-black/20 backdrop-blur-sm rounded-full text-sm font-semibold text-gray-700 dark:text-gray-200 border border-white/50 dark:border-white/10 flex items-center gap-2">
               <span className="material-symbols-outlined text-primary text-[18px]">public</span>
-              Global Access
+              Truy cập toàn cầu
             </span>
             <span className="px-4 py-2 bg-white/60 dark:bg-black/20 backdrop-blur-sm rounded-full text-sm font-semibold text-gray-700 dark:text-gray-200 border border-white/50 dark:border-white/10 flex items-center gap-2">
               <span className="material-symbols-outlined text-primary text-[18px]">savings</span>
-              Smart Savings
+              Tiết kiệm thông minh
             </span>
           </div>
         </div>

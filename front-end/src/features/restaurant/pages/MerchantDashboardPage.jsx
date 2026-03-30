@@ -225,6 +225,19 @@ const MerchantDashboardPage = () => {
         }
     };
 
+    const getStatusText = (status) => {
+        switch (status) {
+            case 'PENDING': return 'Chờ xác nhận';
+            case 'CONFIRMED': return 'Đã xác nhận';
+            case 'READY_FOR_PICKUP': return 'Chờ shipper lấy';
+            case 'DELIVERING': return 'Đang giao';
+            case 'COMPLETED': return 'Hoàn thành';
+            case 'CANCELLED': return 'Đã hủy';
+            case 'FAILED': return 'Thất bại';
+            default: return status;
+        }
+    };
+
     const formatTrend = (trend) => {
         if (trend === 0) return '0%';
         return (trend > 0 ? '+' : '') + trend.toFixed(1) + '%';
@@ -389,7 +402,7 @@ const MerchantDashboardPage = () => {
                                             <td className="px-6 py-4 text-sm font-black text-slate-800 dark:text-slate-100">{formatCurrency(order.totalAmount)}</td>
                                             <td className="px-6 py-4">
                                                 <span className={`px-3 py-1.5 rounded-full text-xs font-bold ${getStatusStyle(order.status)}`}>
-                                                    {order.status}
+                                                    {getStatusText(order.status)}
                                                 </span>
                                             </td>
                                             <td className="px-6 py-4 text-right">

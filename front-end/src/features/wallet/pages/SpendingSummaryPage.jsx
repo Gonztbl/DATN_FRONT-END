@@ -14,10 +14,10 @@ export default function SpendingSummaryPage() {
                 <div className="px-8 py-8 flex justify-between items-center border-b border-gray-100 dark:border-slate-800 bg-white dark:bg-slate-800">
                     <div>
                         <h2 className="text-4xl font-black text-[#111714] dark:text-white">
-                            Spending Summary
+                            Tóm tắt chi tiêu
                         </h2>
                         <p className="text-[#648772] dark:text-slate-400">
-                            Track your financial health and habits
+                            Theo dõi tình hình tài chính và thói quen của bạn
                         </p>
                     </div>
 
@@ -33,7 +33,7 @@ export default function SpendingSummaryPage() {
                         </button>
                         <button className="flex items-center gap-2 bg-primary px-5 py-2.5 rounded-lg font-bold text-[#111714]">
                             <span className="material-symbols-outlined">download</span>
-                            Download Statement
+                            Tải sao kê
                         </button>
                     </div>
                 </div>
@@ -43,25 +43,25 @@ export default function SpendingSummaryPage() {
                     <div className="max-w-6xl mx-auto flex flex-col gap-6">
                         {/* STATS */}
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <StatCard title="Total Balance" value="$12,450.00" icon="account_balance" />
-                            <StatCard title="Monthly Spending" value="$3,240.50" icon="credit_card" />
-                            <StatCard title="Monthly Savings" value="$1,100.00" icon="savings" />
+                            <StatCard title="Tổng số dư" value="$12,450.00" icon="account_balance" />
+                            <StatCard title="Chi tiêu hàng tháng" value="$3,240.50" icon="credit_card" />
+                            <StatCard title="Tiết kiệm hàng tháng" value="$1,100.00" icon="savings" />
                         </div>
 
                         {/* BAR CHART */}
                         <div className="bg-white dark:bg-slate-800 rounded-xl p-6 border border-gray-100 dark:border-slate-800 shadow-sm">
                             <h3 className="text-lg font-bold mb-4 text-[#111714] dark:text-white">
-                                Spending Activity
+                                Hoạt động chi tiêu
                             </h3>
                             <div className="grid grid-cols-7 gap-4 h-64 items-end">
                                 {[
-                                    { day: "Mon", h: "45%" },
-                                    { day: "Tue", h: "65%" },
-                                    { day: "Wed", h: "30%" },
-                                    { day: "Thu", h: "85%", active: true },
-                                    { day: "Fri", h: "55%" },
-                                    { day: "Sat", h: "90%" },
-                                    { day: "Sun", h: "40%" },
+                                    { day: "T2", h: "45%" },
+                                    { day: "T3", h: "65%" },
+                                    { day: "T4", h: "30%" },
+                                    { day: "T5", h: "85%", active: true },
+                                    { day: "T6", h: "55%" },
+                                    { day: "T7", h: "90%" },
+                                    { day: "CN", h: "40%" },
                                 ].map((d) => (
                                     <div key={d.day} className="flex flex-col items-center gap-2">
                                         <div
@@ -82,16 +82,16 @@ export default function SpendingSummaryPage() {
                         {/* TRANSACTIONS */}
                         <div className="bg-white dark:bg-slate-800 rounded-xl border border-gray-100 dark:border-slate-800 shadow-sm overflow-hidden">
                             <div className="p-6 border-b border-gray-100 dark:border-slate-800 flex justify-between">
-                                <h3 className="font-bold text-[#111714] dark:text-white">Recent Transactions</h3>
-                                <button className="text-primary font-bold">View All</button>
+                                <h3 className="font-bold text-[#111714] dark:text-white">Giao dịch gần đây</h3>
+                                <button className="text-primary font-bold">Xem tất cả</button>
                             </div>
                             <table className="w-full text-left">
                                 <thead className="bg-[#f6f8f7] dark:bg-slate-800">
                                     <tr>
-                                        <Th>Merchant</Th>
-                                        <Th>Category</Th>
-                                        <Th>Date</Th>
-                                        <Th right>Amount</Th>
+                                        <Th>Người bán</Th>
+                                        <Th>Danh mục</Th>
+                                        <Th>Ngày</Th>
+                                        <Th right>Số tiền</Th>
                                     </tr>
                                 </thead>
                                 <tbody>

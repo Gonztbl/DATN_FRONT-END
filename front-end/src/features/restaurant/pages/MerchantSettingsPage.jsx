@@ -118,15 +118,15 @@ const MerchantSettingsPage = () => {
             <SidebarRestaurant />
 
             <main className="flex-1 flex flex-col min-w-0 bg-[#f8fafc] dark:bg-background-dark h-screen overflow-y-auto w-full">
-                <HeaderRestaurant title="Store Settings" />
+                <HeaderRestaurant title="Cài đặt cửa hàng" />
 
                 <div className="p-8">
                     <div className="max-w-4xl mx-auto flex flex-col gap-8">
                         <section className="bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
                             <div className="flex items-center justify-between">
                                 <div>
-                                    <h3 className="text-lg font-bold">Store Status</h3>
-                                    <p className="text-xs text-slate-500 font-medium">Enable or disable ordering instantly</p>
+                                    <h3 className="text-lg font-bold">Trạng thái cửa hàng</h3>
+                                    <p className="text-xs text-slate-500 font-medium">Bật hoặc tắt chức năng nhận đơn ngay</p>
                                 </div>
                                 <label className="relative inline-flex items-center cursor-pointer">
                                     <input 
@@ -143,15 +143,15 @@ const MerchantSettingsPage = () => {
 
                         <section className="bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
                             <h3 className="text-lg font-bold mb-6 flex items-center gap-2">
-                                <span className="material-symbols-outlined text-primary">info</span> Basic Info
+                                <span className="material-symbols-outlined text-primary">info</span> Thông tin cơ bản
                             </h3>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div className="flex flex-col gap-1.5">
-                                    <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Restaurant Name</p>
+                                    <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Tên nhà hàng</p>
                                     <input 
                                         name="name"
                                         className="rounded-lg border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 focus:ring-primary focus:border-primary w-full py-2 px-3 text-sm font-medium outline-none" 
-                                        placeholder="Restaurant Name" 
+                                        placeholder="Tên nhà hàng" 
                                         type="text" 
                                         value={formData.name}
                                         onChange={handleInputChange}
@@ -159,22 +159,22 @@ const MerchantSettingsPage = () => {
                                     />
                                 </div>
                                 <div className="flex flex-col gap-1.5">
-                                    <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Phone Number</p>
+                                    <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Số điện thoại</p>
                                     <input 
                                         name="phone"
                                         className="rounded-lg border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 focus:ring-primary focus:border-primary w-full py-2 px-3 text-sm font-medium outline-none" 
-                                        placeholder="Phone Number" 
+                                        placeholder="Số điện thoại" 
                                         type="tel" 
                                         value={formData.phone}
                                         onChange={handleInputChange}
                                     />
                                 </div>
                                 <div className="flex flex-col gap-1.5 md:col-span-2">
-                                    <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Address</p>
+                                    <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Địa chỉ</p>
                                     <input 
                                         name="address"
                                         className="rounded-lg border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 focus:ring-primary focus:border-primary w-full py-2 px-3 text-sm font-medium outline-none" 
-                                        placeholder="Address" 
+                                        placeholder="Địa chỉ" 
                                         type="text" 
                                         value={formData.address}
                                         onChange={handleInputChange}
@@ -185,7 +185,7 @@ const MerchantSettingsPage = () => {
 
                         <section className="bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
                             <h3 className="text-lg font-bold mb-6 flex items-center gap-2">
-                                <span className="material-symbols-outlined text-primary">schedule</span> Operating Hours
+                                <span className="material-symbols-outlined text-primary">schedule</span> Giờ hoạt động
                             </h3>
                             <div className="space-y-4">
                                 {formData.schedule.map((dayConfig, idx) => (

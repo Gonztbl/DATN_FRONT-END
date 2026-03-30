@@ -14,8 +14,8 @@ export default function AdminTransactionHistoryPage() {
 
     // Filters
     const [searchId, setSearchId] = useState('');
-    const [statusFilter, setStatusFilter] = useState('All Status');
-    const [typeFilter, setTypeFilter] = useState('All Types');
+    const [statusFilter, setStatusFilter] = useState('Tất cả trạng thái');
+    const [typeFilter, setTypeFilter] = useState('Tất cả loại');
 
     // Pagination
     const [currentPage, setCurrentPage] = useState(1);
@@ -48,7 +48,7 @@ export default function AdminTransactionHistoryPage() {
             setTransactions(txnList);
         } catch (err) {
             console.error("Failed to fetch admin transactions", err);
-            setError("Failed to load transactions.");
+            setError("Không thể tải lịch sử giao dịch.");
             // Set empty if fail
             setTransactions([]);
         } finally {
@@ -69,23 +69,23 @@ export default function AdminTransactionHistoryPage() {
         }
 
         // Filter by Status
-        if (statusFilter !== 'All Status') {
+        if (statusFilter !== 'Tất cả trạng thái') {
             const statusMap = {
-                'Complete': 'COMPLETED',
-                'Pending': 'PENDING',
-                'Failed': 'FAILED'
+                'Hoàn thành': 'COMPLETED',
+                'Đang chờ': 'PENDING',
+                'Thất bại': 'FAILED'
             };
             const targetStatus = statusMap[statusFilter] || statusFilter.toUpperCase();
             filtered = filtered.filter(t => t.status === targetStatus);
         }
 
         // Filter by Type
-        if (typeFilter !== 'All Types') {
+        if (typeFilter !== 'Tất cả loại') {
             const typeMap = {
-                'Deposit': 'DEPOSIT',
-                'Withdraw': 'WITHDRAW',
-                'Transfer In': 'TRANSFER_IN', // Adjust if API returns different enum
-                'Transfer Out': 'TRANSFER_OUT' // Adjust if API returns different enum
+                'Nạp tiền': 'DEPOSIT',
+                'Rút tiền': 'WITHDRAW',
+                'Nhận tiền': 'TRANSFER_IN', // Adjust if API returns different enum
+                'Chuyển tiền': 'TRANSFER_OUT' // Adjust if API returns different enum
             };
 
             const targetKey = typeMap[typeFilter];
@@ -100,8 +100,8 @@ export default function AdminTransactionHistoryPage() {
 
     const handleResetFilters = () => {
         setSearchId('');
-        setStatusFilter('All Status');
-        setTypeFilter('All Types');
+        setStatusFilter('Tất cả trạng thái');
+        setTypeFilter('Tất cả loại');
     };
 
     // Pagination Logic
@@ -114,14 +114,14 @@ export default function AdminTransactionHistoryPage() {
 
     // Helper for currency format
     const formatCurrency = (amount) => {
-        return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(amount);
+        return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount);
     };
 
     // Helper for date format
     const formatDate = (dateString) => {
         if (!dateString) return '';
         const date = new Date(dateString);
-        return date.toLocaleString('en-GB', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' }).replace(',', '');
+        return date.toLocaleString('vi-VN', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
     };
 
     const getStatusColor = (status) => {
@@ -176,7 +176,7 @@ export default function AdminTransactionHistoryPage() {
 
             {/* Main Content Area */}
             <main className="flex-1 flex flex-col min-w-0 bg-slate-50 dark:bg-slate-950 h-screen overflow-y-auto w-full">
-                <HeaderAdmin title="Transaction History" />
+                <HeaderAdmin title="Lịch sử giao dịch" />
 
                 <div className="p-6 lg:p-8">
                     <div className="max-w-[1400px] mx-auto flex flex-col gap-6">
@@ -186,16 +186,16 @@ export default function AdminTransactionHistoryPage() {
                     <div className="bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
                         <div className="flex items-center gap-2 mb-4">
                             <span className="material-symbols-outlined text-primary">filter_list</span>
-                            <h4 className="text-slate-900 dark:text-white font-bold">Filter Transactions</h4>
+                            <h4 className="text-slate-900 dark:text-white font-bold">Lọc giao dịch</h4>
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                             <div className="space-y-1.5">
-                                <label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Search ID</label>
+                                <label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Tìm kiếm ID</label>
                                 <div className="relative">
                                     <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-lg">search</span>
                                     <input
                                         className="w-full pl-10 bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 rounded-lg text-sm focus:ring-primary focus:border-primary h-10"
-                                        placeholder="TXN or Wallet ID"
+                                        placeholder="ID Giao dịch hoặc Ví"
                                         type="text"
                                         value={searchId}
                                         onChange={(e) => setSearchId(e.target.value)}
@@ -203,30 +203,30 @@ export default function AdminTransactionHistoryPage() {
                                 </div>
                             </div>
                             <div className="space-y-1.5">
-                                <label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Status</label>
+                                <label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Trạng thái</label>
                                 <select
                                     className="w-full bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 rounded-lg text-sm focus:ring-primary focus:border-primary h-10 text-slate-900 dark:text-slate-200"
                                     value={statusFilter}
                                     onChange={(e) => setStatusFilter(e.target.value)}
                                 >
-                                    <option>All Status</option>
-                                    <option>Complete</option>
-                                    <option>Pending</option>
-                                    <option>Failed</option>
+                                    <option>Tất cả trạng thái</option>
+                                    <option>Hoàn thành</option>
+                                    <option>Đang chờ</option>
+                                    <option>Thất bại</option>
                                 </select>
                             </div>
                             <div className="space-y-1.5">
-                                <label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Type</label>
+                                <label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Loại</label>
                                 <select
                                     className="w-full bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 rounded-lg text-sm focus:ring-primary focus:border-primary h-10 text-slate-900 dark:text-slate-200"
                                     value={typeFilter}
                                     onChange={(e) => setTypeFilter(e.target.value)}
                                 >
-                                    <option>All Types</option>
-                                    <option>Deposit</option>
-                                    <option>Withdraw</option>
-                                    <option>Transfer In</option>
-                                    <option>Transfer Out</option>
+                                    <option>Tất cả loại</option>
+                                    <option>Nạp tiền</option>
+                                    <option>Rút tiền</option>
+                                    <option>Nhận tiền</option>
+                                    <option>Chuyển tiền</option>
                                 </select>
                             </div>
                             <div className="flex items-end gap-2">
@@ -234,7 +234,7 @@ export default function AdminTransactionHistoryPage() {
                                     className="flex-1 bg-primary text-white font-bold py-2 rounded-lg hover:bg-primary/90 transition-colors h-10"
                                     onClick={applyFilters}
                                 >
-                                    Apply Filters
+                                    Áp dụng bộ lọc
                                 </button>
                                 <button
                                     className="p-2 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800 h-10 w-10 flex items-center justify-center"
@@ -253,12 +253,12 @@ export default function AdminTransactionHistoryPage() {
                                 <thead>
                                     <tr className="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-800">
                                         <th className="px-6 py-4 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase">STT</th>
-                                        <th className="px-6 py-4 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase">Transaction ID</th>
-                                        <th className="px-6 py-4 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase">Wallet ID</th>
-                                        <th className="px-6 py-4 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase text-right">Amount</th>
-                                        <th className="px-6 py-4 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase">Status</th>
-                                        <th className="px-6 py-4 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase">Type</th>
-                                        <th className="px-6 py-4 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase">Created At</th>
+                                        <th className="px-6 py-4 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase">ID Giao dịch</th>
+                                        <th className="px-6 py-4 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase">ID Ví</th>
+                                        <th className="px-6 py-4 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase text-right">Số tiền</th>
+                                        <th className="px-6 py-4 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase">Trạng thái</th>
+                                        <th className="px-6 py-4 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase">Loại</th>
+                                        <th className="px-6 py-4 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase">Ngày tạo</th>
                                         <th className="px-6 py-4"></th>
                                     </tr>
                                 </thead>
@@ -268,14 +268,14 @@ export default function AdminTransactionHistoryPage() {
                                             <td colSpan="8" className="px-6 py-12 text-center text-slate-500">
                                                 <div className="flex flex-col items-center gap-2">
                                                     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-                                                    <span>Loading transactions...</span>
+                                                    <span>Đang tải giao dịch...</span>
                                                 </div>
                                             </td>
                                         </tr>
                                     ) : currentItems.length === 0 ? (
                                         <tr>
                                             <td colSpan="8" className="px-6 py-12 text-center text-slate-500">
-                                                No transactions found matching your criteria.
+                                                Không tìm thấy giao dịch nào phù hợp.
                                             </td>
                                         </tr>
                                     ) : (
@@ -293,16 +293,21 @@ export default function AdminTransactionHistoryPage() {
                                                 <td className={`px-6 py-4 text-sm font-extrabold text-right ${txn.direction === 'OUT' ? 'text-red-600 dark:text-red-400' : 'text-green-600 dark:text-green-400'}`}>
                                                     {txn.direction === 'OUT' ? '-' : '+'}{formatCurrency(Math.abs(txn.amount))}
                                                 </td>
-                                                <td className="px-6 py-4">
+                                                 <td className="px-6 py-4">
                                                     <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold ${getStatusColor(txn.status)}`}>
                                                         <span className={`size-1.5 rounded-full ${getStatusDotColor(txn.status)}`}></span>
-                                                        {txn.status}
+                                                        {txn.status === 'COMPLETED' ? 'Hoàn thành' : 
+                                                         txn.status === 'PENDING' ? 'Đang chờ' : 
+                                                         txn.status === 'FAILED' ? 'Thất bại' : txn.status}
                                                     </span>
                                                 </td>
-                                                <td className="px-6 py-4">
+                                                 <td className="px-6 py-4">
                                                     <div className={`flex items-center gap-2 text-sm font-medium ${getTypeColor(txn.type, txn.amount)}`}>
                                                         <span className="material-symbols-outlined text-lg">{getTypeIcon(txn.type, txn.amount)}</span>
-                                                        {txn.type}
+                                                        {txn.type === 'DEPOSIT' ? 'Nạp tiền' : 
+                                                         txn.type === 'WITHDRAW' ? 'Rút tiền' : 
+                                                         txn.type === 'TRANSFER_IN' ? 'Nhận tiền' : 
+                                                         txn.type === 'TRANSFER_OUT' ? 'Chuyển tiền' : txn.type}
                                                     </div>
                                                 </td>
                                                 <td className="px-6 py-4 text-sm text-slate-500 dark:text-slate-400">
@@ -317,7 +322,7 @@ export default function AdminTransactionHistoryPage() {
                                                         className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-primary hover:bg-primary/10 rounded-lg transition-colors"
                                                     >
                                                         <span className="material-symbols-outlined text-lg">visibility</span>
-                                                        <span>View</span>
+                                                        <span>Chi tiết</span>
                                                     </button>
                                                 </td>
                                             </tr>
@@ -329,7 +334,7 @@ export default function AdminTransactionHistoryPage() {
                         {/* Pagination */}
                         <div className="px-6 py-4 border-t border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30 flex items-center justify-between">
                             <p className="text-sm text-slate-500 dark:text-slate-400">
-                                Showing {indexOfFirstItem + 1} to {Math.min(indexOfLastItem, displayedTransactions.length)} of {displayedTransactions.length} results
+                                Hiển thị {indexOfFirstItem + 1} đến {Math.min(indexOfLastItem, displayedTransactions.length)} trên tổng số {displayedTransactions.length} kết quả
                             </p>
                             <div className="flex items-center gap-1">
                                 <button
@@ -391,7 +396,7 @@ export default function AdminTransactionHistoryPage() {
                                     <span className="material-symbols-outlined">receipt_long</span>
                                 </div>
                                 <div>
-                                    <h3 className="text-lg font-bold text-slate-900 dark:text-white">Transaction Details</h3>
+                                    <h3 className="text-lg font-bold text-slate-900 dark:text-white">Chi tiết giao dịch</h3>
                                     <p className="text-sm text-slate-500 dark:text-slate-400 font-mono">{selectedTransaction.transactionId}</p>
                                 </div>
                             </div>
@@ -413,14 +418,16 @@ export default function AdminTransactionHistoryPage() {
                                             {selectedTransaction.status === 'COMPLETED' ? 'check_circle' : selectedTransaction.status === 'PENDING' ? 'schedule' : 'cancel'}
                                         </span>
                                         <div>
-                                            <p className="text-sm font-medium text-slate-600 dark:text-slate-400">Transaction Status</p>
-                                            <p className={`text-xl font-bold ${selectedTransaction.status === 'COMPLETED' ? 'text-green-700 dark:text-green-400' : selectedTransaction.status === 'PENDING' ? 'text-amber-700 dark:text-amber-400' : 'text-red-700 dark:text-red-400'}`}>
-                                                {selectedTransaction.status}
+                                            <p className="text-sm font-medium text-slate-600 dark:text-slate-400">Trạng thái giao dịch</p>
+                                             <p className={`text-xl font-bold ${selectedTransaction.status === 'COMPLETED' ? 'text-green-700 dark:text-green-400' : selectedTransaction.status === 'PENDING' ? 'text-amber-700 dark:text-amber-400' : 'text-red-700 dark:text-red-400'}`}>
+                                                {selectedTransaction.status === 'COMPLETED' ? 'Hoàn thành' : 
+                                                 selectedTransaction.status === 'PENDING' ? 'Đang chờ' : 
+                                                 selectedTransaction.status === 'FAILED' ? 'Thất bại' : selectedTransaction.status}
                                             </p>
                                         </div>
                                     </div>
                                     <div className="text-right">
-                                        <p className="text-sm font-medium text-slate-600 dark:text-slate-400">Amount</p>
+                                        <p className="text-sm font-medium text-slate-600 dark:text-slate-400">Số tiền</p>
                                         <p className={`text-2xl font-extrabold ${selectedTransaction.direction === 'OUT' ? 'text-red-600 dark:text-red-400' : 'text-green-600 dark:text-green-400'}`}>
                                             {selectedTransaction.direction === 'OUT' ? '-' : '+'}{formatCurrency(Math.abs(selectedTransaction.amount))}
                                         </p>
@@ -431,52 +438,57 @@ export default function AdminTransactionHistoryPage() {
                             {/* Transaction Information Grid */}
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="space-y-1">
-                                    <p className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Transaction ID</p>
+                                    <p className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">ID Giao dịch</p>
                                     <p className="text-sm font-mono font-semibold text-slate-900 dark:text-white">{selectedTransaction.transactionId}</p>
                                 </div>
                                 <div className="space-y-1">
-                                    <p className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Reference ID</p>
+                                    <p className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">ID Tham chiếu</p>
                                     <p className="text-sm font-mono font-semibold text-slate-900 dark:text-white">{selectedTransaction.referenceId || 'N/A'}</p>
                                 </div>
                                 <div className="space-y-1">
-                                    <p className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Wallet ID</p>
+                                    <p className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">ID Ví</p>
                                     <p className="text-sm font-mono font-semibold text-slate-900 dark:text-white">{selectedTransaction.walletId}</p>
                                 </div>
                                 <div className="space-y-1">
-                                    <p className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">User ID</p>
+                                    <p className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">ID Người dùng</p>
                                     <p className="text-sm font-mono font-semibold text-slate-900 dark:text-white">{selectedTransaction.userId || 'N/A'}</p>
                                 </div>
                                 <div className="space-y-1">
-                                    <p className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Type</p>
-                                    <div className={`inline-flex items-center gap-2 text-sm font-medium ${getTypeColor(selectedTransaction.type, selectedTransaction.amount)}`}>
+                                    <p className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Loại giao dịch</p>
+                                     <div className={`inline-flex items-center gap-2 text-sm font-medium ${getTypeColor(selectedTransaction.type, selectedTransaction.amount)}`}>
                                         <span className="material-symbols-outlined text-lg">{getTypeIcon(selectedTransaction.type, selectedTransaction.amount)}</span>
-                                        <span>{selectedTransaction.type}</span>
+                                        <span>
+                                            {selectedTransaction.type === 'DEPOSIT' ? 'Nạp tiền' : 
+                                             selectedTransaction.type === 'WITHDRAW' ? 'Rút tiền' : 
+                                             selectedTransaction.type === 'TRANSFER_IN' ? 'Nhận tiền' : 
+                                             selectedTransaction.type === 'TRANSFER_OUT' ? 'Chuyển tiền' : selectedTransaction.type}
+                                        </span>
                                     </div>
                                 </div>
-                                <div className="space-y-1">
-                                    <p className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Direction</p>
+                                 <div className="space-y-1">
+                                    <p className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Chiều giao dịch</p>
                                     <p className={`text-sm font-bold ${selectedTransaction.direction === 'OUT' ? 'text-red-600 dark:text-red-400' : 'text-green-600 dark:text-green-400'}`}>
-                                        {selectedTransaction.direction}
+                                        {selectedTransaction.direction === 'OUT' ? 'CHI RA' : 'THU VÀO'}
                                     </p>
                                 </div>
                                 <div className="space-y-1 col-span-2">
-                                    <p className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Partner Name</p>
+                                    <p className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Tên đối tác</p>
                                     <p className="text-sm font-semibold text-slate-900 dark:text-white">{selectedTransaction.partnerName || 'N/A'}</p>
                                 </div>
                                 <div className="space-y-1 col-span-2">
-                                    <p className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Note</p>
+                                    <p className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Ghi chú</p>
                                     <p className="text-sm text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-800 p-3 rounded-lg">
-                                        {selectedTransaction.note || 'No note provided'}
+                                        {selectedTransaction.note || 'Không có ghi chú'}
                                     </p>
                                 </div>
                                 <div className="space-y-1">
-                                    <p className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Created At</p>
+                                    <p className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Ngày tạo</p>
                                     <p className="text-sm font-medium text-slate-900 dark:text-white">{formatDate(selectedTransaction.createdAt)}</p>
                                 </div>
                                 <div className="space-y-1">
-                                    <p className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Success</p>
+                                    <p className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Thành công</p>
                                     <p className={`text-sm font-bold ${selectedTransaction.success ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
-                                        {selectedTransaction.success ? '✓ Yes' : '✗ No'}
+                                        {selectedTransaction.success ? '✓ Có' : '✗ Không'}
                                     </p>
                                 </div>
                             </div>
@@ -488,7 +500,7 @@ export default function AdminTransactionHistoryPage() {
                                 onClick={() => setShowDetailModal(false)}
                                 className="w-full bg-primary hover:bg-primary/90 text-white font-bold py-3 rounded-lg transition-colors"
                             >
-                                Close
+                                Đóng
                             </button>
                         </div>
                     </div>

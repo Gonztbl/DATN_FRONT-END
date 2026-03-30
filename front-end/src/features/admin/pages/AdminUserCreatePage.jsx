@@ -39,37 +39,37 @@ export default function AdminUserCreatePage() {
         const newErrors = {};
 
         if (!formData.userName.trim()) {
-            newErrors.userName = "Username is required";
+            newErrors.userName = "Tên đăng nhập không được để trống";
         } else if (!/^[a-zA-Z0-9_]{4,20}$/.test(formData.userName)) {
-            newErrors.userName = "Username must be 4–20 chars, letters, numbers, underscore only";
+            newErrors.userName = "Tên đăng nhập phải từ 4-20 ký tự, chỉ gồm chữ cái, số và dấu gạch dưới";
         }
 
         if (!formData.fullName.trim()) {
-            newErrors.fullName = "Full name is required";
+            newErrors.fullName = "Họ tên không được để trống";
         }
 
         if (!formData.email) {
-            newErrors.email = "Email is required";
+            newErrors.email = "Email không được để trống";
         } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-            newErrors.email = "Email is invalid";
+            newErrors.email = "Email không hợp lệ";
         }
 
         if (!formData.phone) {
-            newErrors.phone = "Phone number is required";
+            newErrors.phone = "Số điện thoại không được để trống";
         } else if (!/^0\d{9,10}$/.test(formData.phone)) {
-            newErrors.phone = "Phone number is invalid (e.g. 09xxxxxxxx)";
+            newErrors.phone = "Số điện thoại không hợp lệ (VD: 09xxxxxxxx)";
         }
 
         if (!formData.passwordHash) {
-            newErrors.passwordHash = "Password is required";
+            newErrors.passwordHash = "Mật khẩu không được để trống";
         } else if (!/^(?=.*[A-Za-z])(?=.*\d).{8,}$/.test(formData.passwordHash)) {
-            newErrors.passwordHash = "Password must be at least 8 chars and contain letters & numbers";
+            newErrors.passwordHash = "Mật khẩu phải chứa ít nhất 8 ký tự, bao gồm cả chữ và số";
         }
 
         if (!formData.confirmPassword) {
-            newErrors.confirmPassword = "Confirm password is required";
+            newErrors.confirmPassword = "Vui lòng xác nhận mật khẩu";
         } else if (formData.confirmPassword !== formData.passwordHash) {
-            newErrors.confirmPassword = "Passwords do not match";
+            newErrors.confirmPassword = "Mật khẩu không khớp";
         }
 
         setErrors(newErrors);
@@ -101,7 +101,7 @@ export default function AdminUserCreatePage() {
             }
             const { accountNumber } = response?.data || {};
             
-            showSuccess(`User account created successfully!\n\nAccount Number: ${accountNumber || formData.phone || 'N/A'}`, "Success");
+            showSuccess(`Tạo tài khoản người dùng thành công!\n\nSố tài khoản: ${accountNumber || formData.phone || 'Không rõ'}`, "Thành công");
             navigate("/user-manager");
         } catch (err) {
             console.error("Error creating user:", err);
@@ -138,7 +138,7 @@ export default function AdminUserCreatePage() {
                     }
                 }
             } else {
-                showError(err.response?.data?.message || "Failed to create user. Please try again later.", "Error");
+                showError(err.response?.data?.message || "Tạo người dùng thất bại. Vui lòng thử lại sau.", "Lỗi");
             }
         } finally {
             setLoading(false);
@@ -150,27 +150,27 @@ export default function AdminUserCreatePage() {
             <SidebarAdmin />
             
             <main className="flex-1 overflow-y-auto flex flex-col bg-slate-50 dark:bg-slate-950 min-w-0">
-                <HeaderAdmin title="User Management" />
+                <HeaderAdmin title="Quản lý người dùng" />
 
                 <div className="p-4 sm:p-8 max-w-4xl mx-auto w-full">
                     {/* Breadcrumbs-like Header */}
                     <div className="mb-8 font-display">
                         <div className="flex items-center gap-2 mb-4 text-sm text-slate-500 dark:text-slate-400">
-                             <span className="hover:text-primary cursor-pointer transition-colors" onClick={() => navigate('/user-manager')}>User Management</span>
+                             <span className="hover:text-primary cursor-pointer transition-colors" onClick={() => navigate('/user-manager')}>Quản lý người dùng</span>
                              <span className="material-symbols-outlined text-sm">chevron_right</span>
-                             <span className="font-medium text-slate-900 dark:text-slate-200">Create New Account</span>
+                             <span className="font-medium text-slate-900 dark:text-slate-200">Tạo tài khoản mới</span>
                         </div>
-                        <h2 className="text-3xl font-black tracking-tight text-slate-900 dark:text-white">Create User Account</h2>
-                        <p className="text-slate-500 dark:text-slate-400 mt-2">Add a new administrator, staff member, or partner to the SmartPay ecosystem.</p>
+                        <h2 className="text-3xl font-black tracking-tight text-slate-900 dark:text-white">Tạo tài khoản người dùng</h2>
+                        <p className="text-slate-500 dark:text-slate-400 mt-2">Thêm quản trị viên, nhân viên hoặc đối tác mới vào hệ thống SmartPay.</p>
                     </div>
 
                     <form onSubmit={handleSubmit} className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden font-display">
                         {/* Form Section: Personal Details */}
                         <div className="p-6 sm:p-8 border-b border-slate-100 dark:border-slate-800">
-                            <h3 className="text-sm font-bold uppercase tracking-wider text-primary mb-6">Personal Details</h3>
+                            <h3 className="text-sm font-bold uppercase tracking-wider text-primary mb-6">Thông tin cá nhân</h3>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div className="space-y-2">
-                                    <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Username</label>
+                                    <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Tên đăng nhập</label>
                                     <div className="relative">
                                         <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500">person</span>
                                         <input 
@@ -178,7 +178,7 @@ export default function AdminUserCreatePage() {
                                             value={formData.userName}
                                             onChange={handleChange}
                                             className={`w-full pl-10 pr-4 py-3 rounded-lg border bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all placeholder:text-slate-400 dark:placeholder:text-slate-500 ${errors.userName ? 'border-red-500' : 'border-slate-200 dark:border-slate-700'}`} 
-                                            placeholder="e.g. jsmith_admin" 
+                                            placeholder="VD: nguyenvan_a" 
                                             type="text"
                                         />
                                     </div>
@@ -186,7 +186,7 @@ export default function AdminUserCreatePage() {
                                 </div>
 
                                 <div className="space-y-2">
-                                    <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Full Name</label>
+                                    <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Họ và tên</label>
                                     <div className="relative">
                                         <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500">badge</span>
                                         <input 
@@ -194,7 +194,7 @@ export default function AdminUserCreatePage() {
                                             value={formData.fullName}
                                             onChange={handleChange}
                                             className={`w-full pl-10 pr-4 py-3 rounded-lg border bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all placeholder:text-slate-400 dark:placeholder:text-slate-500 ${errors.fullName ? 'border-red-500' : 'border-slate-200 dark:border-slate-700'}`} 
-                                            placeholder="e.g. John Smith" 
+                                            placeholder="VD: Nguyễn Văn A" 
                                             type="text"
                                         />
                                     </div>
@@ -202,7 +202,7 @@ export default function AdminUserCreatePage() {
                                 </div>
 
                                 <div className="space-y-2">
-                                    <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Email Address</label>
+                                    <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Địa chỉ Email</label>
                                     <div className="relative">
                                         <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500">mail</span>
                                         <input 
@@ -218,7 +218,7 @@ export default function AdminUserCreatePage() {
                                 </div>
 
                                 <div className="space-y-2">
-                                    <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Phone Number</label>
+                                    <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Số điện thoại</label>
                                     <div className="relative">
                                         <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500">call</span>
                                         <input 
@@ -237,10 +237,10 @@ export default function AdminUserCreatePage() {
 
                         {/* Form Section: Security */}
                         <div className="p-6 sm:p-8 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/20">
-                            <h3 className="text-sm font-bold uppercase tracking-wider text-primary mb-6">Security</h3>
+                            <h3 className="text-sm font-bold uppercase tracking-wider text-primary mb-6">Bảo mật</h3>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div className="space-y-2">
-                                    <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Password</label>
+                                    <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Mật khẩu</label>
                                     <div className="relative">
                                         <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500">lock</span>
                                         <input 
@@ -248,7 +248,7 @@ export default function AdminUserCreatePage() {
                                             value={formData.passwordHash}
                                             onChange={handleChange}
                                             className={`w-full pl-10 pr-12 py-3 rounded-lg border bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all placeholder:text-slate-400 dark:placeholder:text-slate-500 ${errors.passwordHash ? 'border-red-500' : 'border-slate-200 dark:border-slate-700'}`} 
-                                            placeholder="Enter password" 
+                                            placeholder="Nhập mật khẩu" 
                                             type={showPassword ? "text" : "password"}
                                         />
                                         <button
@@ -264,7 +264,7 @@ export default function AdminUserCreatePage() {
                                     {errors.passwordHash && <p className="text-red-500 text-xs mt-1">{errors.passwordHash}</p>}
                                 </div>
                                 <div className="space-y-2">
-                                    <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Confirm Password</label>
+                                    <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Xác nhận mật khẩu</label>
                                     <div className="relative">
                                         <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500">lock_reset</span>
                                         <input 
@@ -272,7 +272,7 @@ export default function AdminUserCreatePage() {
                                             value={formData.confirmPassword}
                                             onChange={handleChange}
                                             className={`w-full pl-10 pr-12 py-3 rounded-lg border bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all placeholder:text-slate-400 dark:placeholder:text-slate-500 ${errors.confirmPassword ? 'border-red-500' : 'border-slate-200 dark:border-slate-700'}`} 
-                                            placeholder="Confirm password" 
+                                            placeholder="Xác nhận mật khẩu" 
                                             type={showConfirmPassword ? "text" : "password"}
                                         />
                                         <button
@@ -292,15 +292,15 @@ export default function AdminUserCreatePage() {
 
                         {/* Form Section: Access Role */}
                         <div className="p-6 sm:p-8">
-                            <h3 className="text-sm font-bold uppercase tracking-wider text-primary mb-6">Account Role & Access</h3>
+                            <h3 className="text-sm font-bold uppercase tracking-wider text-primary mb-6">Vai trò & Quyền truy cập</h3>
                             <div className="space-y-4">
-                                <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Assign System Role</label>
+                                <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Chọn vai trò hệ thống</label>
                                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
                                     {[
-                                        { id: 'USER', label: 'USER', icon: 'person' },
-                                        { id: 'SHIPPER', label: 'SHIPPER', icon: 'local_shipping' },
-                                        { id: 'SUPPORT', label: 'SUPPORT', icon: 'headset_mic' },
-                                        { id: 'RESTAURANT_OWNER', label: 'OWNER', icon: 'restaurant' }
+                                        { id: 'USER', label: 'NGƯỜI DÙNG', icon: 'person' },
+                                        { id: 'SHIPPER', label: 'TÀI XẾ', icon: 'local_shipping' },
+                                        { id: 'SUPPORT', label: 'HỖ TRỢ', icon: 'headset_mic' },
+                                        { id: 'RESTAURANT_OWNER', label: 'CHỦ QUÁN', icon: 'restaurant' }
                                     ].map((role) => (
                                         <label key={role.id} className="cursor-pointer group">
                                             <input 
@@ -328,7 +328,7 @@ export default function AdminUserCreatePage() {
                                 className="px-6 py-2.5 text-sm font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800 rounded-lg transition-colors" 
                                 type="button"
                             >
-                                Cancel
+                                Hủy
                             </button>
                             <button 
                                 disabled={loading}
@@ -341,7 +341,7 @@ export default function AdminUserCreatePage() {
                                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                     </svg>
                                 )}
-                                Create Account
+                                Tạo tài khoản
                             </button>
                         </div>
                     </form>
@@ -350,8 +350,8 @@ export default function AdminUserCreatePage() {
                     <div className="mt-8 p-4 rounded-xl bg-primary/10 border border-primary/20 flex gap-4">
                         <span className="material-symbols-outlined text-primary">info</span>
                         <div>
-                            <p className="text-sm font-bold text-slate-900 dark:text-white">Important Note</p>
-                            <p className="text-sm text-slate-600 dark:text-slate-400 font-medium">Newly created accounts will receive a verification email at the address provided. Admin accounts require additional 2FA setup on first login.</p>
+                            <p className="text-sm font-bold text-slate-900 dark:text-white">Lưu ý quan trọng</p>
+                            <p className="text-sm text-slate-600 dark:text-slate-400 font-medium">Tài khoản mới tạo sẽ nhận được email xác thực tại địa chỉ đã cung cấp. Tài khoản Quản trị viên cần thiết lập bảo mật 2 lớp (2FA) trong lần đăng nhập đầu tiên.</p>
                         </div>
                     </div>
                 </div>

@@ -251,7 +251,7 @@ const ListOrderAdmin = () => {
 
     const getOrderShipper = (order) => {
         const sId = order.shipperId || order.shipper?.id;
-        if (!sId) return "chưa có shiper nhận đơn";
+        if (!sId) return "Chưa có shipper nhận đơn";
         
         return order.shipperName || 
                order.shipper?.fullName || 
@@ -319,7 +319,7 @@ const ListOrderAdmin = () => {
                                                 onChange={(e) => setStartDate(e.target.value)}
                                             />
                                         </div>
-                                        <span className="text-slate-400 dark:text-slate-600">to</span>
+                                        <span className="text-slate-400 dark:text-slate-600">đến</span>
                                         <div className="relative flex-1">
                                             <input 
                                                 className="w-full pl-4 pr-4 py-2.5 rounded-xl border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm text-slate-900 dark:text-white focus:ring-primary focus:border-primary transition-colors" 
@@ -340,13 +340,13 @@ const ListOrderAdmin = () => {
                                         onChange={handleStatusChange}
                                     >
                                         <option value="ALL">Tất cả trạng thái</option>
-                                        <option value="PENDING">PENDING</option>
-                                        <option value="CONFIRMED">CONFIRMED</option>
-                                        <option value="PREPARING">PREPARING</option>
-                                        <option value="DELIVERING">DELIVERING</option>
-                                        <option value="COMPLETED">COMPLETED</option>
-                                        <option value="CANCELLED">CANCELLED</option>
-                                        <option value="DELIVERY_FAILED">DELIVERY_FAILED</option>
+                                        <option value="PENDING">ĐANG CHỜ</option>
+                                        <option value="CONFIRMED">ĐÃ XÁC NHẬN</option>
+                                        <option value="PREPARING">ĐANG CHUẨN BỊ</option>
+                                        <option value="DELIVERING">ĐANG GIAO</option>
+                                        <option value="COMPLETED">HOÀN THÀNH</option>
+                                        <option value="CANCELLED">ĐÃ HỦY</option>
+                                        <option value="DELIVERY_FAILED">GIAO THẤT BẠI</option>
                                     </select>
                                 </div>
                                 <div>
@@ -443,7 +443,13 @@ const ListOrderAdmin = () => {
                                                     <td className="px-6 py-4 text-sm font-bold text-slate-900 dark:text-white">{formatCurrency(order.totalAmount)}</td>
                                                     <td className="px-6 py-4">
                                                         <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold ${getStatusStyle(order.status)}`}>
-                                                            {order.status}
+                                                            {order.status === 'PENDING' ? 'CHỜ XÁC NHẬN' :
+                                                             order.status === 'CONFIRMED' ? 'ĐÃ XÁC NHẬN' :
+                                                             order.status === 'PREPARING' ? 'ĐANG CHUẨN BỊ' :
+                                                             order.status === 'DELIVERING' ? 'ĐANG GIAO' :
+                                                             order.status === 'COMPLETED' ? 'HOÀN THÀNH' :
+                                                             order.status === 'CANCELLED' ? 'ĐÃ HỦY' :
+                                                             order.status === 'DELIVERY_FAILED' ? 'GIAO THẤT BẠI' : order.status}
                                                         </span>
                                                     </td>
                                                     <td className="px-6 py-4 text-xs text-slate-500 dark:text-slate-400">{formatDate(order.createdAt)}</td>

@@ -10,10 +10,10 @@ export default function SidebarRestaurant() {
     };
 
     const navItems = [
-        { path: '/merchant/dashboard', icon: 'dashboard', label: 'Dashboard' },
-        { path: '/merchant/orders', icon: 'shopping_bag', label: 'Orders' },
-        { path: '/merchant/menu', icon: 'restaurant_menu', label: 'Menu Management' },
-        { path: '/merchant/settings', icon: 'settings', label: 'Store Settings' },
+        { path: '/merchant/dashboard', icon: 'dashboard', label: 'Tổng quan' },
+        { path: '/merchant/orders', icon: 'shopping_bag', label: 'Đơn hàng' },
+        { path: '/merchant/menu', icon: 'restaurant_menu', label: 'Quản lý Menu' },
+        { path: '/merchant/settings', icon: 'settings', label: 'Cài đặt quán' },
     ];
 
     return (
@@ -24,8 +24,8 @@ export default function SidebarRestaurant() {
                         <span className="material-symbols-outlined">storefront</span>
                     </div>
                     <div className="flex flex-col">
-                        <h1 className="text-[#121617] dark:text-white text-base font-bold leading-tight">Merchant Hub</h1>
-                        <p className="text-slate-500 dark:text-slate-400 text-xs font-medium">Manage your flavor</p>
+                        <h1 className="text-[#121617] dark:text-white text-base font-bold leading-tight">Trung tâm Quán</h1>
+                        <p className="text-slate-500 dark:text-slate-400 text-xs font-medium">Quản lý hương vị của bạn</p>
                     </div>
                 </div>
                 
@@ -50,11 +50,11 @@ export default function SidebarRestaurant() {
             {/* Merchant Help/Status */}
             <div className="mt-auto p-6">
                 <div className="bg-primary/5 dark:bg-primary/10 rounded-xl p-4 border border-primary/10">
-                    <p className="text-xs font-bold text-primary uppercase tracking-wider mb-2">Store Status</p>
+                    <p className="text-xs font-bold text-primary uppercase tracking-wider mb-2">Trạng thái quán</p>
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
                             <div className="size-2 rounded-full bg-green-500"></div>
-                            <span className="text-sm font-semibold dark:text-slate-200">Open for Orders</span>
+                            <span className="text-sm font-semibold dark:text-slate-200">Đang hoạt động</span>
                         </div>
                     </div>
                 </div>

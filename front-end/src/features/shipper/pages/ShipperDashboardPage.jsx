@@ -140,7 +140,7 @@ const ShipperDashboardPage = () => {
             case 'DELIVERING': return { text: 'Đang giao', color: 'text-blue-500 bg-blue-100 dark:bg-blue-900/30' };
             case 'COMPLETED': return { text: 'Hoàn thành', color: 'text-emerald-500 bg-emerald-100 dark:bg-emerald-900/30' };
             case 'DELIVERY_FAILED': return { text: 'Thất bại', color: 'text-red-500 bg-red-100 dark:bg-red-900/30' };
-            default: return { text: status || 'N/A', color: 'text-slate-500 bg-slate-100' };
+            default: return { text: status || 'Không rõ', color: 'text-slate-500 bg-slate-100' };
         }
     };
 

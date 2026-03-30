@@ -189,20 +189,20 @@ export default function TransferHistoryPage() {
 
             if (!Array.isArray(wallets)) {
                 setTargetWallets([]);
-                showError("Error", "Unexpected response from server");
+                showError("Lỗi", "Phản hồi không mong muốn từ máy chủ");
                 return;
             }
 
             if (wallets.length === 0) {
                 setTargetWallets([]);
-                showAlert("Not Found", "No wallet found with this phone number", "info");
+                showAlert("Không tìm thấy", "Không tìm thấy ví với số điện thoại này", "info");
                 return;
             }
 
             setTargetWallets(wallets);
         } catch (error) {
             console.error("Search failed:", error);
-            showError("System Error", "Please try again later.");
+            showError("Lỗi hệ thống", "Vui lòng thử lại sau.");
         }
     };
 
@@ -226,7 +226,7 @@ export default function TransferHistoryPage() {
     const handleCopyAddress = () => {
         if (!wallet?.accountNumber) return;
         navigator.clipboard.writeText(wallet.accountNumber);
-        showAlert("Copied", "Wallet address copied!", "success");
+        showAlert("Đã sao chép", "Đã sao chép địa chỉ ví!", "success");
     };
 
     const start = totalElements === 0 ? 0 : page * PAGE_SIZE + 1;
@@ -247,9 +247,13 @@ export default function TransferHistoryPage() {
 
             // Check for logical failure (soft error with 200 OK)
             if (response.data && response.data.success === false) {
-                showError("Transfer Failed", response.data.note || "Transfer failed"); // Display specific error note
+                const errorMsg = response.data.note || response.data.message || response.data.error || "Giao dịch không thành công";
+                showError("Chuyển tiền thất bại", errorMsg); // Display specific error note
                 return;
             }
+
+            // Hiển thị thông báo thành công
+            showSuccess("Chuyển tiền thành công", `Giao dịch chuyển ${formatVND(amountNumber)} cho ${selectedWallet?.fullName || "người nhận"} đã hoàn tất.`);
 
             /* OPTIMISTIC TX (OUT) */
             const optimisticTx = {
@@ -301,8 +305,8 @@ export default function TransferHistoryPage() {
 
         } catch (e) {
             console.error("Transfer error", e);
-            const errorMsg = e.response?.data?.note || "Transfer failed";
-            showError("Transfer Error", errorMsg);
+            const errorMsg = e.response?.data?.note || e.response?.data?.message || e.response?.data?.error || "Chuyển tiền thất bại";
+            showError("Lỗi chuyển tiền", errorMsg);
         } finally {
             setSending(false);
         }
@@ -320,7 +324,7 @@ export default function TransferHistoryPage() {
                 <div className="lg:hidden flex items-center justify-between p-4 bg-white dark:bg-slate-800 border-b border-gray-200 dark:border-slate-800">
                     <div className="flex items-center gap-2">
                         <span className="material-symbols-outlined text-primary">swap_horiz</span>
-                        <span className="font-bold text-lg">Transactions</span>
+                        <span className="font-bold text-lg">Giao dịch</span>
                     </div>
                     <button
                         onClick={toggleDarkMode}
@@ -339,10 +343,10 @@ export default function TransferHistoryPage() {
                 <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
                     <div className="flex flex-col gap-2">
                         <h1 className="text-4xl font-black tracking-tight text-[#111714] dark:text-white">
-                            Transfer &amp; Receive
+                            Chuyển &amp; Nhận tiền
                         </h1>
                         <p className="text-[#648772] dark:text-slate-400 text-base">
-                            Manage your transactions securely and instantly.
+                            Quản lý giao dịch của bạn an toàn và tức thì.
                         </p>
                     </div>
                     <div className="flex gap-3">
@@ -350,7 +354,7 @@ export default function TransferHistoryPage() {
                             <span className="material-symbols-outlined text-sm">
                                 settings
                             </span>
-                            <span className="text-sm font-medium">Limits</span>
+                            <span className="text-sm font-medium">Giới hạn</span>
                         </button>
                     </div>
                 </div>
@@ -364,12 +368,12 @@ export default function TransferHistoryPage() {
                         <div className="flex border-b border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-800">
                             <button className="flex-1 py-4 text-center border-b-2 border-primary bg-white dark:bg-slate-800">
                                 <span className="text-[#111714] dark:text-white text-sm font-bold tracking-wide">
-                                    Send Money
+                                    Chuyển tiền
                                 </span>
                             </button>
                             <button className="flex-1 py-4 text-center border-b-2 border-transparent hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors group">
                                 <span className="text-[#111714] dark:text-white text-sm font-bold tracking-wide">
-                                    Request
+                                    Yêu cầu
                                 </span>
                             </button>
                         </div>
@@ -377,12 +381,12 @@ export default function TransferHistoryPage() {
                         <div className="p-6 md:p-8 flex flex-col gap-6">
                             {/* Select Receiver Wallet */}
                             <label className="text-[#111714] dark:text-white text-base font-medium">
-                                Receiver Wallet
+                                Ví người nhận
                             </label>
                             <div className="flex gap-2">
                                 <input
                                     type="text"
-                                    placeholder="Enter phone number..."
+                                    placeholder="Nhập số điện thoại..."
                                     value={searchPhone}
                                     onChange={(e) => setSearchPhone(e.target.value)}
                                     className="flex-1 h-14 border border-gray-300 dark:border-slate-800 rounded-xl px-4 text-[#111714] dark:text-white bg-white dark:bg-slate-800 disabled:bg-gray-100"
@@ -398,17 +402,17 @@ export default function TransferHistoryPage() {
                                     className="px-6 bg-primary hover:bg-primary/90 text-white rounded-xl font-bold transition-all flex items-center gap-2"
                                 >
                                     <span className="material-symbols-outlined text-sm">search</span>
-                                    <span>Search</span>
+                                    <span>Tìm kiếm</span>
                                 </button>
                             </div>
                             {selectedWallet && (
                                 <div className="flex items-center justify-between p-3 rounded-xl border bg-green-50">
                                     <div>
                                         <div className="text-sm font-medium text-black">
-                                            Receiver: {selectedWallet.fullName}
+                                            Người nhận: {selectedWallet.fullName}
                                         </div>
                                         <div className="text-xs text-gray-600">
-                                            Wallet: **** {selectedWallet.accountNumber.slice(-4)}
+                                            Ví: **** {selectedWallet.accountNumber.slice(-4)}
                                         </div>
                                     </div>
 
@@ -421,7 +425,7 @@ export default function TransferHistoryPage() {
                                             setSearchPhone("");
                                         }}
                                     >
-                                        Change
+                                        Thay đổi
                                     </button>
                                 </div>
                             )}
@@ -450,7 +454,7 @@ export default function TransferHistoryPage() {
                                 {/* Amount Input */}
                                 <div className="flex-1 flex flex-col gap-3">
                                     <label className="text-[#111714] dark:text-white text-base font-medium">
-                                        Amount
+                                        Số tiền
                                     </label>
                                     <div className="relative">
                                         <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#111714] dark:text-white text-2xl font-light">
@@ -469,7 +473,7 @@ export default function TransferHistoryPage() {
                                             account_balance_wallet
                                         </span>
                                         <span className="font-medium">
-                                            Balance: {wallet ? formatVND(wallet.availableBalance ?? wallet.balance ?? 0) : "—"}
+                                            Số dư: {wallet ? formatVND(wallet.availableBalance ?? wallet.balance ?? 0) : "—"}
                                         </span>
                                     </p>
                                 </div>
@@ -477,13 +481,13 @@ export default function TransferHistoryPage() {
                                 {/* Note */}
                                 <div className="flex-1 flex flex-col gap-3">
                                     <label className="text-[#111714] dark:text-white text-base font-medium">
-                                        Note <span className="font-normal">(Optional)</span>
+                                        Ghi chú <span className="font-normal">(Không bắt buộc)</span>
                                     </label>
                                     <textarea
                                         value={note}
                                         onChange={(e) => setNote(e.target.value)}
                                         className="w-full h-20 bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-800 rounded-xl p-4 text-[#111714] dark:text-white resize-none"
-                                        placeholder="What is this for?"
+                                        placeholder="Nội dung chuyển tiền"
                                     />
                                 </div>
                             </div>
@@ -501,7 +505,7 @@ export default function TransferHistoryPage() {
                                 }
                                 className="mt-2 w-full h-14 bg-primary hover:bg-primary-hover disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold text-lg rounded-full"
                             >
-                                {sending ? "Processing..." : "Send Now"}
+                                {sending ? "Đang xử lý..." : "Chuyển ngay"}
                             </button>
                         </div>
                     </div>
@@ -533,7 +537,7 @@ export default function TransferHistoryPage() {
                                             {wallet?.accountName || profile?.fullName || "User"}
                                         </h3>
                                         <p className="text-sm text-[#648772]">
-                                            Wallet ID: {wallet?.walletId || wallet?.id || "—"}
+                                            ID Ví: {wallet?.walletId || wallet?.id || "—"}
                                         </p>
                                     </div>
                                 </div>
@@ -553,13 +557,13 @@ export default function TransferHistoryPage() {
                                         />
                                     ) : (
                                         <div className="size-52 flex items-center justify-center text-gray-400">
-                                            Loading QR...
+                                            Đang tải QR...
                                         </div>
                                     )}
 
 
                                     <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 bg-[#111714] text-white text-[10px] font-bold px-3 py-1 rounded-full shadow-md">
-                                        SCAN ME
+                                        QUÉT MÃ
                                     </div>
                                 </div>
 
@@ -567,7 +571,7 @@ export default function TransferHistoryPage() {
                                 {/* Account Number */}
                                 <div className="w-full">
                                     <label className="block text-xs font-bold text-[#648772] mb-1.5 ml-1 uppercase tracking-wider">
-                                        Account Number
+                                        Số tài khoản
                                     </label>
                                     <div className="flex items-center justify-between gap-3 p-3 bg-[#f6f8f7] rounded-xl border hover:border-primary/30 transition-colors">
                                         <div className="flex items-center gap-3 overflow-hidden">
@@ -585,7 +589,7 @@ export default function TransferHistoryPage() {
                                         <button
                                             onClick={handleCopyAddress}
                                             className="p-2 text-[#648772] hover:text-[#111714] hover:bg-white rounded-lg transition-all"
-                                            title="Copy Address"
+                                            title="Sao chép địa chỉ"
                                         >
                                             <span className="material-symbols-outlined text-[20px]">
                                                 content_copy
@@ -606,7 +610,7 @@ export default function TransferHistoryPage() {
                     {/* Header + Filters */}
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                         <h3 className="text-[#111714] dark:text-white text-xl font-bold">
-                            Transaction History
+                            Lịch sử giao dịch
                         </h3>
                         <div className="flex items-center gap-2 overflow-x-auto pb-2 sm:pb-0">
                             {/* Time range */}
@@ -619,9 +623,9 @@ export default function TransferHistoryPage() {
                                     }}
                                     className="appearance-none bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-800 text-[#111714] dark:text-white text-sm rounded-lg pl-3 pr-8 py-2 focus:ring-1 focus:ring-primary focus:border-primary outline-none cursor-pointer"
                                 >
-                                    <option value="30DAYS">Last 30 Days</option>
-                                    <option value="3MONTHS">Last 3 Months</option>
-                                    <option value="YEAR">This Year</option>
+                                    <option value="30DAYS">30 ngày qua</option>
+                                    <option value="3MONTHS">3 tháng qua</option>
+                                    <option value="YEAR">Năm nay</option>
                                 </select>
                                 <span className="material-symbols-outlined absolute right-2 top-1/2 -translate-y-1/2 text-[#648772] dark:text-slate-400 pointer-events-none text-lg">
                                     expand_more
@@ -639,9 +643,9 @@ export default function TransferHistoryPage() {
                                     }}
                                     className="appearance-none bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-800 text-[#111714] dark:text-white text-sm rounded-lg pl-3 pr-8 py-2 focus:ring-1 focus:ring-primary focus:border-primary outline-none cursor-pointer"
                                 >
-                                    <option value="ALL">All Types</option>
-                                    <option value="OUT">Sent</option>
-                                    <option value="IN">Received</option>
+                                    <option value="ALL">Tất cả</option>
+                                    <option value="OUT">Đã gửi</option>
+                                    <option value="IN">Đã nhận</option>
                                 </select>
                                 <span className="material-symbols-outlined absolute right-2 top-1/2 -translate-y-1/2 text-[#648772] dark:text-slate-400 pointer-events-none text-lg">
                                     expand_more
@@ -665,22 +669,22 @@ export default function TransferHistoryPage() {
                             <thead>
                                 <tr className="bg-gray-50 dark:bg-slate-800 border-b border-gray-200 dark:border-slate-800 text-[#111714] dark:text-white">
                                     <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider">
-                                        Date
+                                        Ngày
                                     </th>
                                     <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider">
-                                        Entity
+                                        Đối tác
                                     </th>
                                     <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider">
-                                        Type
+                                        Loại
                                     </th>
                                     <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider">
-                                        Amount
+                                        Số tiền
                                     </th>
                                     <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider">
-                                        Status
+                                        Trạng thái
                                     </th>
                                     <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider">
-                                        Note
+                                        Ghi chú
                                     </th>
                                     <th className="px-6 py-4 w-10" />
                                 </tr>
@@ -716,7 +720,7 @@ export default function TransferHistoryPage() {
                                         {/* Type */}
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             <span className="text-gray-600 dark:text-slate-400 text-sm">
-                                                {tx.direction === "OUT" ? "Sent" : "Received"}
+                                                {tx.direction === "OUT" ? "Đã gửi" : "Đã nhận"}
                                             </span>
                                         </td>
 
@@ -747,7 +751,7 @@ export default function TransferHistoryPage() {
                                                     className={`text-xs font-bold px-2 py-0.5 rounded-full ${STATUS_STYLE[tx.status]
                                                         }`}
                                                 >
-                                                    {tx.status}
+                                                    {tx.status === 'COMPLETED' ? 'Hoàn thành' : tx.status === 'PENDING' ? 'Đang chờ' : 'Thất bại'}
                                                 </span>
                                             </div>
                                         </td>
@@ -775,7 +779,7 @@ export default function TransferHistoryPage() {
                                             colSpan={7}
                                             className="px-6 py-8 text-center text-gray-500 text-sm"
                                         >
-                                            No transactions found for this filter.
+                                            Không tìm thấy giao dịch nào.
                                         </td>
                                     </tr>
                                 )}
@@ -787,11 +791,11 @@ export default function TransferHistoryPage() {
                     {/* PAGINATION */}
                     <div className="flex justify-between items-center px-2 text-[#111714] dark:text-white">
                         <p className="text-sm">
-                            Showing{" "}
+                            Hiển thị{" "}
                             <span className="font-medium">{start}–{end}</span>{" "}
-                            of{" "}
+                            trong{" "}
                             <span className="font-medium">{totalElements}</span>{" "}
-                            transactions
+                            giao dịch
                         </p>
                         <div className="flex gap-2">
                             <button
@@ -799,14 +803,14 @@ export default function TransferHistoryPage() {
                                 onClick={() => setPage((p) => p - 1)}
                                 className="px-3 py-1 rounded-lg border border-gray-300 dark:border-slate-800 text-gray-600 dark:text-slate-400 hover:text-[#111714] dark:hover:text-white hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                             >
-                                Previous
+                                Trước
                             </button>
                             <button
                                 disabled={(page + 1) * PAGE_SIZE >= totalElements}
                                 onClick={() => setPage((p) => p + 1)}
                                 className="px-3 py-1 rounded-lg border border-gray-300 dark:border-slate-800 text-gray-600 dark:text-slate-400 hover:text-[#111714] dark:hover:text-white hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                             >
-                                Next
+                                Tiếp
                             </button>
                         </div>
                     </div>

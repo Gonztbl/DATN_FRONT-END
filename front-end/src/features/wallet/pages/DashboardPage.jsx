@@ -34,10 +34,11 @@ export default function DashboardPage() {
     const [searching, setSearching] = useState(false);
 
     const [walletSummary, setWalletSummary] = useState({ income: 0, expense: 0 });
+    const [sevenDaySummary, setSevenDaySummary] = useState({ income: 0, expense: 0 });
     const [spendingData, setSpendingData] = useState([]);
 
     // Notification state
-    const [incomingTransactions, setIncomingTransactions] = useState([]);
+    const [balanceFluctuations, setBalanceFluctuations] = useState([]);
     const [showNotifications, setShowNotifications] = useState(false);
 
     // New State for Modals
@@ -63,24 +64,39 @@ export default function DashboardPage() {
         sourceCardId: ""
     });
 
+    const extractNumericId = (str) => {
+        const match = str?.match(/\d+/);
+        return match ? parseInt(match[0], 10) : null;
+    };
+
     // Helper to refresh data
     // Helper to refresh data
     const refreshData = async () => {
         try {
             console.log("Fetching dashboard data...");
 
-            // First fetch user to get wallet ID
-            const currentUser = await userService.getCurrentUser();
+            // First fetch user and wallet info to get robust wallet ID
+            const [currentUser, walletInfo] = await Promise.all([
+                userService.getCurrentUser(),
+                walletService.getWalletInfo().catch(() => null)
+            ]);
+
             setProfile(currentUser);
 
-            const walletId = currentUser?.wallet?.id;
+            // Robust Wallet ID Resolution (same as Withdraw.jsx)
+            const numericIdFromUser = currentUser?.wallet?.id;
+            const numericIdFromWalletInfo = typeof walletInfo?.id === 'number' ? walletInfo.id : null;
+            const numericIdFromExtraction = extractNumericId(walletInfo?.walletId);
+
+            const walletId = numericIdFromUser ?? numericIdFromWalletInfo ?? numericIdFromExtraction;
+            console.log("Resolved Wallet ID:", walletId);
 
             // Use Promise.allSettled to prevent one failure from blocking all data
             const results = await Promise.allSettled([
                 walletService.getBalance(),
                 cardService.getCards(),
                 contactService.getFrequentContacts(),
-                walletId ? TransferService.getTransferHistory(walletId, { page: 0, size: 10, filter: 'LAST_30_DAYS' }) : Promise.reject('No wallet ID'),
+                walletId ? TransferService.getTransferHistory(walletId, { page: 0, size: 50, filter: 'LAST_30_DAYS' }) : Promise.reject('No wallet ID'),
                 walletService.getWalletSummary()
             ]);
 
@@ -132,12 +148,20 @@ export default function DashboardPage() {
                 // CHỈ lấy các giao dịch thành công (success: true)
                 const successfulTxs = txList.filter(tx => tx.success === true);
 
-                // Set recent transactions (limit to 5 for dashboard) - CHỈ HIỂN THỊ GIAO DỊCH THÀNH CÔNG
-                setTransactions(successfulTxs.slice(0, 5));
+                // Set recent transactions (limit to 10 for dashboard)
+                setTransactions(successfulTxs.slice(0, 10));
 
-                // Extract incoming transactions for notifications - CHỈ LẤY GIAO DỊCH THÀNH CÔNG
-                const incomingTxs = successfulTxs.filter(tx => tx.direction === 'IN' && tx.type === 'TRANSFER_IN');
-                setIncomingTransactions(incomingTxs);
+                // Extract all successful transactions for notifications and chart
+                const fluctuations = successfulTxs.map(tx => ({
+                    id: tx.id,
+                    type: tx.type,
+                    amount: tx.amount,
+                    direction: tx.direction,
+                    partnerName: tx.partnerName,
+                    note: tx.note,
+                    createdAt: tx.createdAt
+                }));
+                setBalanceFluctuations(fluctuations.slice(0, 10));
 
                 // Extract unique recent contacts from TRANSFER_OUT transactions - CHỈ LẤY GIAO DỊCH THÀNH CÔNG
                 const recentContactsMap = new Map();
@@ -200,7 +224,7 @@ export default function DashboardPage() {
                     date.setDate(date.getDate() - i);
                     last7DaysData.push({
                         date: date,
-                        dayLabel: date.toLocaleDateString('en-US', { weekday: 'short' }),
+                        dayLabel: date.toLocaleDateString('vi-VN', { weekday: 'short' }),
                         spending: 0
                     });
                 }
@@ -218,17 +242,33 @@ export default function DashboardPage() {
                     }
                 });
 
-                // Find max spending for scaling
-                const maxSpending = Math.max(...last7DaysData.map(d => d.spending), 1);
-
-                // Convert to chart format with proper scaling
+                // Convert to chart format (keeping points for a line chart)
                 const chartData = last7DaysData.map(day => ({
                     label: day.dayLabel,
-                    value: (day.spending / maxSpending) * 100, // Percentage of max
-                    amount: day.spending // Actual amount for tooltip
+                    amount: day.spending
                 }));
 
                 setSpendingData(chartData);
+
+                // Calculate 7-day summary for Donut Chart
+                const last7DaysSummary = {
+                    income: 0,
+                    expense: 0
+                };
+                const sevenDaysAgo = new Date(today);
+                sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 6); // Include today
+
+                successfulTxs.forEach(tx => {
+                    const txDate = new Date(tx.createdAt);
+                    if (txDate >= sevenDaysAgo) {
+                        if (tx.direction === 'IN') {
+                            last7DaysSummary.income += tx.amount;
+                        } else if (tx.direction === 'OUT') {
+                            last7DaysSummary.expense += tx.amount;
+                        }
+                    }
+                });
+                setSevenDaySummary(last7DaysSummary);
             } else {
                 // Nếu không có transfer history, vẫn xử lý summary từ API
                 if (summaryResult.status === 'fulfilled') {
@@ -263,13 +303,13 @@ export default function DashboardPage() {
 
     const handleLogout = () => {
         logout();
-        showSuccess("Logged out successfully", "Success");
+        showSuccess("Đăng xuất thành công", "Thành công");
         navigate("/login");
     };
 
     const handlePhoneSearch = async () => {
         if (!phoneSearch || phoneSearch.trim().length < 10) {
-            showWarning("Invalid Phone Number", "Please enter a valid phone number (minimum 10 digits)");
+            showWarning("Số điện thoại không hợp lệ", "Vui lòng nhập số điện thoại hợp lệ (tối thiểu 10 chữ số)");
             return;
         }
 
@@ -279,7 +319,7 @@ export default function DashboardPage() {
             setSearchResults(results);
 
             if (results.length === 0) {
-                showAlert("Not Found", "No wallet found with this phone number", "info");
+                showAlert("Không tìm thấy", "Không tìm thấy ví với số điện thoại này", "info");
             } else if (results.length === 1) {
                 // Auto-select if only one result
                 setSelectedContact({
@@ -292,7 +332,7 @@ export default function DashboardPage() {
             }
         } catch (error) {
             console.error("Phone search failed:", error);
-            showError("Search Failed", (error.response?.data?.message || error.message));
+            showError("Tìm kiếm thất bại", (error.response?.data?.message || error.message));
         } finally {
             setSearching(false);
         }
@@ -300,11 +340,11 @@ export default function DashboardPage() {
 
     const handleTransfer = async () => {
         if (!selectedContact || !selectedContact.userId) {
-            showWarning("Contact Required", "Please select a contact or search by phone number");
+            showWarning("Yêu cầu thông tin liên hệ", "Vui lòng chọn người liên hệ hoặc tìm kiếm bằng số điện thoại");
             return;
         }
         if (!transferAmount || isNaN(transferAmount) || parseFloat(transferAmount) <= 0) {
-            showWarning("Invalid Amount", "Please enter a valid amount");
+            showWarning("Số tiền không hợp lệ", "Vui lòng nhập số tiền hợp lệ");
             return;
         }
 
@@ -316,7 +356,7 @@ export default function DashboardPage() {
             });
 
             if (result.data?.success || result.data?.status === 'COMPLETED') {
-                showSuccess("Transfer Successful", `Sent $${transferAmount} to ${selectedContact.fullName || selectedContact.name}`);
+                showSuccess("Chuyển tiền thành công", `Đã gửi $${transferAmount} đến ${selectedContact.fullName || selectedContact.name}`);
                 setTransferAmount("");
                 setSelectedContact(null);
                 setPhoneSearch("");
@@ -327,7 +367,7 @@ export default function DashboardPage() {
         } catch (error) {
             console.error("Transfer failed:", error);
             const errorMsg = error.response?.data?.note || error.response?.data?.message || error.message;
-            showError("Transfer Failed", errorMsg);
+            showError("Chuyển tiền thất bại", errorMsg);
         }
     };
 
@@ -335,7 +375,7 @@ export default function DashboardPage() {
         e.preventDefault();
         try {
             await cardService.createCard(newCard);
-            showSuccess("Card Added", "Card added successfully!");
+            showSuccess("Đã thêm thẻ", "Đã thêm thẻ thành công!");
             setShowAddCardModal(false);
             setNewCard({ cardNumber: "", holderName: "", expiryDate: "", cvv: "", type: "Debit", bankName: "" });
 
@@ -344,14 +384,14 @@ export default function DashboardPage() {
             setCards(cardsRes);
         } catch (error) {
             console.error("Add card failed:", error);
-            showError("Failed to add card", (error.response?.data?.message || error.message));
+            showError("Thêm thẻ thất bại", (error.response?.data?.message || error.message));
         }
     };
 
     const handleTopupSubmit = async (e) => {
         e.preventDefault();
         if (!topupData.amount || !topupData.sourceCardId) {
-            showWarning("Missing Information", "Please enter amount and select a card");
+            showWarning("Thiếu thông tin", "Vui lòng nhập số tiền và chọn thẻ");
             return;
         }
         try {
@@ -374,7 +414,7 @@ export default function DashboardPage() {
             await refreshData();
         } catch (error) {
             console.error("Topup failed:", error);
-            showError("Topup Failed", (error.response?.data?.message || error.message));
+            showError("Nạp tiền thất bại", (error.response?.data?.message || error.message));
         }
     };
 
@@ -394,7 +434,7 @@ export default function DashboardPage() {
 
     const handleQrImageScan = async () => {
         if (!qrFile) {
-            showWarning("Scan Required", "Please select a QR code image first");
+            showWarning("Yêu cầu quét mã", "Vui lòng chọn ảnh mã QR trước");
             return;
         }
 
@@ -403,12 +443,12 @@ export default function DashboardPage() {
             const result = await qrService.readQrImage(qrFile);
 
             if (!result.valid) {
-                showError("Scan Failed", "Invalid QR code. Please try another image.");
+                showError("Quét mã thất bại", "Mã QR không hợp lệ. Vui lòng thử ảnh khác.");
                 return;
             }
 
             setQrResult(result);
-            showSuccess("QR Scanned", `Receiver: ${result.receiverName}`);
+            showSuccess("Đã quét mã QR", `Người nhận: ${result.receiverName}`);
 
             // Auto-populate transfer form
             setSelectedContact({
@@ -430,7 +470,7 @@ export default function DashboardPage() {
 
         } catch (error) {
             console.error("QR scan failed:", error);
-            showError("Scan Error", (error.response?.data?.message || error.message));
+            showError("Lỗi khi quét", (error.response?.data?.message || error.message));
         } finally {
             setQrScanning(false);
         }
@@ -440,6 +480,84 @@ export default function DashboardPage() {
         setQrFile(null);
         setQrPreview(null);
         setQrResult(null);
+    };
+
+    // Donut Chart Component
+    const DonutChart = ({ income, expense, title, subtitle }) => {
+        const total = income + expense;
+        const incomePercent = total > 0 ? (income / total) * 100 : 0;
+        const expensePercent = total > 0 ? (expense / total) * 100 : 0;
+        
+        // SVG circle properties
+        const radius = 35;
+        const circumference = 2 * Math.PI * radius;
+        const incomeOffset = circumference * (1 - incomePercent / 100);
+        const expenseOffset = circumference * (1 - expensePercent / 100);
+        
+        return (
+            <div className="bg-white dark:bg-slate-800 rounded-xl p-4 border border-gray-100 dark:border-slate-800 flex flex-col items-center gap-3">
+                <h4 className="text-xs font-bold text-text-sub dark:text-slate-400 uppercase tracking-widest">{title}</h4>
+                <div className="relative size-32">
+                    <svg className="size-full -rotate-90" viewBox="0 0 100 100">
+                        {/* Background Circle */}
+                        <circle
+                            cx="50" cy="50" r={radius}
+                            fill="transparent"
+                            stroke="currentColor"
+                            strokeWidth="10"
+                            className="text-gray-100 dark:text-slate-700"
+                        />
+                        {/* Income Segment */}
+                        {income > 0 && (
+                            <circle
+                                cx="50" cy="50" r={radius}
+                                fill="transparent"
+                                stroke="#36e27b"
+                                strokeWidth="10"
+                                strokeDasharray={circumference}
+                                strokeDashoffset={incomeOffset}
+                                strokeLinecap="round"
+                                className="transition-all duration-1000"
+                            />
+                        )}
+                        {/* Expense Segment */}
+                        {expense > 0 && (
+                            <circle
+                                cx="50" cy="50" r={radius}
+                                fill="transparent"
+                                stroke="#ef4444"
+                                strokeWidth="10"
+                                strokeDasharray={circumference}
+                                strokeDashoffset={expenseOffset}
+                                strokeLinecap="round"
+                                transform={`rotate(${(incomePercent / 100) * 360} 50 50)`}
+                                className="transition-all duration-1000"
+                            />
+                        )}
+                    </svg>
+                    <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                        <span className="text-[10px] text-text-sub dark:text-slate-400 font-medium">Tổng thu chi</span>
+                        <span className="text-xs font-bold text-text-main dark:text-white">${total.toLocaleString()}</span>
+                    </div>
+                </div>
+                <div className="grid grid-cols-2 gap-4 w-full">
+                    <div className="flex flex-col items-center">
+                        <div className="flex items-center gap-1.5 mb-0.5">
+                            <div className="size-2 rounded-full bg-primary"></div>
+                            <span className="text-[10px] text-text-sub dark:text-slate-400 font-medium">Thu</span>
+                        </div>
+                        <span className="text-xs font-bold text-green-500">${income.toLocaleString()}</span>
+                    </div>
+                    <div className="flex flex-col items-center border-l border-gray-100 dark:border-slate-700">
+                        <div className="flex items-center gap-1.5 mb-0.5">
+                            <div className="size-2 rounded-full bg-red-500"></div>
+                            <span className="text-[10px] text-text-sub dark:text-slate-400 font-medium">Chi</span>
+                        </div>
+                        <span className="text-xs font-bold text-red-500">${expense.toLocaleString()}</span>
+                    </div>
+                </div>
+            </div>
+        );
     };
 
     return (
@@ -487,8 +605,8 @@ export default function DashboardPage() {
                     {/* Header */}
                     <header className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
                         <div>
-                            <h1 className="text-3xl font-bold text-text-main dark:text-white mb-1">Welcome back, {profile?.fullName || 'User'}! 👋</h1>
-                            <p className="text-text-sub dark:text-slate-400">Here's what's happening with your account today</p>
+                            <h1 className="text-3xl font-bold text-text-main dark:text-white mb-1">Chào mừng trở lại, {profile?.fullName || user?.fullName || 'Người dùng'}! 👋</h1>
+                            <p className="text-text-sub dark:text-slate-400">Đây là thông tin tài khoản của bạn hôm nay</p>
                         </div>
                         <div className="flex items-center gap-4">
                             {/* Search */}
@@ -496,7 +614,7 @@ export default function DashboardPage() {
                                 <span className="material-symbols-outlined text-text-sub dark:text-slate-400">search</span>
                                 <input
                                     type="text"
-                                    placeholder="Search..."
+                                    placeholder="Tìm kiếm..."
                                     className="bg-transparent border-none outline-none text-sm w-32 text-text-main dark:text-white placeholder:text-text-sub"
                                 />
                             </div>
@@ -504,7 +622,7 @@ export default function DashboardPage() {
                             <button
                                 onClick={toggleDarkMode}
                                 className="size-10 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-primary/10 hover:text-primary transition-all flex items-center justify-center"
-                                title={isDarkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}
+                                title={isDarkMode ? "Chế độ sáng" : "Chế độ tối"}
                             >
                                 <span className="material-symbols-outlined transition-all">
                                     {isDarkMode ? "light_mode" : "dark_mode"}
@@ -517,9 +635,9 @@ export default function DashboardPage() {
                                     className="relative size-10 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-primary/10 hover:text-primary transition-all flex items-center justify-center"
                                 >
                                     <span className="material-symbols-outlined text-text-sub dark:text-slate-400">notifications</span>
-                                    {incomingTransactions.length > 0 && (
-                                        <span className="absolute -top-1 -right-1 size-5 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">
-                                            {incomingTransactions.length}
+                                    {balanceFluctuations.length > 0 && (
+                                        <span className="absolute -top-1 -right-1 size-5 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center border-2 border-white dark:border-slate-800">
+                                            {balanceFluctuations.length > 9 ? '9+' : balanceFluctuations.length}
                                         </span>
                                     )}
                                 </button>
@@ -527,34 +645,42 @@ export default function DashboardPage() {
                                 {/* Notification Dropdown */}
                                 {showNotifications && (
                                     <div className="absolute right-0 top-12 w-80 bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-800 rounded-xl shadow-lg z-50 max-h-96 overflow-y-auto">
-                                        <div className="p-4 border-b border-gray-200 dark:border-slate-800">
-                                            <h3 className="font-bold text-text-main dark:text-white">Incoming Transactions</h3>
-                                            <p className="text-xs text-text-sub dark:text-slate-400">Recent money received</p>
+                                        <div className="p-4 border-b border-gray-200 dark:border-slate-800 flex justify-between items-center">
+                                            <div>
+                                                <h3 className="font-bold text-text-main dark:text-white">Thông báo biến động</h3>
+                                                <p className="text-xs text-text-sub dark:text-slate-400">Giao dịch mới nhất</p>
+                                            </div>
+                                            <span className="text-[10px] bg-primary/10 text-primary px-2 py-0.5 rounded-full font-medium">Mới</span>
                                         </div>
 
-                                        {incomingTransactions.length > 0 ? (
-                                            <div className="divide-y divide-gray-100 dark:divide-slate-800">
-                                                {incomingTransactions.slice(0, 5).map((tx) => (
-                                                    <div key={tx.id} className="p-4 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors">
+                                        {balanceFluctuations.length > 0 ? (
+                                            <div className="divide-y divide-gray-50 dark:divide-slate-700/50">
+                                                {balanceFluctuations.map((tx) => (
+                                                    <div key={tx.id} className="p-4 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors cursor-pointer group">
                                                         <div className="flex items-start gap-3">
-                                                            <div className="size-10 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center shrink-0">
-                                                                <span className="material-symbols-outlined text-green-600 dark:text-green-400 text-lg">arrow_downward</span>
+                                                            <div className={`size-10 rounded-full flex items-center justify-center shrink-0 ${tx.direction === 'IN' ? 'bg-green-100 dark:bg-green-900/30' : 'bg-red-100 dark:bg-red-900/30'}`}>
+                                                                <span className={`material-symbols-outlined text-lg ${tx.direction === 'IN' ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
+                                                                    {tx.direction === 'IN' ? 'trending_up' : 'trending_down'}
+                                                                </span>
                                                             </div>
                                                             <div className="flex-1 min-w-0">
-                                                                <p className="text-sm font-medium text-text-main dark:text-white truncate">
-                                                                    {tx.partnerName || 'Received money'}
+                                                                <div className="flex justify-between items-start">
+                                                                    <p className="text-sm font-semibold text-text-main dark:text-white truncate group-hover:text-primary transition-colors">
+                                                                        {tx.direction === 'IN' ? 'Nhận tiền' : 'Gửi tiền'}
+                                                                    </p>
+                                                                    <p className={`text-sm font-bold ${tx.direction === 'IN' ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
+                                                                        {tx.direction === 'IN' ? '+' : '-'}${tx.amount.toLocaleString()}
+                                                                    </p>
+                                                                </div>
+                                                                <p className="text-xs text-text-sub dark:text-slate-400 mt-0.5 truncate italic">
+                                                                    "{tx.note || (tx.direction === 'IN' ? `Từ ${tx.partnerName}` : `Đến ${tx.partnerName}`)}"
                                                                 </p>
-                                                                <p className="text-xs text-text-sub dark:text-slate-400 mt-0.5">
-                                                                    {tx.note || 'No note'}
-                                                                </p>
-                                                                <p className="text-xs text-text-sub dark:text-slate-400 mt-1">
-                                                                    {new Date(tx.createdAt).toLocaleString('vi-VN')}
-                                                                </p>
-                                                            </div>
-                                                            <div className="text-right">
-                                                                <p className="text-sm font-bold text-green-600 dark:text-green-400">
-                                                                    +${tx.amount.toLocaleString()}
-                                                                </p>
+                                                                <div className="flex items-center gap-1 mt-2">
+                                                                    <span className="material-symbols-outlined text-[10px] text-text-sub dark:text-slate-500">schedule</span>
+                                                                    <p className="text-[10px] text-text-sub dark:text-slate-500">
+                                                                        {new Date(tx.createdAt).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })} • {new Date(tx.createdAt).toLocaleDateString('vi-VN')}
+                                                                    </p>
+                                                                </div>
                                                             </div>
                                                         </div>
                                                     </div>
@@ -563,7 +689,7 @@ export default function DashboardPage() {
                                         ) : (
                                             <div className="p-8 text-center">
                                                 <span className="material-symbols-outlined text-4xl text-gray-300 dark:text-gray-600 mb-2">notifications_off</span>
-                                                <p className="text-sm text-text-sub dark:text-slate-400">No new notifications</p>
+                                                <p className="text-sm text-text-sub dark:text-slate-400">Không có thông báo mới</p>
                                             </div>
                                         )}
                                     </div>
@@ -573,7 +699,7 @@ export default function DashboardPage() {
                             <button
                                 onClick={handleLogout}
                                 className="flex items-center justify-center size-10 rounded-full bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-800 hover:bg-red-50 dark:hover:bg-red-900/20 hover:border-red-200 dark:hover:border-red-800 transition-colors group"
-                                title="Logout"
+                                title="Đăng xuất"
                             >
                                 <span className="material-symbols-outlined text-text-sub dark:text-slate-400 group-hover:text-red-500">logout</span>
                             </button>
@@ -587,7 +713,7 @@ export default function DashboardPage() {
                             <div className="bg-gradient-to-br from-primary via-emerald-400 to-teal-400 dark:from-primary/90 dark:via-emerald-500/90 dark:to-teal-500/90 rounded-xl p-8 text-text-main shadow-lg shadow-primary/20">
                                 <div className="flex justify-between items-start mb-8">
                                     <div>
-                                        <p className="text-sm opacity-80 mb-2">Total Balance</p>
+                                        <p className="text-sm opacity-80 mb-2">Tổng số dư</p>
                                         <h2 className="text-4xl font-bold">${(wallet?.availableBalance ?? wallet?.balance)?.toLocaleString() || '0.00'}</h2>
                                         <p className="text-xs opacity-70 mt-2 font-mono">Acc: {user?.phone || user?.username || '@user'}</p>
                                     </div>
@@ -602,24 +728,24 @@ export default function DashboardPage() {
                                 </div>
                                 <div className="flex gap-4">
                                     <div className="flex-1 bg-white/20 backdrop-blur-sm rounded-lg p-4">
-                                        <p className="text-xs opacity-80 mb-1">Income</p>
+                                        <p className="text-xs opacity-80 mb-1">Thu nhập</p>
                                         <p className="text-lg font-semibold text-white">+$
                                             {walletSummary.income?.toLocaleString() || '0'}
                                         </p>
                                     </div>
                                     <div className="flex-1 bg-white/20 backdrop-blur-sm rounded-lg p-4">
-                                        <p className="text-xs opacity-80 mb-1">Expense</p>
+                                        <p className="text-xs opacity-80 mb-1">Chi tiêu</p>
                                         <p className="text-lg font-semibold text-white">-$
                                             {walletSummary.expense?.toLocaleString() || '0'}
                                         </p>
                                     </div>
                                     <button onClick={() => setShowTopupModal(true)} className="flex-1 bg-white/20 hover:bg-white/30 transition-colors backdrop-blur-sm rounded-lg p-4 flex flex-col justify-center items-center gap-1 group">
                                         <span className="material-symbols-outlined group-hover:scale-110 transition-transform">add_card</span>
-                                        <span className="text-sm font-semibold">Top Up</span>
+                                        <span className="text-sm font-semibold">Nạp tiền</span>
                                     </button>
                                     <button onClick={() => navigate('/receive-money')} className="flex-1 bg-white/20 hover:bg-white/30 transition-colors backdrop-blur-sm rounded-lg p-4 flex flex-col justify-center items-center gap-1 group">
                                         <span className="material-symbols-outlined group-hover:scale-110 transition-transform">qr_code_scanner</span>
-                                        <span className="text-sm font-semibold">Receive</span>
+                                        <span className="text-sm font-semibold">Nhận tiền</span>
                                     </button>
                                 </div>
                             </div>
@@ -627,65 +753,183 @@ export default function DashboardPage() {
                             {/* Chart */}
                             <div className="bg-white dark:bg-slate-800 rounded-xl p-6 border border-gray-100 dark:border-slate-800">
                                 <div className="flex justify-between items-center mb-6">
-                                    <h3 className="text-lg font-semibold text-text-main dark:text-white">Spending Analytics</h3>
-                                    <select className="bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-800 text-text-main dark:text-white text-sm rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-primary/50">
-                                        <option>Last 7 days</option>
-                                        <option>Last 30 days</option>
-                                        <option>Last 90 days</option>
+                                    <h3 className="text-lg font-semibold text-text-main dark:text-white">Phân tích chi tiêu</h3>
+                                    <select className="bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-800 text-text-main dark:text-white text-sm rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-primary/50 cursor-pointer">
+                                        <option>7 ngày qua</option>
+                                        <option disabled>30 ngày qua (Sắp có)</option>
                                     </select>
                                 </div>
-                                <div className="h-64 flex items-end justify-around gap-2">
-                                    {spendingData.length > 0 ? spendingData.map((item, i) => (
-                                        <div key={i} className="flex-1 flex flex-col items-center gap-2 group">
-                                            <div
-                                                className="w-full bg-gradient-to-t from-primary to-primary/50 rounded-t-lg hover:from-primary/80 hover:to-primary/40 transition-all cursor-pointer relative"
-                                                style={{ height: `${item.value || 5}%`, minHeight: item.value > 0 ? '8px' : '2px' }}
-                                                title={`${item.label}: $${item.amount?.toLocaleString() || '0'}`}
-                                            >
-                                                {/* Tooltip on hover */}
-                                                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-gray-900 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
-                                                    ${item.amount?.toLocaleString() || '0'}
-                                                </div>
+
+                                <div className="h-64 relative mt-4">
+                                    {spendingData.length > 0 ? (
+                                        <>
+                                            {/* Premium SVG Area Chart */}
+                                            <svg className="w-full h-full overflow-visible" viewBox="0 0 700 250" preserveAspectRatio="none">
+                                                <defs>
+                                                    <linearGradient id="chartGradient" x1="0" y1="0" x2="0" y2="1">
+                                                        <stop offset="0%" stopColor="#36e27b" stopOpacity="0.4" />
+                                                        <stop offset="100%" stopColor="#36e27b" stopOpacity="0" />
+                                                    </linearGradient>
+                                                </defs>
+
+                                                {/* Grid Lines */}
+                                                {[0, 1, 2, 3, 4].map(i => (
+                                                    <line
+                                                        key={i}
+                                                        x1="0"
+                                                        y1={i * 62.5}
+                                                        x2="700"
+                                                        y2={i * 62.5}
+                                                        stroke="currentColor"
+                                                        className="text-gray-100 dark:text-slate-700/50"
+                                                        strokeWidth="1"
+                                                    />
+                                                ))}
+
+                                                {/* Line & Area Path */}
+                                                {(() => {
+                                                    const maxAmount = Math.max(...spendingData.map(d => d.amount), 1);
+                                                    const points = spendingData.map((d, i) => ({
+                                                        x: (i / (spendingData.length - 1)) * 700,
+                                                        y: 250 - (d.amount / maxAmount) * 200 - 25
+                                                    }));
+
+                                                    const pathD = points.reduce((acc, p, i) =>
+                                                        i === 0 ? `M 0,${p.y}` : `${acc} L ${p.x},${p.y}`
+                                                        , "");
+
+                                                    const areaD = `${pathD} L 700,250 L 0,250 Z`;
+
+                                                    return (
+                                                        <>
+                                                            <path d={areaD} fill="url(#chartGradient)" />
+                                                            <path d={pathD} fill="none" stroke="#36e27b" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" />
+
+                                                            {/* Data Points */}
+                                                            {points.map((p, i) => (
+                                                                <g key={i} className="group/dot">
+                                                                    <circle
+                                                                        cx={p.x}
+                                                                        cy={p.y}
+                                                                        r="6"
+                                                                        fill="#36e27b"
+                                                                        className="drop-shadow-md cursor-pointer transition-all group-hover/dot:r-8"
+                                                                    />
+                                                                    <circle
+                                                                        cx={p.x}
+                                                                        cy={p.y}
+                                                                        r="10"
+                                                                        fill="#36e27b"
+                                                                        fillOpacity="0.2"
+                                                                        className="group-hover/dot:fill-opacity-40 transition-all"
+                                                                    />
+                                                                </g>
+                                                            ))}
+                                                        </>
+                                                    );
+                                                })()}
+                                            </svg>
+
+                                            {/* X-Axis Labels */}
+                                            <div className="flex justify-between mt-4">
+                                                {spendingData.map((day, i) => (
+                                                    <div key={i} className="flex flex-col items-center group relative cursor-help">
+                                                        <span className="text-[10px] text-text-sub dark:text-slate-400 font-medium">{day.label}</span>
+                                                        <span className="text-[11px] text-text-main dark:text-white font-bold">${day.amount.toLocaleString()}</span>
+                                                        
+                                                        {/* Tooltip on hover for extra focus */}
+                                                        <span className="text-[11px] text-text-main dark:text-white font-bold opacity-0 group-hover:opacity-100 transition-opacity absolute -top-12 bg-gray-900 px-2 py-1 rounded shadow-xl whitespace-nowrap z-20">
+                                                            Chi tiêu: ${day.amount.toLocaleString()}
+                                                        </span>
+                                                    </div>
+                                                ))}
                                             </div>
-                                            <span className="text-xs text-text-sub dark:text-slate-400">
-                                                {item.label}
-                                            </span>
-                                        </div>
-                                    )) : (
-                                        <div className="w-full text-center py-8">
-                                            <span className="material-symbols-outlined text-4xl text-gray-300 dark:text-gray-600 mb-2 block">trending_up</span>
-                                            <p className="text-sm text-text-sub dark:text-slate-400">No spending data</p>
-                                            <p className="text-xs text-text-sub dark:text-gray-500 mt-1">Make transactions to see analytics</p>
+                                        </>
+                                    ) : (
+                                        <div className="w-full h-full flex flex-col items-center justify-center py-8">
+                                            <div className="size-20 bg-gray-50 dark:bg-slate-700/50 rounded-full flex items-center justify-center mb-4">
+                                                <span className="material-symbols-outlined text-4xl text-gray-300 dark:text-gray-600">bar_chart</span>
+                                            </div>
+                                            <p className="text-sm font-medium text-text-main dark:text-white">Không có dữ liệu chi tiêu</p>
+                                            <p className="text-xs text-text-sub dark:text-slate-500 mt-1">Phân tích sẽ được hiển thị sau khi bạn giao dịch</p>
                                         </div>
                                     )}
                                 </div>
                             </div>
 
-                            {/* Recent Transactions */}
-                            <div className="bg-white dark:bg-slate-800 rounded-xl p-6 border border-gray-100 dark:border-slate-800">
+                            {/* Recent Transactions - Improved Table Style */}
+                            <div className="bg-white dark:bg-slate-800 rounded-xl p-6 border border-gray-100 dark:border-slate-800 shadow-sm overflow-hidden">
                                 <div className="flex justify-between items-center mb-6">
-                                    <h3 className="text-lg font-semibold text-text-main dark:text-white">Recent Transactions</h3>
-                                    <a href="#" className="text-sm text-primary hover:text-primary/80 transition-colors">View All</a>
+                                    <div className="flex items-center gap-2">
+                                        <span className="material-symbols-outlined text-primary">history</span>
+                                        <h3 className="text-lg font-semibold text-text-main dark:text-white">Lịch sử giao dịch</h3>
+                                    </div>
+                                    <button
+                                        onClick={() => navigate('/transfer-history')}
+                                        className="text-xs font-bold text-primary hover:bg-primary/10 px-4 py-2 rounded-full transition-all border border-primary/20"
+                                    >
+                                        Xem tất cả
+                                    </button>
                                 </div>
-                                <div className="space-y-4">
-                                    {transactions.length > 0 ? transactions.map((tx, i) => (
-                                        <div key={tx.id || i} className="flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors cursor-pointer">
-                                            <div className="flex items-center gap-4">
-                                                <div className={`size-11 rounded-full flex items-center justify-center ${tx.direction === 'IN' ? 'bg-green-50 dark:bg-green-500/10 text-green-500' : 'bg-red-50 dark:bg-red-500/10 text-red-500'}`}>
-                                                    <span className="material-symbols-outlined text-xl">{tx.direction === 'IN' ? 'arrow_downward' : 'arrow_upward'}</span>
-                                                </div>
-                                                <div>
-                                                    <p className="text-sm font-medium text-text-main dark:text-white">{tx.partnerName || tx.type || 'Transfer'}</p>
-                                                    <p className="text-xs text-text-sub dark:text-slate-400">{new Date(tx.createdAt).toLocaleDateString()}</p>
-                                                </div>
-                                            </div>
-                                            <p className={`text-sm font-semibold ${tx.direction === 'IN' ? 'text-green-500' : 'text-red-500'}`}>
-                                                {tx.direction === 'IN' ? '+' : '-'}${tx.amount.toLocaleString()}
-                                            </p>
-                                        </div>
-                                    )) : (
-                                        <p className="text-center text-text-sub">No recent transactions</p>
-                                    )}
+
+                                <div className="overflow-x-auto -mx-6 px-6">
+                                    <table className="w-full text-left">
+                                        <thead>
+                                            <tr className="border-b border-gray-50 dark:border-slate-700/50">
+                                                <th className="pb-4 text-xs font-bold text-text-sub dark:text-slate-500 uppercase tracking-wider">Giao dịch</th>
+                                                <th className="pb-4 text-xs font-bold text-text-sub dark:text-slate-500 uppercase tracking-wider">Ngày</th>
+                                                <th className="pb-4 text-xs font-bold text-text-sub dark:text-slate-500 uppercase tracking-wider">Loại</th>
+                                                <th className="pb-4 text-xs font-bold text-text-sub dark:text-slate-500 uppercase tracking-wider text-right">Số tiền</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody className="divide-y divide-gray-50 dark:divide-slate-700/50">
+                                            {transactions.length > 0 ? transactions.map((tx, i) => (
+                                                <tr key={tx.id || i} className="group hover:bg-gray-50/50 dark:hover:bg-slate-700/30 transition-colors cursor-pointer">
+                                                    <td className="py-4">
+                                                        <div className="flex items-center gap-3">
+                                                            <div className={`size-10 rounded-xl flex items-center justify-center shrink-0 shadow-sm ${tx.direction === 'IN' ? 'bg-green-50 dark:bg-green-900/20 text-green-500' : 'bg-red-50 dark:bg-red-900/20 text-red-500'}`}>
+                                                                <span className="material-symbols-outlined text-xl">
+                                                                    {tx.type.includes('TRANSFER') ? 'swap_horiz' : tx.type.includes('DEPOSIT') ? 'add_circle' : 'do_not_disturb_on'}
+                                                                </span>
+                                                            </div>
+                                                            <div className="min-w-0">
+                                                                <p className="text-sm font-semibold text-text-main dark:text-white truncate">
+                                                                    {tx.partnerName || (tx.direction === 'IN' ? 'Nhận tiền' : 'Gửi tiền')}
+                                                                </p>
+                                                                <p className="text-[11px] text-text-sub dark:text-slate-500 truncate italic">
+                                                                    {tx.note || 'Không có ghi chú'}
+                                                                </p>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    <td className="py-4 whitespace-nowrap">
+                                                        <p className="text-xs text-text-main dark:text-white font-medium">
+                                                            {new Date(tx.createdAt).toLocaleDateString('vi-VN')}
+                                                        </p>
+                                                        <p className="text-[10px] text-text-sub dark:text-slate-500">
+                                                            {new Date(tx.createdAt).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}
+                                                        </p>
+                                                    </td>
+                                                    <td className="py-4">
+                                                        <span className={`text-[10px] font-bold px-2 py-1 rounded-full ${tx.direction === 'IN' ? 'bg-green-100/50 text-green-700 dark:bg-green-900/30 dark:text-green-400' : 'bg-red-100/50 text-red-700 dark:bg-red-900/30 dark:text-red-400'}`}>
+                                                            {tx.type}
+                                                        </span>
+                                                    </td>
+                                                    <td className="py-4 text-right">
+                                                        <p className={`text-sm font-bold ${tx.direction === 'IN' ? 'text-green-500' : 'text-red-500'}`}>
+                                                            {tx.direction === 'IN' ? '+' : '-'}${tx.amount.toLocaleString()}
+                                                        </p>
+                                                    </td>
+                                                </tr>
+                                            )) : (
+                                                <tr>
+                                                    <td colSpan="4" className="py-8 text-center text-text-sub dark:text-slate-500">
+                                                        Không có giao dịch nào
+                                                    </td>
+                                                </tr>
+                                            )}
+                                        </tbody>
+                                    </table>
                                 </div>
                             </div>
                         </div>
@@ -695,37 +939,37 @@ export default function DashboardPage() {
                             {/* My Cards */}
                             <div className="bg-white dark:bg-slate-800 rounded-xl p-6 border border-gray-100 dark:border-slate-800">
                                 <div className="flex justify-between items-center mb-4">
-                                    <h3 className="text-lg font-semibold text-text-main dark:text-white">My Cards</h3>
-                                    <button onClick={() => setShowAddCardModal(true)} className="text-sm text-primary hover:text-primary/80 transition-colors">+ Add</button>
+                                    <h3 className="text-lg font-semibold text-text-main dark:text-white">Thẻ của tôi</h3>
+                                    <button onClick={() => setShowAddCardModal(true)} className="text-sm text-primary hover:text-primary/80 transition-colors">+ Thêm</button>
                                 </div>
                                 <div className="space-y-3">
                                     {cards.length > 0 ? cards.map((card, index) => (
                                         <div key={card.id || index} className={`bg-gradient-to-br ${index === 0 ? 'from-gray-800 to-gray-900 dark:from-gray-900 dark:to-black text-white' : 'from-primary to-emerald-400 dark:from-primary/90 dark:to-emerald-500/90 text-text-main'} rounded-xl p-5 relative overflow-hidden`}>
                                             <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -mr-16 -mt-16"></div>
                                             <div className="relative z-10">
-                                                <p className="text-xs opacity-70 mb-1">{card.type} Card</p>
+                                                <p className="text-xs opacity-70 mb-1">Thẻ {card.type}</p>
                                                 <p className="text-2xl font-bold mb-6">**** {card.last4}</p>
                                                 <div className="flex justify-between items-end">
                                                     <div>
-                                                        <p className="text-xs opacity-70 mb-1">Card Holder</p>
+                                                        <p className="text-xs opacity-70 mb-1">Chủ thẻ</p>
                                                         <p className="text-sm font-mono">{card.holderName}</p>
                                                     </div>
                                                     <div className="text-right">
-                                                        <p className="text-xs opacity-70 mb-1">Bank</p>
+                                                        <p className="text-xs opacity-70 mb-1">Ngân hàng</p>
                                                         <p className="text-sm">{card.bankName}</p>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
                                     )) : (
-                                        <p className="text-center text-text-sub">No cards linked</p>
+                                        <p className="text-center text-text-sub">Chưa có thẻ liên kết</p>
                                     )}
                                 </div>
                             </div>
 
                             {/* Quick Transfer */}
                             <div className="bg-white dark:bg-slate-800 rounded-xl p-6 border border-gray-100 dark:border-slate-800">
-                                <h3 className="text-lg font-semibold text-text-main dark:text-white mb-4">Quick Transfer</h3>
+                                <h3 className="text-lg font-semibold text-text-main dark:text-white mb-4">Chuyển khoản nhanh</h3>
                                 <div className="flex gap-3 mb-6 overflow-x-auto pb-2">
                                     {contacts.length > 0 ? contacts.map((contact, i) => (
                                         <div
@@ -752,26 +996,26 @@ export default function DashboardPage() {
                                         className="w-full bg-gradient-to-r from-primary to-emerald-400 hover:from-primary/90 hover:to-emerald-400/90 text-text-main font-medium py-3 rounded-lg transition-all shadow-md shadow-primary/20 hover:shadow-lg hover:shadow-primary/30 flex items-center justify-center gap-2"
                                     >
                                         <span className="material-symbols-outlined">qr_code_scanner</span>
-                                        Scan QR Code
+                                        Quét mã QR
                                     </button>
 
                                     {/* Divider */}
                                     <div className="flex items-center gap-3 my-4">
                                         <div className="flex-1 h-px bg-gray-200 dark:bg-slate-800"></div>
-                                        <span className="text-xs text-text-sub dark:text-slate-400">OR</span>
+                                        <span className="text-xs text-text-sub dark:text-slate-400">HOẶC</span>
                                         <div className="flex-1 h-px bg-gray-200 dark:bg-slate-800"></div>
                                     </div>
 
                                     {/* Phone Search */}
                                     <div>
-                                        <label className="text-sm text-text-sub dark:text-slate-400 mb-2 block">Search by Phone Number</label>
+                                        <label className="text-sm text-text-sub dark:text-slate-400 mb-2 block">Tìm kiếm bằng số điện thoại</label>
                                         <div className="flex gap-2">
                                             <input
                                                 type="tel"
                                                 value={phoneSearch}
                                                 onChange={(e) => setPhoneSearch(e.target.value)}
                                                 onKeyPress={(e) => e.key === 'Enter' && handlePhoneSearch()}
-                                                placeholder="Enter phone number"
+                                                placeholder="Nhập số điện thoại"
                                                 className="flex-1 px-4 py-3 rounded-lg border border-gray-200 dark:border-slate-800 bg-gray-50 dark:bg-slate-800 text-text-main dark:text-white outline-none focus:ring-2 focus:ring-primary/50"
                                             />
                                             <button
@@ -791,7 +1035,7 @@ export default function DashboardPage() {
                                     {/* Search Results */}
                                     {searchResults.length > 0 && (
                                         <div className="bg-gray-50 dark:bg-slate-800 rounded-lg p-3 border border-gray-200 dark:border-slate-800">
-                                            <p className="text-xs text-text-sub dark:text-slate-400 mb-2">Search Results:</p>
+                                            <p className="text-xs text-text-sub dark:text-slate-400 mb-2">Kết quả tìm kiếm:</p>
                                             <div className="space-y-2">
                                                 {searchResults.map((result) => (
                                                     <div
@@ -830,7 +1074,7 @@ export default function DashboardPage() {
                                     {/* Selected Contact Display */}
                                     {selectedContact && selectedContact.userId && (
                                         <div className="bg-primary/10 border-2 border-primary rounded-lg p-3">
-                                            <p className="text-xs text-text-sub dark:text-slate-400 mb-1">Sending to:</p>
+                                            <p className="text-xs text-text-sub dark:text-slate-400 mb-1">Gửi đến:</p>
                                             <div className="flex items-center gap-2">
                                                 <div className="size-8 rounded-full bg-gradient-to-br from-primary to-emerald-400 flex items-center justify-center text-text-main font-bold text-sm">
                                                     {(selectedContact.fullName || selectedContact.name)[0].toUpperCase()}
@@ -845,7 +1089,7 @@ export default function DashboardPage() {
                                         </div>
                                     )}
                                     <div>
-                                        <label className="text-sm text-text-sub dark:text-slate-400 mb-2 block">Amount</label>
+                                        <label className="text-sm text-text-sub dark:text-slate-400 mb-2 block">Số tiền</label>
                                         <div className="flex items-center gap-2 bg-gray-50 dark:bg-slate-800 rounded-lg px-4 py-3 border border-gray-200 dark:border-slate-800">
                                             <span className="text-text-main dark:text-white font-medium">$</span>
                                             <input
@@ -862,9 +1106,23 @@ export default function DashboardPage() {
                                         disabled={!selectedContact || !transferAmount}
                                         className="w-full bg-primary hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed text-text-main font-medium py-3 rounded-lg transition-all shadow-md shadow-primary/20 hover:shadow-lg hover:shadow-primary/30"
                                     >
-                                        Send {transferAmount ? `$${transferAmount}` : 'Money'}
+                                        Gửi {transferAmount ? `$${transferAmount}` : 'tiền'}
                                     </button>
                                 </div>
+                            </div>
+
+                            {/* Donut Charts Section */}
+                            <div className="grid grid-cols-2 gap-4">
+                                <DonutChart 
+                                    income={sevenDaySummary.income} 
+                                    expense={sevenDaySummary.expense} 
+                                    title="7 Ngày Qua" 
+                                />
+                                <DonutChart 
+                                    income={walletSummary.income} 
+                                    expense={walletSummary.expense} 
+                                    title="Tổng quan" 
+                                />
                             </div>
                         </div>
                     </div>
@@ -874,17 +1132,17 @@ export default function DashboardPage() {
             {showAddCardModal && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
                     <div className="bg-white dark:bg-slate-800 rounded-2xl w-full max-w-md p-6 shadow-2xl border border-gray-100 dark:border-slate-800">
-                        <h3 className="text-xl font-bold mb-4 text-text-main dark:text-white">Add New Card</h3>
+                        <h3 className="text-xl font-bold mb-4 text-text-main dark:text-white">Thêm thẻ mới</h3>
                         <form onSubmit={handleAddCardSubmit} className="flex flex-col gap-4">
                             <input
-                                placeholder="Card Number"
+                                placeholder="Số thẻ"
                                 className="form-input rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 px-4 py-3"
                                 value={newCard.cardNumber}
                                 onChange={e => setNewCard({ ...newCard, cardNumber: e.target.value })}
                                 required
                             />
                             <input
-                                placeholder="Holder Name"
+                                placeholder="Tên chủ thẻ"
                                 className="form-input rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 px-4 py-3"
                                 value={newCard.holderName}
                                 onChange={e => setNewCard({ ...newCard, holderName: e.target.value })}
@@ -892,7 +1150,7 @@ export default function DashboardPage() {
                             />
                             <div className="flex gap-4">
                                 <input
-                                    placeholder="Expiry (MM/YY)"
+                                    placeholder="Ngày hết hạn (MM/YY)"
                                     className="form-input rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 px-4 py-3 flex-1"
                                     value={newCard.expiryDate}
                                     onChange={e => setNewCard({ ...newCard, expiryDate: e.target.value })}
@@ -915,15 +1173,15 @@ export default function DashboardPage() {
                                 <option value="Credit">Credit</option>
                             </select>
                             <input
-                                placeholder="Bank Name"
+                                placeholder="Tên ngân hàng"
                                 className="form-input rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 px-4 py-3"
                                 value={newCard.bankName}
                                 onChange={e => setNewCard({ ...newCard, bankName: e.target.value })}
                                 required
                             />
                             <div className="flex gap-3 justify-end mt-4">
-                                <button type="button" onClick={() => setShowAddCardModal(false)} className="px-5 py-2.5 rounded-xl text-text-sub hover:bg-gray-100 dark:hover:bg-gray-800 font-medium transition-colors">Cancel</button>
-                                <button type="submit" className="px-5 py-2.5 rounded-xl bg-primary text-text-main font-bold hover:bg-primary/90 shadow-lg shadow-primary/20 transition-all">Add Card</button>
+                                <button type="button" onClick={() => setShowAddCardModal(false)} className="px-5 py-2.5 rounded-xl text-text-sub hover:bg-gray-100 dark:hover:bg-gray-800 font-medium transition-colors">Hủy</button>
+                                <button type="submit" className="px-5 py-2.5 rounded-xl bg-primary text-text-main font-bold hover:bg-primary/90 shadow-lg shadow-primary/20 transition-all">Thêm thẻ</button>
                             </div>
                         </form>
                     </div>
@@ -933,13 +1191,13 @@ export default function DashboardPage() {
             {showTopupModal && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
                     <div className="bg-white dark:bg-slate-800 rounded-2xl w-full max-w-md p-6 shadow-2xl border border-gray-100 dark:border-slate-800">
-                        <h3 className="text-xl font-bold mb-4 text-text-main dark:text-white">Top Up Wallet</h3>
+                        <h3 className="text-xl font-bold mb-4 text-text-main dark:text-white">Nạp tiền vào ví</h3>
                         <form onSubmit={handleTopupSubmit} className="flex flex-col gap-4">
                             <div>
-                                <label className="text-sm font-medium mb-1 block">Amount</label>
+                                <label className="text-sm font-medium mb-1 block">Số tiền</label>
                                 <input
                                     type="number"
-                                    placeholder="Enter amount"
+                                    placeholder="Nhập số tiền"
                                     className="w-full form-input rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 px-4 py-3"
                                     value={topupData.amount}
                                     onChange={e => setTopupData({ ...topupData, amount: e.target.value })}
@@ -947,22 +1205,22 @@ export default function DashboardPage() {
                                 />
                             </div>
                             <div>
-                                <label className="text-sm font-medium mb-1 block">Source Card</label>
+                                <label className="text-sm font-medium mb-1 block">Thẻ nguồn</label>
                                 <select
                                     className="w-full form-select rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 px-4 py-3"
                                     value={topupData.sourceCardId}
                                     onChange={e => setTopupData({ ...topupData, sourceCardId: e.target.value })}
                                     required
                                 >
-                                    <option value="">Select a card</option>
+                                    <option value="">Chọn thẻ</option>
                                     {cards.map(card => (
                                         <option key={card.id} value={card.id}>{card.bankName} - {card.last4}</option>
                                     ))}
                                 </select>
                             </div>
                             <div className="flex gap-3 justify-end mt-4">
-                                <button type="button" onClick={() => setShowTopupModal(false)} className="px-5 py-2.5 rounded-xl text-text-sub hover:bg-gray-100 dark:hover:bg-gray-800 font-medium transition-colors">Cancel</button>
-                                <button type="submit" disabled={!topupData.sourceCardId} className="px-5 py-2.5 rounded-xl bg-primary text-text-main font-bold hover:bg-primary/90 shadow-lg shadow-primary/20 transition-all disabled:opacity-50">Top Up</button>
+                                <button type="button" onClick={() => setShowTopupModal(false)} className="px-5 py-2.5 rounded-xl text-text-sub hover:bg-gray-100 dark:hover:bg-gray-800 font-medium transition-colors">Hủy</button>
+                                <button type="submit" disabled={!topupData.sourceCardId} className="px-5 py-2.5 rounded-xl bg-primary text-text-main font-bold hover:bg-primary/90 shadow-lg shadow-primary/20 transition-all disabled:opacity-50">Nạp tiền</button>
                             </div>
                         </form>
                     </div>
@@ -973,14 +1231,14 @@ export default function DashboardPage() {
             {showQrScanModal && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
                     <div className="bg-white dark:bg-slate-800 rounded-2xl w-full max-w-md p-6 shadow-2xl border border-gray-100 dark:border-slate-800">
-                        <h3 className="text-xl font-bold mb-4 text-text-main dark:text-white">Scan QR Code</h3>
+                        <h3 className="text-xl font-bold mb-4 text-text-main dark:text-white">Quét mã QR</h3>
 
                         <div className="space-y-4">
                             {/* File Input */}
                             <div className="border-2 border-dashed border-gray-300 dark:border-slate-800 rounded-xl p-6 text-center">
                                 {qrPreview ? (
                                     <div className="space-y-3">
-                                        <img src={qrPreview} alt="QR Preview" className="max-h-48 mx-auto rounded-lg" />
+                                        <img src={qrPreview} alt="Xem trước QR" className="max-h-48 mx-auto rounded-lg" />
                                         <button
                                             onClick={() => {
                                                 setQrFile(null);
@@ -988,14 +1246,14 @@ export default function DashboardPage() {
                                             }}
                                             className="text-sm text-red-500 hover:text-red-600"
                                         >
-                                            Remove
+                                            Xóa
                                         </button>
                                     </div>
                                 ) : (
                                     <label className="cursor-pointer block">
                                         <span className="material-symbols-outlined text-5xl text-gray-300 dark:text-gray-600 mb-2 block">upload_file</span>
-                                        <p className="text-sm text-text-sub dark:text-slate-400 mb-2">Click to upload QR code image</p>
-                                        <p className="text-xs text-text-sub dark:text-gray-500">PNG, JPG up to 10MB</p>
+                                        <p className="text-sm text-text-sub dark:text-slate-400 mb-2">Nhấn để tải lên ảnh mã QR</p>
+                                        <p className="text-xs text-text-sub dark:text-gray-500">PNG, JPG tối đa 10MB</p>
                                         <input
                                             type="file"
                                             accept="image/*"
@@ -1015,10 +1273,10 @@ export default function DashboardPage() {
                                 {qrScanning ? (
                                     <span className="flex items-center justify-center gap-2">
                                         <span className="material-symbols-outlined animate-spin">progress_activity</span>
-                                        Scanning...
+                                        Đang quét...
                                     </span>
                                 ) : (
-                                    "Scan QR Code"
+                                    "Quét mã QR"
                                 )}
                             </button>
 
@@ -1030,7 +1288,7 @@ export default function DashboardPage() {
                                 }}
                                 className="px-5 py-2.5 rounded-xl text-text-sub hover:bg-gray-100 dark:hover:bg-gray-800 font-medium transition-colors"
                             >
-                                Cancel
+                                Hủy
                             </button>
                         </div>
                     </div>

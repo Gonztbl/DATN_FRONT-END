@@ -218,14 +218,14 @@ const ViewOrderByAdmin = () => {
                                 disabled={actionLoading}
                                 className="w-full bg-primary/10 dark:bg-primary/20 border-none text-primary font-bold rounded-lg focus:ring-primary text-sm p-2.5 cursor-pointer outline-none"
                             >
-                                <option value="PENDING" className="dark:bg-slate-900">PENDING</option>
-                                <option value="CONFIRMED" className="dark:bg-slate-900">CONFIRMED</option>
-                                <option value="PREPARING" className="dark:bg-slate-900">PREPARING</option>
-                                <option value="READY" className="dark:bg-slate-900">READY_FOR_PICKUP</option>
-                                <option value="DELIVERING" className="dark:bg-slate-900">DELIVERING</option>
-                                <option value="COMPLETED" className="dark:bg-slate-900">COMPLETED</option>
-                                <option value="CANCELLED" className="dark:bg-slate-900">CANCELLED</option>
-                                <option value="DELIVERY_FAILED" className="dark:bg-slate-900">DELIVERY_FAILED</option>
+                                <option value="PENDING" className="dark:bg-slate-900">CHỜ XỬ LÝ</option>
+                                <option value="CONFIRMED" className="dark:bg-slate-900">ĐÃ XÁC NHẬN</option>
+                                <option value="PREPARING" className="dark:bg-slate-900">ĐANG CHUẨN BỊ</option>
+                                <option value="READY" className="dark:bg-slate-900">SẴN SÀNG LẤY HÀNG</option>
+                                <option value="DELIVERING" className="dark:bg-slate-900">ĐANG GIAO HÀNG</option>
+                                <option value="COMPLETED" className="dark:bg-slate-900">ĐÃ HOÀN THÀNH</option>
+                                <option value="CANCELLED" className="dark:bg-slate-900">ĐÃ HỦY</option>
+                                <option value="DELIVERY_FAILED" className="dark:bg-slate-900">GIAO THẤT BẠI</option>
                             </select>
                         </div>
                         <div className="bg-white dark:bg-slate-900 p-5 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
@@ -430,7 +430,16 @@ const ViewOrderByAdmin = () => {
                                                     </span>
                                                 </div>
                                                 <div className="ml-12">
-                                                    <p className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-tighter">{history.status}</p>
+                                                    <p className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-tighter">
+                                                        {history.status === 'PENDING' ? 'CHỜ XỬ LÝ' : 
+                                                         history.status === 'CONFIRMED' ? 'ĐÃ XÁC NHẬN' : 
+                                                         history.status === 'PREPARING' ? 'ĐANG CHUẨN BỊ' : 
+                                                         history.status === 'READY' || history.status === 'READY_FOR_PICKUP' ? 'SẴN SÀNG' : 
+                                                         history.status === 'DELIVERING' ? 'ĐANG GIAO' : 
+                                                         history.status === 'COMPLETED' ? 'HOÀN THÀNH' : 
+                                                         history.status === 'CANCELLED' ? 'ĐÃ HỦY' : 
+                                                         history.status === 'DELIVERY_FAILED' ? 'THẤT BẠI' : history.status}
+                                                    </p>
                                                     <p className="text-[10px] text-slate-400 font-medium italic">{history.note || '—'}</p>
                                                 </div>
                                             </div>
@@ -447,7 +456,7 @@ const ViewOrderByAdmin = () => {
                                                     <span className="material-symbols-outlined text-sm">cancel</span>
                                                 </div>
                                                 <div className="ml-12">
-                                                    <p className="text-sm font-bold text-rose-600 uppercase tracking-tighter">CANCELLED</p>
+                                                    <p className="text-sm font-bold text-rose-600 uppercase tracking-tighter">ĐÃ HỦY</p>
                                                     <p className="text-[10px] text-rose-400 italic font-medium">Đơn hàng bị hủy</p>
                                                 </div>
                                             </div>

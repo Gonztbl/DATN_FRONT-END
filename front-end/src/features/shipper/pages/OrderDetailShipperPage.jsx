@@ -113,6 +113,30 @@ const OrderDetailShipperPage = () => {
         return date.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
     };
 
+    const getStatusLabel = (status) => {
+        const labels = {
+            'PENDING': 'Đang chờ',
+            'CONFIRMED': 'Đã xác nhận',
+            'PREPARING': 'Đang chuẩn bị',
+            'READY_FOR_PICKUP': 'Chờ lấy hàng',
+            'DELIVERING': 'Đang giao',
+            'COMPLETED': 'Hoàn thành',
+            'CANCELLED': 'Đã hủy',
+            'DELIVERY_FAILED': 'Giao thất bại'
+        };
+        return labels[status] || status;
+    };
+
+    const getPaymentStatusLabel = (status) => {
+        const labels = {
+            'PENDING': 'Chờ thanh toán',
+            'COMPLETED': 'Đã thanh toán',
+            'FAILED': 'Thanh toán thất bại',
+            'REFUNDED': 'Đã hoàn tiền'
+        };
+        return labels[status] || status;
+    };
+
     if (loading) {
         return (
             <div className="relative flex min-h-screen w-full flex-col bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 items-center justify-center">
@@ -224,14 +248,14 @@ const OrderDetailShipperPage = () => {
                             </div>
                             <div className="mt-1 flex justify-between text-sm font-semibold text-slate-600 dark:text-slate-400">
                                 <span>Hình thức/Trạng thái:</span>
-                                <span>{order.paymentMethod} - {order.paymentStatus}</span>
+                                <span>{order.paymentMethod} - {getPaymentStatusLabel(order.paymentStatus)}</span>
                             </div>
                         </div>
                     </section>
 
                     {/* Timeline Section */}
                     <section className="rounded-xl bg-white dark:bg-slate-900 p-4 shadow-sm border border-slate-100 dark:border-slate-800">
-                        <h3 className="mb-4 font-bold">Trạng thái: <span className="text-primary">{order.status}</span></h3>
+                        <h3 className="mb-4 font-bold">Trạng thái: <span className="text-primary">{getStatusLabel(order.status)}</span></h3>
                         <div className="relative space-y-6 pl-6">
                             <div className="absolute left-[7px] top-2 h-[calc(100%-16px)] w-0.5 bg-slate-200 dark:bg-slate-700"></div>
                             <div className="relative">

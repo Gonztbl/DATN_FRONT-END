@@ -95,7 +95,7 @@ export default function UserManagement() {
       <SidebarAdmin />
 
       <main className="flex-1 flex flex-col min-w-0 bg-slate-50 dark:bg-slate-950 h-screen overflow-y-auto w-full">
-        <HeaderAdmin title="User Management" />
+        <HeaderAdmin title="Quản lý người dùng" />
 
         <div className="p-6 lg:p-8">
           <div className="max-w-[1400px] mx-auto flex flex-col gap-6">
@@ -106,7 +106,7 @@ export default function UserManagement() {
                 {/* SEARCH */}
                 <div className="flex-1">
                   <label className="block mb-1 text-sm font-medium text-slate-600 dark:text-slate-400">
-                    Search by Text
+                    Tìm kiếm theo từ khóa
                   </label>
 
                   <div className="relative">
@@ -117,7 +117,7 @@ export default function UserManagement() {
                     <input
                       className="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl h-12
                  pl-11 pr-4 focus:ring-1 focus:ring-primary focus:border-primary text-slate-900 dark:text-slate-100 placeholder:text-slate-400"
-                      placeholder="Search by username, email, fullname or phone number"
+                      placeholder="Tìm kiếm theo tên đăng nhập, email, họ tên hoặc số điện thoại"
                       value={searchText}
                       onChange={(e) => {
                         setSearchText(e.target.value);
@@ -130,7 +130,7 @@ export default function UserManagement() {
                 {/* STATUS - SIMPLE WORKING SOLUTION */}
                 <div className="space-y-1.5 w-full sm:w-48">
                   <label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-                    Search by Status
+                    Tìm kiếm theo trạng thái
                   </label>
 
                   <div className="relative">
@@ -148,9 +148,9 @@ export default function UserManagement() {
                         setCurrentPage(1);
                       }}
                     >
-                      <option value="ALL">All</option>
-                      <option value="ACTIVE">Active</option>
-                      <option value="LOCKED">Locked</option>
+                      <option value="ALL">Tất cả</option>
+                      <option value="ACTIVE">Hoạt động</option>
+                      <option value="LOCKED">Đã khóa</option>
                     </select>
 
                     {/* KHÔNG có arrow element nào cả */}
@@ -160,7 +160,7 @@ export default function UserManagement() {
                 {/* ROLE FILTER */}
                 <div className="space-y-1.5 w-full sm:w-48">
                   <label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-                    Filter by Role
+                    Lọc theo vai trò
                   </label>
                   <div className="relative">
                     <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500">
@@ -174,12 +174,12 @@ export default function UserManagement() {
                         setCurrentPage(1);
                       }}
                     >
-                      <option value="ALL">All Roles</option>
-                      <option value="USER">User</option>
-                      <option value="ADMIN">Admin</option>
-                      <option value="SUPPORT">Support</option>
-                      <option value="RESTAURANT_OWNER">Restaurant Owner</option>
-                      <option value="SHIPPER">Shipper</option>
+                      <option value="ALL">Tất cả vai trò</option>
+                      <option value="USER">Người dùng</option>
+                      <option value="ADMIN">Quản trị viên</option>
+                      <option value="SUPPORT">Hỗ trợ</option>
+                      <option value="RESTAURANT_OWNER">Chủ quán</option>
+                      <option value="SHIPPER">Tài xế</option>
                     </select>
                   </div>
                 </div>
@@ -193,7 +193,7 @@ export default function UserManagement() {
                 <span className="material-symbols-outlined text-[18px]">
                   restart_alt
                 </span>
-                Reset
+                Đặt lại
               </button>
 
               <div className="h-8 w-[1px] bg-slate-200 dark:bg-slate-800 hidden lg:block mx-2"></div>
@@ -203,7 +203,7 @@ export default function UserManagement() {
                 className="bg-primary text-black text-sm font-bold px-4 py-2.5 rounded-xl flex items-center gap-2 hover:shadow-lg hover:shadow-primary/20 transition-all active:scale-95 whitespace-nowrap"
               >
                 <span className="material-symbols-outlined text-[20px]">person_add</span>
-                Create User
+                Tạo người dùng
               </button>
             </div>
 
@@ -213,14 +213,14 @@ export default function UserManagement() {
                 <thead className="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-800">
                   <tr className="text-xs uppercase text-slate-500 dark:text-slate-400">
                     <th className="px-6 py-4">ID</th>
-                    <th className="px-6 py-4">Username</th>
-                    <th className="px-6 py-4">Fullname</th>
-                    <th className="px-6 py-4">Phone</th>
+                    <th className="px-6 py-4">Tên đăng nhập</th>
+                    <th className="px-6 py-4">Họ và tên</th>
+                    <th className="px-6 py-4">Số điện thoại</th>
                     <th className="px-6 py-4">Email</th>
-                    <th className="px-6 py-4 text-center">Role</th>
-                    <th className="px-6 py-4">Created At</th>
-                    <th className="px-6 py-4">Status</th>
-                    <th className="px-6 py-4 text-right">Action</th>
+                    <th className="px-6 py-4 text-center">Vai trò</th>
+                    <th className="px-6 py-4">Ngày tạo</th>
+                    <th className="px-6 py-4">Trạng thái</th>
+                    <th className="px-6 py-4 text-right">Thao tác</th>
                   </tr>
                 </thead>
 
@@ -228,13 +228,13 @@ export default function UserManagement() {
                   {loading ? (
                     <tr>
                       <td colSpan="8" className="text-center py-6">
-                        Loading...
+                        Đang tải...
                       </td>
                     </tr>
                   ) : pagedUsers.length === 0 ? (
                     <tr>
                       <td colSpan="8" className="text-center py-6">
-                        No users found
+                        Không tìm thấy người dùng nào
                       </td>
                     </tr>
                   ) : (
@@ -271,8 +271,16 @@ export default function UserManagement() {
                               colorClass = "text-emerald-600 bg-emerald-100";
                             }
 
+                            const roleLabelMap = {
+                              'ADMIN': 'Quản trị viên',
+                              'SHIPPER': 'Tài xế',
+                              'RESTAURANT_OWNER': 'Chủ quán',
+                              'SUPPORT': 'Hỗ trợ',
+                              'USER': 'Người dùng'
+                            };
+
                             return (
-                              <div className={`inline-flex items-center justify-center p-1.5 rounded-lg ${colorClass}`} title={roleName}>
+                              <div className={`inline-flex items-center justify-center p-1.5 rounded-lg ${colorClass}`} title={roleLabelMap[roleName] || roleName}>
                                 <span className="material-symbols-outlined !text-xl">{icon}</span>
                               </div>
                             );
@@ -288,11 +296,11 @@ export default function UserManagement() {
                         <td className="px-6 py-4">
                           {user.active ? (
                             <span className="text-emerald-600 dark:text-emerald-400 font-semibold">
-                              Active
+                              Hoạt động
                             </span>
                           ) : (
                             <span className="text-red-500 font-semibold">
-                              Locked
+                              Đã khóa
                             </span>
                           )}
                         </td>
@@ -319,7 +327,7 @@ export default function UserManagement() {
               {/* PAGINATION */}
               <div className="border-t border-slate-200 dark:border-slate-800 px-4 py-3 flex justify-between items-center bg-slate-50 dark:bg-slate-800/50">
                 <span className="text-sm text-slate-500 dark:text-slate-400">
-                  Showing {startIndex + 1}–{Math.min(endIndex, totalUsers)} of{" "}
+                  Hiển thị {startIndex + 1}–{Math.min(endIndex, totalUsers)} trên tổng số{" "}
                   {totalUsers}
                 </span>
 

@@ -106,10 +106,10 @@ const DepositPage = () => {
 
       if (res.status === 'FAILED' || res.status === 'ERROR') {
         // Manually throw error to trigger catch block
-        throw new Error(res.message || "Deposit transaction failed");
+        throw new Error(res.message || "Giao diện nạp tiền thất bại");
       }
 
-      showSuccess(`$${amountNumber.toLocaleString()} has been successfully deposited to your wallet!`, "Deposit Successful");
+      showSuccess(`${amountNumber.toLocaleString('vi-VN')} đ đã được nạp thành công vào ví của bạn!`, "Nạp tiền thành công");
       setAmount("");
       // refetch
       fetchData();
@@ -139,7 +139,7 @@ const DepositPage = () => {
           <div className="lg:hidden flex items-center justify-between p-4 bg-white dark:bg-slate-800 border-b border-gray-200 dark:border-slate-800">
             <div className="flex items-center gap-2">
               <span className="material-symbols-outlined text-primary">arrow_downward</span>
-              <span className="font-bold text-lg">Deposit</span>
+              <span className="font-bold text-lg">Nạp tiền</span>
             </div>
             <button className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800">
               <span className="material-symbols-outlined">menu</span>
@@ -163,29 +163,29 @@ const DepositPage = () => {
                       </span>
                     </button>
                   </div>
-                  <h1 className="text-4xl font-black text-[#111714] dark:text-white">Deposit Funds</h1>
+                  <h1 className="text-4xl font-black text-[#111714] dark:text-white">Nạp tiền</h1>
                   <p className="text-[#648772] dark:text-slate-400">
-                    Select a card and enter amount to deposit into your wallet.
+                    Chọn một thẻ và nhập số tiền để nạp vào ví của bạn.
                   </p>
                 </div>
 
             {/* ERROR MESSAGE */}
             {error && (
               <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
-                <strong className="font-bold">Error: </strong>
+                <strong className="font-bold">Lỗi: </strong>
                 <span className="block sm:inline">{error}</span>
               </div>
             )}
 
             {/* CREDIT CARD SELECTION */}
             <div>
-              <h3 className="text-lg font-bold mb-3 text-[#111714] dark:text-white">Select Card</h3>
+              <h3 className="text-lg font-bold mb-3 text-[#111714] dark:text-white">Chọn thẻ</h3>
               {loadingCards ? (
-                <p>Loading cards...</p>
+                <p>Đang tải thẻ...</p>
               ) : cards.length === 0 ? (
                 <div className="p-4 border rounded-lg text-center">
-                  <p className="text-gray-500 mb-2">No cards linked.</p>
-                  <button onClick={() => navigate('/cards')} className="text-primary font-bold hover:underline">Link a card now</button>
+                  <p className="text-gray-500 mb-2">Không có thẻ liên kết.</p>
+                  <button onClick={() => navigate('/cards')} className="text-primary font-bold hover:underline">Liên kết thẻ ngay</button>
                 </div>
               ) : (
                 <div className="grid sm:grid-cols-2 gap-3">
@@ -207,12 +207,12 @@ const DepositPage = () => {
                         <span className="material-symbols-outlined text-gray-600">credit_card</span>
                       </div>
                       <div>
-                        <h4 className="font-bold">{card.bankName || "Bank Card"}</h4>
+                        <h4 className="font-bold">{card.bankName || "Thẻ ngân hàng"}</h4>
                         <p className="text-xs text-[#648772]">
                           {card.last4 ? `•••• ${card.last4}` : card.cardNumber}
                         </p>
                         <p className="text-xs text-primary font-bold">
-                          Bal: ${card.balanceCard?.toLocaleString()}
+                          Số dư: {card.balanceCard?.toLocaleString('vi-VN')} đ
                         </p>
                       </div>
                     </div>
@@ -223,16 +223,16 @@ const DepositPage = () => {
 
             {/* AMOUNT INPUT */}
             <div>
-              <label className="text-lg font-bold text-[#111714] dark:text-white">Enter Amount</label>
+              <label className="text-lg font-bold text-[#111714] dark:text-white">Nhập số tiền</label>
               <div className="relative mt-2">
                 <span className="absolute left-4 top-1/2 -translate-y-1/2 text-xl font-bold">
-                  $
+                  đ
                 </span>
                 <input
                   type="number"
                   min="0"
                   step="1000"
-                  placeholder="0.00"
+                  placeholder="0"
                   className="w-full h-16 pl-9 pr-4 text-2xl font-bold border border-gray-200 dark:border-slate-800 rounded-lg focus:ring-2 focus:ring-primary bg-white dark:bg-slate-800 text-[#111714] dark:text-white"
                   value={amount}
                   onChange={(e) => {
@@ -251,7 +251,7 @@ const DepositPage = () => {
                     className="h-8 px-4 border border-gray-200 dark:border-slate-800 rounded-lg hover:border-primary hover:bg-primary/10 transition text-[#111714] dark:text-white"
                     onClick={() => handleQuickAdd(v)}
                   >
-                    +${v.toLocaleString()}
+                    +{v.toLocaleString('vi-VN')} đ
                   </button>
                 ))}
               </div>
@@ -261,41 +261,30 @@ const DepositPage = () => {
               {/* RIGHT CHECKOUT SECTION */}
               <aside className="w-full lg:w-[380px]">
             <div className="sticky top-24 bg-white dark:bg-slate-800 border rounded-xl p-6 shadow-sm">
-              <h3 className="text-lg font-bold mb-6 text-[#111714] dark:text-white">Transaction Details</h3>
+              <h3 className="text-lg font-bold mb-6 text-[#111714] dark:text-white">Chi tiết giao dịch</h3>
 
               <div className="flex justify-between mb-3">
-                <span className="text-[#648772] dark:text-slate-400">Current Wallet Balance</span>
+                <span className="text-[#648772] dark:text-slate-400">Số dư ví hiện tại</span>
                 <strong className="text-[#111714] dark:text-white">
-                  $
                   {wallet
-                    ? wallet.balance?.toLocaleString("en-US", {
-                      minimumFractionDigits: 0,
-                      maximumFractionDigits: 0,
-                    })
-                    : "..."}
+                    ? wallet.balance?.toLocaleString("vi-VN")
+                    : "..."} đ
                 </strong>
               </div>
 
               <div className="flex justify-between mb-3">
-                <span className="text-[#648772] dark:text-slate-400">Deposit Amount</span>
+                <span className="text-[#648772] dark:text-slate-400">Số tiền nạp</span>
                 <strong className="text-[#111714] dark:text-white">
-                  $
-                  {Number(amount).toLocaleString("en-US", {
-                    minimumFractionDigits: 0,
-                    maximumFractionDigits: 0,
-                  })}
+                  {Number(amount).toLocaleString("vi-VN")} đ
                 </strong>
               </div>
 
               <hr className="my-4 border-dashed border-gray-300 dark:border-slate-800" />
 
               <div className="flex justify-between items-center mb-6">
-                <span className="font-bold text-[#111714] dark:text-white">Total Pay</span>
+                <span className="font-bold text-[#111714] dark:text-white">Tổng thanh toán</span>
                 <span className="text-primary text-2xl font-black">
-                  $
-                  {Number(amount).toLocaleString("en-US", {
-                    minimumFractionDigits: 0, // Should be currency dependent, usually VND no decimals
-                  })}
+                  {Number(amount).toLocaleString("vi-VN")} đ
                 </span>
               </div>
 
@@ -304,7 +293,7 @@ const DepositPage = () => {
                 onClick={handleDeposit}
                 disabled={!amount || Number(amount) <= 0 || !selectedCardId}
               >
-                Confirm Deposit
+                Xác nhận nạp tiền
               </button>
             </div>
               </aside>
@@ -337,15 +326,15 @@ const DepositPage = () => {
           <div className="flex justify-center pb-20 px-4 md:px-10">
         <div className="max-w-[1200px] w-full">
           <h3 className="text-[#111714] dark:text-white text-xl font-bold mb-4">
-            Recent Card Deposits
+            Giao dịch nạp tiền gần đây
           </h3>
 
           {loadingHistory ? (
-            <p className="text-sm text-gray-500">Loading history...</p>
+            <p className="text-sm text-gray-500">Đang tải lịch sử...</p>
           ) : historyError ? (
             <p className="text-sm text-red-500">{historyError}</p>
           ) : recentDeposits.length === 0 ? (
-            <p className="text-sm text-gray-500">No deposit history found.</p>
+            <p className="text-sm text-gray-500">Không tìm thấy lịch sử nạp tiền.</p>
           ) : (
             <div className="bg-white dark:bg-slate-800 rounded-xl border overflow-hidden">
               {recentDeposits.map((tx) => (
@@ -361,7 +350,7 @@ const DepositPage = () => {
                     </div>
 
                     <div>
-                      <p className="font-medium text-sm md:text-base">{tx.description || "Deposit from Card"}</p>
+                      <p className="font-medium text-sm md:text-base">{tx.description || "Nạp từ thẻ"}</p>
                       <p className="text-xs text-[#648772]">
                         {tx.timestamp ? new Date(tx.timestamp).toLocaleString() : ""}
                       </p>
@@ -373,8 +362,7 @@ const DepositPage = () => {
 
                   <div className="text-right">
                     <span className="font-bold text-primary block">
-                      +$
-                      {Number(tx.amount).toLocaleString("en-US")}
+                      +{Number(tx.amount).toLocaleString("vi-VN")} đ
                     </span>
                     <span
                       className={`text-xs font-medium px-2 py-0.5 rounded-full ${tx.status === "SUCCESS"

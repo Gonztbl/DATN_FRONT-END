@@ -2,14 +2,14 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useState, useEffect, useRef } from 'react';
 
 const ADMIN_PAGES = [
-    { title: "History Logs", path: "/admin/transactions", icon: "receipt_long" },
-    { title: "Orders", path: "/admin/orders", icon: "shopping_bag" },
-    { title: "Users", path: "/user-manager", icon: "group" },
-    { title: "Create User", path: "/admin/users/create", icon: "person_add" },
-    { title: "Wallets", path: "/admin/wallets", icon: "account_balance" },
-    { title: "Vendor Manager", path: "/admin/vendor-manager", icon: "category" },
-    { title: "Restaurant Manager", path: "/admin/restaurant-manager", icon: "restaurant" },
-    { title: "Product Manager", path: "/admin/product-manager", icon: "lunch_dining" },
+    { title: "Lịch sử giao dịch", path: "/admin/transactions", icon: "receipt_long" },
+    { title: "Đơn hàng", path: "/admin/orders", icon: "shopping_bag" },
+    { title: "Người dùng", path: "/user-manager", icon: "group" },
+    { title: "Tạo người dùng", path: "/admin/users/create", icon: "person_add" },
+    { title: "Ví hệ thống", path: "/admin/wallets", icon: "account_balance" },
+    { title: "Quản lý Danh mục", path: "/admin/vendor-manager", icon: "category" },
+    { title: "Quản lý Cửa hàng", path: "/admin/restaurant-manager", icon: "restaurant" },
+    { title: "Quản lý Sản phẩm", path: "/admin/product-manager", icon: "lunch_dining" },
 ];
 
 export default function SidebarAdmin() {
@@ -60,8 +60,8 @@ export default function SidebarAdmin() {
                         <span className="material-symbols-outlined">account_balance_wallet</span>
                     </div>
                     <div className="flex flex-col">
-                        <h1 className="text-[#121617] dark:text-white text-base font-bold leading-tight">E-Wallet Admin</h1>
-                        <p className="text-slate-500 dark:text-slate-400 text-xs font-medium">Financial Management</p>
+                        <h1 className="text-[#121617] dark:text-white text-base font-bold leading-tight">SmartPay Admin</h1>
+                        <p className="text-slate-500 dark:text-slate-400 text-xs font-medium">Quản lý tài chính</p>
                     </div>
                 </div>
 
@@ -71,7 +71,7 @@ export default function SidebarAdmin() {
                         <span className="material-symbols-outlined text-slate-400 text-sm">search</span>
                         <input
                             type="text"
-                            placeholder="Find a page..."
+                            placeholder="Tìm kiếm trang..."
                             className="bg-transparent border-none outline-none text-xs w-full text-slate-600 dark:text-slate-300"
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
@@ -97,7 +97,7 @@ export default function SidebarAdmin() {
                                 </div>
                             ) : (
                                 <div className="px-4 py-3 text-center">
-                                    <p className="text-[10px] text-slate-500 italic">No pages found</p>
+                                    <p className="text-[10px] text-slate-500 italic">Không tìm thấy trang</p>
                                 </div>
                             )}
                         </div>
@@ -105,7 +105,7 @@ export default function SidebarAdmin() {
                 </div>
 
                 <nav className="flex flex-col gap-1 text-slate-600 dark:text-slate-400">
-                    <p className="text-[10px] font-bold uppercase tracking-wider mb-2 ml-3">Menu</p>
+                    <p className="text-[10px] font-bold uppercase tracking-wider mb-2 ml-3">Menu chính</p>
                     <Link
                         to="/admin/transactions"
                         className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors ${isActive('/admin/transactions')
@@ -114,9 +114,9 @@ export default function SidebarAdmin() {
                             }`}
                     >
                         <span className="material-symbols-outlined">receipt_long</span>
-                        <span className="text-sm">History Logs</span>
+                        <span className="text-sm">Lịch sử giao dịch</span>
                     </Link>
-
+                    
                     <Link
                         to="/admin/orders"
                         className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors ${isActive('/admin/orders')
@@ -125,7 +125,7 @@ export default function SidebarAdmin() {
                             }`}
                     >
                         <span className="material-symbols-outlined">shopping_bag</span>
-                        <span className="text-sm">Orders</span>
+                        <span className="text-sm">Đơn hàng</span>
                     </Link>
 
                     <Link
@@ -136,7 +136,7 @@ export default function SidebarAdmin() {
                             }`}
                     >
                         <span className="material-symbols-outlined">group</span>
-                        <span className="text-sm">Users</span>
+                        <span className="text-sm">Người dùng</span>
                     </Link>
 
                     <Link
@@ -147,7 +147,7 @@ export default function SidebarAdmin() {
                             }`}
                     >
                         <span className="material-symbols-outlined">account_balance</span>
-                        <span className="text-sm">Wallets</span>
+                        <span className="text-sm">Ví hệ thống</span>
                     </Link>
 
                     <Link
@@ -158,7 +158,7 @@ export default function SidebarAdmin() {
                             }`}
                     >
                         <span className="material-symbols-outlined">category</span>
-                        <span className="text-sm">Vendor Manager</span>
+                        <span className="text-sm">Quản lý Danh mục</span>
                     </Link>
 
                     <Link
@@ -169,7 +169,7 @@ export default function SidebarAdmin() {
                             }`}
                     >
                         <span className="material-symbols-outlined">restaurant</span>
-                        <span className="text-sm">Restaurant Manager</span>
+                        <span className="text-sm">Quản lý Cửa hàng</span>
                     </Link>
 
                     <Link
@@ -180,17 +180,17 @@ export default function SidebarAdmin() {
                             }`}
                     >
                         <span className="material-symbols-outlined">lunch_dining</span>
-                        <span className="text-sm">Product Manager</span>
+                        <span className="text-sm">Quản lý Sản phẩm</span>
                     </Link>
                 </nav>
             </div>
             {/* System Status Mock */}
             <div className="mt-auto p-6">
                 <div className="bg-slate-50 dark:bg-slate-800 rounded-xl p-4">
-                    <p className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-2">System Status</p>
+                    <p className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-2">Trạng thái hệ thống</p>
                     <div className="flex items-center gap-2">
                         <div className="size-2 rounded-full bg-green-500 animate-pulse"></div>
-                        <span className="text-sm font-semibold dark:text-slate-200">Operational</span>
+                        <span className="text-sm font-semibold dark:text-slate-200">Hoạt động ổn định</span>
                     </div>
                 </div>
             </div>

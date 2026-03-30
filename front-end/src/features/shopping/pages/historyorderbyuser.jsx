@@ -19,14 +19,14 @@ const HistoryOrderByUser = () => {
 
     // Status Tabs Definition
     const tabs = [
-        { label: 'All Orders', value: 'ALL' },
-        { label: 'Pending', value: 'PENDING' },
-        { label: 'Confirmed', value: 'CONFIRMED' },
-        { label: 'Preparing', value: 'PREPARING' },
-        { label: 'Ready for Pickup', value: 'READY_FOR_PICKUP' },
-        { label: 'Delivering', value: 'DELIVERING' },
-        { label: 'Completed', value: 'COMPLETED' },
-        { label: 'Cancelled', value: 'CANCELLED' }
+        { label: 'Tất cả', value: 'ALL' },
+        { label: 'Chờ duyệt', value: 'PENDING' },
+        { label: 'Đã xác nhận', value: 'CONFIRMED' },
+        { label: 'Đang chuẩn bị', value: 'PREPARING' },
+        { label: 'Chờ lấy hàng', value: 'READY_FOR_PICKUP' },
+        { label: 'Đang giao', value: 'DELIVERING' },
+        { label: 'Hoàn thành', value: 'COMPLETED' },
+        { label: 'Đã hủy', value: 'CANCELLED' }
     ];
 
     // Fetch orders from API
@@ -54,7 +54,7 @@ const HistoryOrderByUser = () => {
             }
         } catch (error) {
             console.error("Error fetching orders:", error);
-            showError("Error", "Could not load your orders. Please try again later.");
+            showError("Lỗi", "Không thể tải danh sách đơn hàng. Vui lòng thử lại sau.");
         } finally {
             setLoading(false);
         }
@@ -100,43 +100,43 @@ const HistoryOrderByUser = () => {
                 return { 
                     bg: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400', 
                     icon: 'schedule', 
-                    label: 'Pending' 
+                    label: 'Chờ duyệt' 
                 };
             case 'CONFIRMED':
                 return { 
                     bg: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400', 
                     icon: 'verified', 
-                    label: 'Confirmed' 
+                    label: 'Đã xác nhận' 
                 };
             case 'PREPARING':
                 return { 
                     bg: 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400', 
                     icon: 'restaurant_menu', 
-                    label: 'Preparing' 
+                    label: 'Đang chuẩn bị' 
                 };
             case 'READY_FOR_PICKUP':
                 return { 
                     bg: 'bg-pink-100 text-pink-700 dark:bg-pink-900/30 dark:text-pink-400', 
                     icon: 'shopping_basket', 
-                    label: 'Ready for Pickup' 
+                    label: 'Chờ lấy hàng' 
                 };
             case 'DELIVERING':
                 return { 
                     bg: 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400', 
                     icon: 'local_shipping', 
-                    label: 'Delivering' 
+                    label: 'Đang giao' 
                 };
             case 'COMPLETED':
                 return { 
                     bg: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400', 
                     icon: 'check_circle', 
-                    label: 'Completed' 
+                    label: 'Hoàn thành' 
                 };
             case 'CANCELLED':
                 return { 
                     bg: 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400', 
                     icon: 'cancel', 
-                    label: 'Cancelled' 
+                    label: 'Đã hủy' 
                 };
             default:
                 return { 
@@ -157,7 +157,7 @@ const HistoryOrderByUser = () => {
                             <button 
                                 onClick={() => navigate('/shopping/food-drink')}
                                 className="p-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors flex items-center justify-center shrink-0"
-                                title="Back to Food & Drink"
+                                title="Quay lại"
                             >
                                 <span className="material-symbols-outlined">arrow_back</span>
                             </button>
@@ -165,7 +165,7 @@ const HistoryOrderByUser = () => {
                                 <div className="flex items-center justify-center size-10 rounded-xl bg-primary/10 text-primary">
                                     <span className="material-symbols-outlined">receipt_long</span>
                                 </div>
-                                <h1 className="text-xl font-bold tracking-tight">Order History</h1>
+                                <h1 className="text-xl font-bold tracking-tight">Lịch sử đơn hàng</h1>
                             </div>
                         </div>
                         <div className="hidden md:flex items-center gap-4 flex-1 max-w-md ml-8">
@@ -173,7 +173,7 @@ const HistoryOrderByUser = () => {
                                 <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xl">search</span>
                                 <input 
                                     className="w-full bg-slate-100 dark:bg-slate-800 border-none rounded-xl py-2 pl-10 pr-4 focus:ring-2 focus:ring-primary text-sm transition-all text-slate-900 dark:text-slate-100" 
-                                    placeholder="Search orders..." 
+                                    placeholder="Tìm kiếm đơn hàng..." 
                                     type="text"
                                     value={searchQuery}
                                     onChange={(e) => setSearchQuery(e.target.value)}
@@ -184,7 +184,7 @@ const HistoryOrderByUser = () => {
                             <button
                                 onClick={toggleDarkMode}
                                 className="size-10 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-primary/10 hover:text-primary transition-all flex items-center justify-center"
-                                title={isDarkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}
+                                title={isDarkMode ? "Chế độ sáng" : "Chế độ tối"}
                             >
                                 <span className="material-symbols-outlined transition-all">
                                     {isDarkMode ? "light_mode" : "dark_mode"}
@@ -227,7 +227,7 @@ const HistoryOrderByUser = () => {
                         <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xl">search</span>
                         <input 
                             className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl py-3 pl-10 pr-4 focus:ring-2 focus:ring-primary text-sm shadow-sm" 
-                            placeholder="Search orders..." 
+                            placeholder="Tìm kiếm đơn hàng..." 
                             type="text"
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
@@ -334,7 +334,7 @@ const HistoryOrderByUser = () => {
                                             {/* Price & Action */}
                                             <div className="flex items-center justify-between sm:flex-col sm:items-end sm:justify-center gap-4 border-t sm:border-t-0 pt-4 sm:pt-0 sm:pl-6 sm:border-l border-slate-100 dark:border-slate-800">
                                                 <div className="text-left sm:text-right">
-                                                    <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-0.5">Total</p>
+                                                    <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-0.5">Tổng cộng</p>
                                                     <p className="text-2xl font-black text-primary leading-none">{formatCurrency(order.totalAmount)}</p>
                                                 </div>
                                                 <button 
@@ -344,7 +344,7 @@ const HistoryOrderByUser = () => {
                                                         navigate(`/shopping/view-order/${order.id}`);
                                                     }}
                                                 >
-                                                    Track
+                                                    Theo dõi
                                                     <span className="material-symbols-outlined text-sm">arrow_forward</span>
                                                 </button>
                                             </div>
@@ -358,17 +358,17 @@ const HistoryOrderByUser = () => {
                             <div className="bg-primary/10 size-40 rounded-full flex items-center justify-center mb-6">
                                 <span className="material-symbols-outlined text-7xl text-primary">shopping_basket</span>
                             </div>
-                            <h2 className="text-2xl font-bold mb-2 text-slate-900 dark:text-slate-100">No orders found</h2>
+                            <h2 className="text-2xl font-bold mb-2 text-slate-900 dark:text-slate-100">Không tìm thấy đơn hàng nào</h2>
                             <p className="text-slate-500 dark:text-slate-400 max-w-xs mx-auto mb-8">
                                 {statusFilter === 'ALL' 
-                                    ? "Looks like you haven't made any orders yet. Start exploring our restaurants!" 
-                                    : `You don't have any ${statusFilter.toLowerCase()} orders at the moment.`}
+                                    ? "Có vẻ như bạn chưa đặt món nào. Hãy khám phá các nhà hàng của chúng tôi ngay!" 
+                                    : `Bạn hiện không có đơn hàng nào ở trạng thái ${statusFilter.toLowerCase()}.`}
                             </p>
                             <button 
                                 onClick={() => navigate('/shopping/food-drink')}
                                 className="bg-primary hover:bg-primary/90 text-white px-8 py-3 rounded-xl font-bold text-lg transition-all shadow-lg shadow-primary/20 active:scale-95"
                             >
-                                Start Shopping
+                                Bắt đầu mua sắm
                             </button>
                         </div>
                     )}
@@ -381,7 +381,7 @@ const HistoryOrderByUser = () => {
                             onClick={handleLoadMore}
                             className="flex items-center gap-2 text-primary font-bold hover:gap-3 transition-all p-3 rounded-xl hover:bg-primary/5 active:scale-95"
                         >
-                            Load older orders
+                            Xem các đơn hàng cũ hơn
                             <span className="material-symbols-outlined">expand_more</span>
                         </button>
                     </div>
@@ -390,7 +390,7 @@ const HistoryOrderByUser = () => {
                 {loading && orders.length > 0 && (
                     <div className="mt-12 flex justify-center items-center gap-3 text-slate-400 text-sm font-medium">
                         <div className="size-5 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-                        Loading more orders...
+                        Đang tải thêm đơn hàng...
                     </div>
                 )}
             </main>
@@ -403,11 +403,11 @@ const HistoryOrderByUser = () => {
                             <span className="text-xl font-bold tracking-tight">SmartPay</span>
                         </div>
                         <div className="flex gap-8 text-sm text-slate-500 dark:text-slate-400">
-                            <a className="hover:text-primary transition-colors hover:underline" href="#">Help Center</a>
-                            <a className="hover:text-primary transition-colors hover:underline" href="#">Privacy Policy</a>
-                            <a className="hover:text-primary transition-colors hover:underline" href="#">Terms of Service</a>
+                            <a className="hover:text-primary transition-colors hover:underline" href="#">Trung tâm trợ giúp</a>
+                            <a className="hover:text-primary transition-colors hover:underline" href="#">Chính sách bảo mật</a>
+                            <a className="hover:text-primary transition-colors hover:underline" href="#">Điều khoản dịch vụ</a>
                         </div>
-                        <p className="text-xs text-slate-400">© 2024 SmartPay. All rights reserved.</p>
+                        <p className="text-xs text-slate-400">© 2024 SmartPay. Tất cả quyền được bảo lưu.</p>
                     </div>
                 </div>
             </footer>

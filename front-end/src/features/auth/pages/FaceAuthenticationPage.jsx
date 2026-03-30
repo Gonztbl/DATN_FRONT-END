@@ -188,11 +188,11 @@ export default function FaceAuthenticationPage() {
                                 Quay lại Profile
                             </button>
                             <span className="text-slate-400">/</span>
-                            <span className="text-slate-900 dark:text-slate-100 text-sm font-medium">Face Authentication</span>
+                            <span className="text-slate-900 dark:text-slate-100 text-sm font-medium">Xác thực khuôn mặt</span>
                         </nav>
 
                         {/* Title */}
-                        <h1 className="text-3xl md:text-4xl font-black tracking-tight">Face Authentication</h1>
+                        <h1 className="text-3xl md:text-4xl font-black tracking-tight">Xác thực khuôn mặt</h1>
 
                         {/* Status Card */}
                         <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm overflow-hidden">
@@ -256,7 +256,7 @@ export default function FaceAuthenticationPage() {
                                     {/* Hướng dẫn pose */}
                                     {isRegistering && (
                                         <div className="absolute bottom-6 left-1/2 -translate-x-1/2 bg-black/60 text-white px-6 py-3 rounded-full text-lg font-medium">
-                                            {currentStep === 1 && "Nhìn thẳng vào camera (Front)"}
+                                            {currentStep === 1 && "Nhìn thẳng vào camera (Mặt trước)"}
                                             {currentStep === 2 && "Quay mặt sang trái 30-45°"}
                                             {currentStep === 3 && "Quay mặt sang phải 30-45°"}
                                         </div>
@@ -320,8 +320,8 @@ export default function FaceAuthenticationPage() {
                                 <h3 className="text-xl font-bold mb-2">
                                     {verifyResult.result === "PASS" ? "Xác thực thành công" : "Không khớp"}
                                 </h3>
-                                <p>Similarity: <strong>{verifyResult.similarity.toFixed(3)}</strong> (ngưỡng: {verifyResult.threshold})</p>
-                                <p>Khớp với pose: <strong>{verifyResult.matchedPose}</strong></p>
+                                <p>Độ tương đồng: <strong>{verifyResult.similarity.toFixed(3)}</strong> (ngưỡng: {verifyResult.threshold})</p>
+                                <p>Khớp với góc mặt: <strong>{verifyResult.matchedPose}</strong></p>
                                 <p className="mt-2">{verifyResult.message}</p>
                             </div>
                         )}
