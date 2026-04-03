@@ -37,6 +37,8 @@ import MerchantOrderPage from "../features/restaurant/pages/MerchantOrderPage";
 import MerchantOrderDetailPage from "../features/restaurant/pages/MerchantOrderDetailPage";
 import MerchantMenuPage from "../features/restaurant/pages/MerchantMenuPage";
 import MerchantSettingsPage from "../features/restaurant/pages/MerchantSettingsPage";
+import LoanUserApply from "../features/wallet/pages/loans_userapply";
+import LoanHistoryUser from "../features/wallet/pages/loans_historyuser";
 
 function AppRoutes() {
   return (
@@ -97,6 +99,22 @@ function AppRoutes() {
         element={
           <ProtectedRoute>
             <TransferHistoryPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/loans/apply"
+        element={
+          <ProtectedRoute>
+            <LoanUserApply />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/loans/history"
+        element={
+          <ProtectedRoute>
+            <LoanHistoryUser />
           </ProtectedRoute>
         }
       />

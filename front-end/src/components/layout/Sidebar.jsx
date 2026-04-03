@@ -109,11 +109,24 @@ export default function Sidebar({ activeRoute = "dashboard" }) {
             {/* Bottom Section */}
             <div className="flex flex-col gap-4">
                 <button
-                    onClick={() => handleNavigation('/settings')}
-                    className="flex items-center gap-3 px-4 py-3 rounded-full text-text-sub dark:text-slate-400 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors w-full text-left"
+                    onClick={() => handleNavigation('/loans/apply')}
+                    className={`flex items-center gap-3 px-4 py-3 rounded-full transition-all w-full text-left ${activeRoute === 'loans'
+                        ? 'bg-primary text-text-main shadow-md shadow-primary/20'
+                        : 'text-text-sub dark:text-slate-400 hover:bg-gray-50 dark:hover:bg-slate-700'
+                        }`}
                 >
-                    <span className="material-symbols-outlined">settings</span>
-                    <span className="text-sm font-medium">Cài đặt</span>
+                    <span className="material-symbols-outlined">payments</span>
+                    <span className="text-sm font-medium">Đăng ký vay</span>
+                </button>
+                <button
+                    onClick={() => handleNavigation('/loans/history')}
+                    className={`flex items-center gap-3 px-4 py-3 rounded-full transition-all w-full text-left ${activeRoute === 'loans_history'
+                        ? 'bg-primary text-text-main shadow-md shadow-primary/20'
+                        : 'text-text-sub dark:text-slate-400 hover:bg-gray-50 dark:hover:bg-slate-700'
+                        }`}
+                >
+                    <span className="material-symbols-outlined">history</span>
+                    <span className="text-sm font-medium">Lịch sử vay</span>
                 </button>
                 <div className="bg-gradient-to-br from-primary/20 to-primary/5 dark:from-primary/10 dark:to-primary/5 rounded-xl p-6 border border-primary/20">
                     <h3 className="text-sm font-semibold mb-2 text-text-main dark:text-white">Nâng cấp Pro</h3>
