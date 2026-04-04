@@ -10,6 +10,8 @@ const ADMIN_PAGES = [
     { title: "Quản lý Danh mục", path: "/admin/vendor-manager", icon: "category" },
     { title: "Quản lý Cửa hàng", path: "/admin/restaurant-manager", icon: "restaurant" },
     { title: "Quản lý Sản phẩm", path: "/admin/product-manager", icon: "lunch_dining" },
+    { title: "Khoản vay - Duyệt", path: "/admin/loans", icon: "description" },
+    { title: "Tất cả đơn vay", path: "/admin/loans/all", icon: "folder_open" },
 ];
 
 export default function SidebarAdmin() {
@@ -181,6 +183,28 @@ export default function SidebarAdmin() {
                     >
                         <span className="material-symbols-outlined">lunch_dining</span>
                         <span className="text-sm">Quản lý Sản phẩm</span>
+                    </Link>
+
+                    <Link
+                        to="/admin/loans"
+                        className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors ${isActive('/admin/loans')
+                            ? 'bg-primary/10 text-primary font-bold'
+                            : 'hover:bg-slate-50 dark:hover:bg-slate-800 font-semibold'
+                            }`}
+                    >
+                        <span className="material-symbols-outlined">description</span>
+                        <span className="text-sm">Khoản vay - Duyệt</span>
+                    </Link>
+
+                    <Link
+                        to="/admin/loans/all"
+                        className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors ${isActive('/admin/loans/all')
+                            ? 'bg-primary/10 text-primary font-bold'
+                            : 'hover:bg-slate-50 dark:hover:bg-slate-800 font-semibold'
+                            }`}
+                    >
+                        <span className="material-symbols-outlined">folder_open</span>
+                        <span className="text-sm">Tất cả đơn vay</span>
                     </Link>
                 </nav>
             </div>

@@ -83,7 +83,7 @@ export default function LoanUserApply() {
     };
 
     return (
-        <div className="flex h-screen bg-white font-body selection:bg-emerald-100 selection:text-emerald-900 overflow-hidden">
+        <div className="flex h-screen bg-white dark:bg-slate-950 font-body selection:bg-emerald-100 selection:text-emerald-900 overflow-hidden text-slate-900 dark:text-slate-100">
             <Sidebar activeRoute="loans" />
             
             <main className="flex-1 flex flex-col md:flex-row h-full">
@@ -133,11 +133,11 @@ export default function LoanUserApply() {
                 </section>
 
                 {/* Right Section (Form) */}
-                <section className="flex-1 flex flex-col items-center justify-center bg-white p-8 md:p-16 h-full overflow-y-auto">
+                <section className="flex-1 flex flex-col items-center justify-center bg-white dark:bg-slate-950 p-8 md:p-16 h-full overflow-y-auto">
                     <div className="w-full max-w-lg">
                         <div className="mb-10">
-                            <h2 className="text-3xl font-extrabold text-slate-900 font-headline tracking-tight mb-2">Đăng ký hồ sơ vay</h2>
-                            <p className="text-slate-500 text-sm">Vui lòng điền các thông tin dưới đây để AI bắt đầu thẩm định.</p>
+                            <h2 className="text-3xl font-extrabold text-slate-900 dark:text-white font-headline tracking-tight mb-2">Đăng ký hồ sơ vay</h2>
+                            <p className="text-slate-500 dark:text-slate-400 text-sm">Vui lòng điền các thông tin dưới đây để AI bắt đầu thẩm định.</p>
                         </div>
 
                         <form onSubmit={handleSubmit} className="space-y-6">
@@ -153,7 +153,7 @@ export default function LoanUserApply() {
                                         min="1000000" 
                                         max="100000000" 
                                         step="1000000"
-                                        className="w-full h-1.5 bg-slate-100 rounded-full appearance-none cursor-pointer accent-emerald-600"
+                                        className="w-full h-1.5 bg-slate-100 dark:bg-slate-800 rounded-full appearance-none cursor-pointer accent-emerald-600"
                                         id="amount"
                                         value={formData.amount}
                                         onChange={handleChange}
@@ -170,10 +170,10 @@ export default function LoanUserApply() {
                                         id="term" 
                                         value={formData.term} 
                                         onChange={handleChange}
-                                        className="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-sm font-semibold text-slate-700 outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all cursor-pointer"
+                                        className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-xl px-4 py-3 text-sm font-semibold text-slate-700 dark:text-slate-300 outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all cursor-pointer"
                                     >
                                         {[3, 6, 12, 24, 36, 48, 60].map(m => (
-                                            <option key={m} value={m}>{m} tháng</option>
+                                            <option key={m} value={m} className="dark:bg-slate-900">{m} tháng</option>
                                         ))}
                                     </select>
                                 </div>
@@ -183,10 +183,10 @@ export default function LoanUserApply() {
                                         id="jobSegmentNum" 
                                         value={formData.jobSegmentNum} 
                                         onChange={handleChange}
-                                        className="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-sm font-semibold text-slate-700 outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all cursor-pointer"
+                                        className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-xl px-4 py-3 text-sm font-semibold text-slate-700 dark:text-slate-300 outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all cursor-pointer"
                                     >
                                         {jobSegments.map(job => (
-                                            <option key={job.value} value={job.value}>{job.label}</option>
+                                            <option key={job.value} value={job.value} className="dark:bg-slate-900">{job.label}</option>
                                         ))}
                                     </select>
                                 </div>
@@ -205,7 +205,7 @@ export default function LoanUserApply() {
                                             const val = e.target.value.replace(/[^0-9]/g, "");
                                             setFormData({ ...formData, declaredIncome: Number(val) });
                                         }}
-                                        className="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-sm font-bold text-slate-800 placeholder:text-slate-300 outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
+                                        className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-xl px-4 py-3 text-sm font-bold text-slate-800 dark:text-slate-200 placeholder:text-slate-300 dark:placeholder:text-slate-600 outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
                                     />
                                     <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400 group-focus-within:text-emerald-500">VND</span>
                                 </div>
@@ -221,7 +221,7 @@ export default function LoanUserApply() {
                                     placeholder="Chia sẻ lý do bạn cần khoản vay này..."
                                     value={formData.purpose}
                                     onChange={handleChange}
-                                    className="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-sm font-medium text-slate-700 placeholder:text-slate-300 outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all resize-none"
+                                    className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-xl px-4 py-3 text-sm font-medium text-slate-700 dark:text-slate-300 placeholder:text-slate-300 dark:placeholder:text-slate-600 outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all resize-none"
                                 ></textarea>
                                 {errors.purpose && <p className="text-red-500 text-[10px] font-bold uppercase">{errors.purpose}</p>}
                             </div>

@@ -39,6 +39,8 @@ import MerchantMenuPage from "../features/restaurant/pages/MerchantMenuPage";
 import MerchantSettingsPage from "../features/restaurant/pages/MerchantSettingsPage";
 import LoanUserApply from "../features/wallet/pages/loans_userapply";
 import LoanHistoryUser from "../features/wallet/pages/loans_historyuser";
+import AdminListLoans from "../features/admin/pages/AdminListLoans";
+import AdminAllLoans from "../features/admin/pages/AdminAllLoans";
 
 function AppRoutes() {
   return (
@@ -115,6 +117,22 @@ function AppRoutes() {
         element={
           <ProtectedRoute>
             <LoanHistoryUser />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin/loans"
+        element={
+          <ProtectedRoute allowedRoles={['ADMIN']}>
+            <AdminListLoans />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin/loans/all"
+        element={
+          <ProtectedRoute allowedRoles={['ADMIN']}>
+            <AdminAllLoans />
           </ProtectedRoute>
         }
       />
