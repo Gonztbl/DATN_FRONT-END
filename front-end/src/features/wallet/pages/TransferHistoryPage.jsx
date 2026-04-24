@@ -7,6 +7,7 @@ import qrService from "../../../api/qrService";
 import userService from "../../profile/api/userService";
 import { formatVND } from "../utils";
 import { showSuccess, showError, showWarning, showAlert } from "../../../utils/swalUtils";
+import FraudCheckModal from "../components/FraudCheckModal";
 import { useTheme } from "../../../context/ThemeContext";
 import Sidebar from "../../../components/layout/Sidebar";
 const HISTORY_CACHE_KEY = "transfer_history_cache";
@@ -34,6 +35,9 @@ export default function TransferHistoryPage() {
     const [timeRange, setTimeRange] = useState("30DAYS");
     const [page, setPage] = useState(0);
     const [totalElements, setTotalElements] = useState(0);
+
+    const [fraudResult, setFraudResult] = useState(null);
+    const [showFraudModal, setShowFraudModal] = useState(false);
 
 
     /* SEND MONEY */
@@ -234,79 +238,66 @@ export default function TransferHistoryPage() {
 
     /* SEND MONEY */
     const handleSendNow = async () => {
-        if (!walletId || !toUserId || amountNumber <= 0) return;
+        if (!walletId || !selectedWallet?.accountNumber || amountNumber <= 0) return;
 
         try {
             setSending(true);
 
-            const response = await TransferService.transfer({
-                toUserId,
+            // 1. Gọi checkFraud thay vì confirm trực tiếp
+            const checkRes = await TransferService.checkFraud({
+                toAccountNumber: selectedWallet.accountNumber,
                 amount: amountNumber,
-                note,
+                note: note,
             });
 
-            // Check for logical failure (soft error with 200 OK)
-            if (response.data && response.data.success === false) {
-                const errorMsg = response.data.note || response.data.message || response.data.error || "Giao dịch không thành công";
-                showError("Chuyển tiền thất bại", errorMsg); // Display specific error note
-                return;
-            }
-
-            // Hiển thị thông báo thành công
-            showSuccess("Chuyển tiền thành công", `Giao dịch chuyển ${formatVND(amountNumber)} cho ${selectedWallet?.fullName || "người nhận"} đã hoàn tất.`);
-
-            /* OPTIMISTIC TX (OUT) */
-            const optimisticTx = {
-                id: `tmp-${Date.now()}`,
-                createdAt: new Date().toISOString(),
-                partnerName: selectedWallet?.fullName || "Transfer",
-                direction: "OUT",
-                amount: amountNumber,
-                status: "COMPLETED",
-                type: "TRANSFER_OUT",
-                note,
-            };
-
-            setTransactions(prev => [optimisticTx, ...prev]);
-            setTotalElements(prev => prev + 1);
-
-            /* OPTIMISTIC BALANCE */
-            setWallet(prev => ({
-                ...prev,
-                balance: prev.balance - amountNumber,
-            }));
-
-            /* UPDATE CACHE */
-            localStorage.setItem(
-                HISTORY_CACHE_KEY,
-                JSON.stringify({
-                    walletId,
-                    content: [optimisticTx, ...transactions],
-                    totalElements: totalElements + 1,
-                    page: 0,
-                    direction,
-                    timeRange,
-                    cachedAt: Date.now(),
-                })
-            );
-
-            /* RESET FORM */
-            setAmount("");
-            setNote("");
-            setSelectedWallet(null);
-            setToUserId(null);
-            setPage(0);
-
-            /* HARD REFRESH DATA */
-            setTimeout(async () => {
-                await refreshWallet();
-                await fetchHistory(walletId, 0, direction, timeRange);
-            }, 800);
+            // 2. Hiện Modal check fraud
+            setFraudResult(checkRes.data || checkRes);
+            setShowFraudModal(true);
 
         } catch (e) {
-            console.error("Transfer error", e);
-            const errorMsg = e.response?.data?.note || e.response?.data?.message || e.response?.data?.error || "Chuyển tiền thất bại";
-            showError("Lỗi chuyển tiền", errorMsg);
+            console.error("Fraud Check API failed:", e);
+            const errorMsg = e.response?.data?.details || e.response?.data?.message || e.message;
+            showError("Kiểm tra giao dịch thất bại", errorMsg);
+        } finally {
+            setSending(false);
+        }
+    };
+
+    const handleConfirmTransfer = async (sessionToken, faceVerified) => {
+        try {
+            setShowFraudModal(false);
+            setSending(true);
+
+            const result = await TransferService.confirmTransfer({
+                sessionToken,
+                faceVerified,
+            });
+
+            const responseData = result.data || result;
+
+            if (responseData?.success || responseData?.status === 'COMPLETED') {
+                showSuccess("Chuyển tiền thành công", `Giao dịch chuyển ${formatVND(amountNumber)} cho ${selectedWallet?.fullName || "người nhận"} đã hoàn tất.`);
+                
+                /* HARD REFRESH DATA */
+                await refreshWallet();
+                await fetchHistory(walletId, 0, direction, timeRange);
+
+                /* RESET FORM */
+                setAmount("");
+                setNote("");
+                setSelectedWallet(null);
+                setToUserId(null);
+                setSearchPhone("");
+                setFraudResult(null);
+                setPage(0);
+            } else {
+                const errorMsg = responseData?.details || responseData?.message || "Giao dịch không thành công";
+                showError("Chuyển tiền thất bại", errorMsg);
+            }
+        } catch (error) {
+            console.error("Transfer confirmation failed:", error);
+            const errorMsg = error.response?.data?.details || error.response?.data?.message || error.message;
+            showError("Chuyển tiền thất bại", errorMsg);
         } finally {
             setSending(false);
         }
@@ -318,6 +309,13 @@ export default function TransferHistoryPage() {
                 {/* Sidebar */}
                 <Sidebar activeRoute="transactions" />
 
+                <FraudCheckModal 
+                    isOpen={showFraudModal} 
+                    fraudResult={fraudResult} 
+                    onConfirm={handleConfirmTransfer} 
+                    onCancel={() => setShowFraudModal(false)} 
+                />
+                
                 {/* Main Content */}
                 <main className="flex-1 flex flex-col h-full overflow-y-auto bg-[#f6f8f7] dark:bg-slate-900">
                 {/* Mobile Header */}

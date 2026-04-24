@@ -26,6 +26,7 @@ export default function ProfilePage() {
     phone: "",
     dateOfBirth: "",
     address: "",
+    jobSegment: "",
   });
 
   // LOAD PROFILE
@@ -53,6 +54,7 @@ export default function ProfilePage() {
           phone: data.phone || "",
           dateOfBirth: data.dateOfBirth || "",
           address: data.address || "",
+          jobSegment: data.jobSegment || "",
         });
       } catch (error) {
         console.error("Load profile failed", error);
@@ -111,6 +113,7 @@ export default function ProfilePage() {
         phone: form.phone,
         dateOfBirth: form.dateOfBirth,
         address: form.address,
+        jobSegment: form.jobSegment,
       });
 
       if (res?.status === "FAILED" || res?.status === "ERROR") {
@@ -315,6 +318,25 @@ export default function ProfilePage() {
                 </div>
               </div>
 
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium">Nghề nghiệp</label>
+                  <select
+                    name="jobSegment"
+                    value={form.jobSegment}
+                    onChange={handleChange}
+                    disabled={!isEditing}
+                    className="w-full h-12 px-4 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 disabled:bg-slate-100 dark:disabled:bg-slate-900"
+                  >
+                    <option value="unknown">Chưa rõ / Khác (Unknown)</option>
+                    <option value="employee">Người lao động (Employee)</option>
+                    <option value="freelancer">Nghề tự do (Freelancer)</option>
+                    <option value="student">Học sinh / Sinh viên (Student)</option>
+                    <option value="retired">Đã nghỉ hưu (Retired)</option>
+                  </select>
+                </div>
+              </div>
+
               {isEditing && (
                 <div className="flex justify-end gap-4 pt-6">
                   <button
@@ -339,14 +361,14 @@ export default function ProfilePage() {
               <div className="flex flex-col md:flex-row">
                 <div className="w-full md:w-1/3 bg-slate-100 dark:bg-slate-800/50 min-h-[250px] flex items-center justify-center relative overflow-hidden">
                   <div className="absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-primary via-transparent to-transparent animate-pulse" />
-                  
+
                   {/* High-tech scanner effect placeholder */}
                   <div className="relative">
                     <span className={`material-symbols-outlined text-9xl transition-all duration-500 ${hasBiometrics ? "text-primary scale-110 drop-shadow-[0_0_20px_rgba(25,230,107,0.3)]" : "text-slate-300 dark:text-slate-700"}`}>
                       {hasBiometrics ? "face_check" : "face"}
                     </span>
                     {!biometricsLoading && !hasBiometrics && (
-                       <div className="absolute top-0 left-0 w-full h-1 bg-primary/40 animate-[nav-scan_2s_linear_infinite]" />
+                      <div className="absolute top-0 left-0 w-full h-1 bg-primary/40 animate-[nav-scan_2s_linear_infinite]" />
                     )}
                   </div>
                 </div>
@@ -354,7 +376,7 @@ export default function ProfilePage() {
                 <div className="flex-1 p-8 md:p-10 space-y-6">
                   <div className="flex items-center justify-between">
                     <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-[10px] font-black uppercase tracking-widest border border-primary/20">
-                        Smart Security
+                      Smart Security
                     </div>
                     {biometricsLoading ? (
                       <div className="flex items-center gap-2 text-slate-400 text-xs font-bold italic animate-pulse">
@@ -377,7 +399,7 @@ export default function ProfilePage() {
                   <div>
                     <h3 className="text-2xl md:text-3xl font-black text-slate-900 dark:text-white">Xác thực khuôn mặt</h3>
                     <p className="mt-4 text-slate-500 dark:text-slate-400 leading-relaxed font-medium">
-                      Bảo vệ ví tiền của bạn bằng công nghệ nhận dạng sinh trắc học tiên tiến. 
+                      Bảo vệ ví tiền của bạn bằng công nghệ nhận dạng sinh trắc học tiên tiến.
                       Sử dụng khuôn mặt để xác minh các giao dịch chuyển tiền và rút tiền nhạy cảm.
                     </p>
                   </div>

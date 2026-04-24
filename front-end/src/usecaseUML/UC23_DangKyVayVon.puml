@@ -1,0 +1,59 @@
+@startuml UC23_DangKyVayVon
+title UC23 - Đăng ký vay vốn (Loan Application) with AI Scoring
+
+autonumber "<b>[00]</b>"
+skinparam sequenceArrowThickness 2
+skinparam roundcorner 10
+skinparam defaultFontSize 20
+skinparam titleFontSize 26
+skinparam sequenceFontSize 19
+skinparam sequenceMessageFontSize 20
+skinparam sequenceActorFontSize 20
+skinparam sequenceParticipantFontSize 20
+skinparam noteFontSize 18
+skinparam sequenceArrowFontSize 20
+skinparam sequence {
+    ParticipantPadding 30
+    LifeLinePadding 20
+    MessagePadding 10
+}
+
+actor "Người dùng" as User
+boundary ":LoanApplyUI" as UI
+control ":LoanController" as CTRL
+entity ":CreditScoringEngine" as AI
+database ":CSDL" as DB
+
+User -> UI : Truy cập trang Đăng ký vay
+activate UI
+UI --> User : Hiển thị form (Amount, Term, Job, Income, Purpose)
+
+User -> UI : Nhập thông tin & Nhấn "Nộp hồ sơ"
+UI -> UI : Validate dữ liệu (Amount >= 1M, ...)
+
+UI -> CTRL : POST /api/loans/apply
+activate CTRL
+
+CTRL -> AI : Yêu cầu chấm điểm (Job, Income, History)
+activate AI
+AI -> AI : Chạy mô hình XGBoost (ONNX)
+AI --> CTRL : aiScore & aiDecision (PASSED_AI / REJECTED_AI)
+deactivate AI
+
+CTRL -> DB : Lưu hồ sơ vay & Kết quả AI
+activate DB
+DB --> CTRL : Đã lưu (LoanID)
+deactivate DB
+
+alt aiDecision = REJECTED_AI
+    CTRL --> UI : Trả về thông báo từ chối sơ bộ
+    UI --> User : "Rất tiếc! Hồ sơ của bạn không đạt chuẩn AI."
+else aiDecision = PASSED_AI
+    CTRL --> UI : Trả về thông báo thành công (Pending Admin)
+    UI --> User : "Nộp đơn thành công! Đang chờ Admin giải ngân."
+end
+
+deactivate CTRL
+deactivate UI
+
+@enduml

@@ -1,0 +1,63 @@
+@startuml UC24_LichSuVayVon
+title UC24 - Xem lịch sử vay vốn (Loan History)
+
+autonumber "<b>[00]</b>"
+skinparam sequenceArrowThickness 2
+skinparam roundcorner 10
+skinparam defaultFontSize 20
+skinparam titleFontSize 26
+skinparam sequenceFontSize 19
+skinparam sequenceMessageFontSize 20
+skinparam sequenceActorFontSize 20
+skinparam sequenceParticipantFontSize 20
+skinparam noteFontSize 18
+skinparam sequenceArrowFontSize 20
+skinparam sequence {
+    ParticipantPadding 30
+    LifeLinePadding 20
+    MessagePadding 10
+}
+
+actor "Người dùng" as User
+boundary ":LoanHistoryUI" as UI
+control ":LoanController" as CTRL
+entity ":LoanService" as API
+database ":CSDL" as DB
+
+User -> UI : Truy cập trang Lịch sử vay
+activate UI
+
+UI -> CTRL : Lấy danh sách đơn vay & Tóm tắt
+activate CTRL
+
+par
+    CTRL -> API : GET /api/loans/my-loans?page=0
+    activate API
+    API -> DB : Truy vấn danh sách hồ sơ
+    activate DB
+    DB --> API : List<Loan>
+    deactivate DB
+    API --> CTRL : PagedData<Loan>
+    deactivate API
+    
+    CTRL -> API : GET /api/loans/summary
+    activate API
+    API -> DB : Tính toán thống kê (Approved, Rejected, Avg Score)
+    activate DB
+    DB --> API : SummaryData
+    deactivate DB
+    API --> CTRL : SummaryData
+    deactivate API
+end
+
+CTRL --> UI : Trả về dữ liệu
+deactivate CTRL
+
+UI --> User : Hiển thị Bento Layout (Stats) & Loan Cards
+
+User -> UI : Nhấn "Chi tiết hồ sơ"
+UI -> UI : Mở Detail Modal hiển thị: aiScore, aiDecision, adminNote
+
+deactivate UI
+
+@enduml

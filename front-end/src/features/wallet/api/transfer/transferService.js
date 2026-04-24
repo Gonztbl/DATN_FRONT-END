@@ -11,6 +11,14 @@ const TransferService = {
     });
   },
 
+  checkFraud({ toAccountNumber, amount, note }) {
+    return apiClient.post("/api/v1/transfer/check-fraud", { toAccountNumber, amount, note });
+  },
+
+  confirmTransfer({ sessionToken, faceVerified }) {
+    return apiClient.post("/api/v1/transfer/confirm", { sessionToken, faceVerified });
+  },
+
   getTransferHistory(walletId, params = {}) {
     return apiClient
       .get(`${BASE_URL}/wallet/${walletId}/history`, { params })

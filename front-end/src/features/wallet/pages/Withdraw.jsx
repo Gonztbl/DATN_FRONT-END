@@ -20,6 +20,22 @@ export default function Withdraw() {
   const [selectedAccount, setSelectedAccount] = useState(null);
   const [note, setNote] = useState("Rút tiền qua ứng dụng ví điện tử");
 
+  // History State
+  const [recentWithdrawals, setRecentWithdrawals] = useState([]);
+  const [loadingHistory, setLoadingHistory] = useState(true);
+  const [historyError, setHistoryError] = useState("");
+
+  // Modal state
+  const [showAddCardModal, setShowAddCardModal] = useState(false);
+  const [newCard, setNewCard] = useState({
+    cardNumber: "",
+    holderName: "",
+    expiryDate: "",
+    cvv: "",
+    type: "Debit",
+    bankName: ""
+  });
+
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -41,10 +57,6 @@ export default function Withdraw() {
 
         setUser(userData);
         
-        // Giải pháp Robust: Thử lấy id từ /api/me trước, nếu không có thì trích xuất từ walletId string
-        // Dựa trên log user cung cấp:
-        // /api/me trả về wallet.id (số)
-        // /api/wallet/me trả về id (số) và walletId (chuỗi "WALLET5")
         const numericIdFromUser = userData?.wallet?.id;
         const numericIdFromWalletMe = typeof walletMe?.id === 'number' ? walletMe.id : null;
         const numericIdFromExtraction = extractNumericId(walletMe?.walletId);
@@ -58,7 +70,6 @@ export default function Withdraw() {
         const walletData = {
           ...walletMe,
           id: finalWalletId, 
-          // Ưu tiên availableBalance từ walletBalance API, sau đó đến wallet.availableBalance (me) rồi đến balance (walletMe)
           availableBalance: walletBalance?.availableBalance ?? walletBalance?.balance ?? userData?.wallet?.availableBalance ?? walletMe?.balance ?? 0,
         };
         
@@ -69,17 +80,42 @@ export default function Withdraw() {
         console.error("Failed to fetch data:", err);
       }
     };
+
+    const fetchWithdrawHistory = async () => {
+      setLoadingHistory(true);
+      setHistoryError("");
+      try {
+        const res = await cardService.getWithdrawHistory();
+        console.log("Withdraw History:", res);
+        if (Array.isArray(res)) {
+          setRecentWithdrawals(res);
+        } else {
+          setHistoryError("Invalid data format received.");
+        }
+      } catch (e) {
+        console.error("Load withdraw history failed", e);
+        setHistoryError("Không thể tải lịch sử rút tiền.");
+      } finally {
+        setLoadingHistory(false);
+      }
+    };
+
     fetchData();
+    fetchWithdrawHistory();
   }, []);
 
   function handleWithdrawAmountChange(e) {
-    if (e.target.value < 0 || e.target.value > (walletInfo?.availableBalance ?? Infinity))
-      return;
+    const val = Number(e.target.value);
+    if (val < 0) return;
+    
+    // Check if Amount + 5% Fee exceeds available balance
+    if (val * 1.05 > (walletInfo?.availableBalance ?? Infinity)) return;
+    
     setWithdrawAmount(e.target.value);
   }
 
   function handleWithdrawAvailalbeMax(amount) {
-    if (amount < 0 || amount > (walletInfo?.availableBalance ?? Infinity))
+    if (amount < 0 || amount * 1.05 > (walletInfo?.availableBalance ?? Infinity))
       return;
     setWithdrawAmount(amount);
   }
@@ -144,6 +180,15 @@ export default function Withdraw() {
       }
       setWithdrawAmount(0);
       setSelectedAccount(null);
+      
+      // Refresh balance and history
+      const fetchWithdrawHistory = async () => {
+        try {
+          const res = await cardService.getWithdrawHistory();
+          if (Array.isArray(res)) setRecentWithdrawals(res);
+        } catch (e) { console.error(e); }
+      };
+      fetchWithdrawHistory();
     } catch (e) {
       console.error("Withdraw error:", e);
       const msg = e.response?.data?.message || e.response?.data?.error || "Rút tiền thất bại. Vui lòng thử lại.";
@@ -151,8 +196,26 @@ export default function Withdraw() {
     }
   }
 
+  const handleAddCardSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      await cardService.createCard(newCard);
+      showSuccess("Đã thêm thẻ thành công!", "Thành công");
+      setShowAddCardModal(false);
+      setNewCard({ cardNumber: "", holderName: "", expiryDate: "", cvv: "", type: "Debit", bankName: "" });
+
+      // Refresh cards list
+      const cardsRes = await cardService.getCards();
+      setCards(cardsRes);
+    } catch (error) {
+      console.error("Add card failed:", error);
+      showError("Thêm thẻ thất bại", (error.response?.data?.message || error.message));
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-[#f6f8f7] dark:bg-slate-900 font-display text-[#111714] dark:text-white overflow-hidden">
+    <>
+      <div className="min-h-screen bg-[#f6f8f7] dark:bg-slate-900 font-display text-[#111714] dark:text-white overflow-hidden">
       <div className="flex h-screen w-full">
         {/* Sidebar */}
         <Sidebar activeRoute="withdraw" />
@@ -229,6 +292,9 @@ export default function Withdraw() {
                             <div className="flex flex-col">
                               <span className="font-bold text-sm">{card.bankName}</span>
                               <span className="text-xs text-[#648772] dark:text-slate-400">{card.cardNumber}</span>
+                              <span className="text-xs text-primary font-bold">
+                                Số dư: {card.balanceCard?.toLocaleString('vi-VN')} đ
+                              </span>
                             </div>
                             <div className="ml-auto text-primary opacity-0 peer-checked:opacity-100">
                               <span className="material-symbols-outlined fill-current">check_circle</span>
@@ -239,6 +305,7 @@ export default function Withdraw() {
 
                       <button
                         type="button"
+                        onClick={() => setShowAddCardModal(true)}
                         className="flex items-center justify-center gap-2 p-4 rounded-lg border border-dashed border-gray-200 dark:border-slate-800 text-[#648772] dark:text-slate-400 hover:text-primary hover:border-primary transition-colors"
                       >
                         <span className="material-symbols-outlined">add</span>
@@ -303,7 +370,12 @@ export default function Withdraw() {
                       <button
                         className="flex h-8 shrink-0 items-center justify-center gap-x-2 rounded-full border border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-800 hover:bg-[#f6f8f7] dark:hover:bg-slate-700 px-4 transition-colors ml-auto"
                         type="button"
-                        onClick={() => setWithdrawAmount(walletInfo?.availableBalance ?? 0)}
+                        onClick={() => {
+                          const available = walletInfo?.availableBalance ?? 0;
+                          // Amount * 1.05 = Available => Amount = Available / 1.05
+                          const maxPossible = Math.floor(available / 1.05);
+                          setWithdrawAmount(maxPossible);
+                        }}
                       >
                         <p className="text-sm font-bold leading-normal text-[#648772] dark:text-slate-400">Tối đa</p>
                       </button>
@@ -404,9 +476,207 @@ export default function Withdraw() {
                 </div>
               </div>
             </div>
+
+            {/* HISTORY SECTION SEPARATE FROM COLUMNS */}
+            <div className="mt-12 flex justify-center pb-20">
+              <div className="max-w-[1400px] w-full">
+                <h3 className="text-[#111714] dark:text-white text-2xl font-bold mb-6 flex items-center gap-2">
+                  <span className="material-symbols-outlined text-primary">history</span>
+                  Giao dịch rút tiền gần đây
+                </h3>
+
+                {loadingHistory ? (
+                  <div className="bg-white dark:bg-slate-800 rounded-xl p-8 text-center border border-gray-100 dark:border-slate-800">
+                    <div className="size-10 border-4 border-primary/30 border-t-primary rounded-full animate-spin mx-auto mb-4"></div>
+                    <p className="text-sm text-text-sub dark:text-slate-400 font-medium">Đang tải lịch sử...</p>
+                  </div>
+                ) : historyError ? (
+                  <div className="bg-red-50 dark:bg-red-900/10 p-6 rounded-xl border border-red-100 dark:border-red-800/20 text-center">
+                    <span className="material-symbols-outlined text-red-500 mb-2">error</span>
+                    <p className="text-sm text-red-600 dark:text-red-400 font-medium">{historyError}</p>
+                  </div>
+                ) : recentWithdrawals.length === 0 ? (
+                  <div className="bg-white dark:bg-slate-800 rounded-xl p-12 text-center border border-gray-100 dark:border-slate-800 shadow-sm">
+                    <span className="material-symbols-outlined text-gray-300 dark:text-slate-700 text-6xl mb-4">history_toggle_off</span>
+                    <p className="text-gray-500 dark:text-slate-500 font-medium">Không tìm thấy lịch sử rút tiền.</p>
+                  </div>
+                ) : (
+                  <div className="bg-white dark:bg-slate-800 rounded-xl border border-gray-100 dark:border-slate-800 shadow-sm overflow-hidden overflow-x-auto">
+                    <table className="w-full text-left min-w-[800px]">
+                      <thead className="bg-[#f6f8f7] dark:bg-slate-900/50 text-[#648772] dark:text-slate-400 text-xs uppercase font-bold tracking-wider">
+                        <tr>
+                          <th className="px-6 py-4">Mã giao dịch</th>
+                          <th className="px-6 py-4">Thời gian</th>
+                          <th className="px-6 py-4">Ngân hàng &amp; Thẻ</th>
+                          <th className="px-6 py-4">Nội dung</th>
+                          <th className="px-6 py-4">Số tiền</th>
+                          <th className="px-6 py-4">Trạng thái</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-gray-100 dark:divide-slate-800 text-sm">
+                        {recentWithdrawals.map((tx) => (
+                          <tr key={tx.transactionId} className="hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
+                            <td className="px-6 py-5 font-mono text-xs text-text-sub dark:text-slate-400 font-bold">
+                              #{tx.transactionId}
+                            </td>
+                            <td className="px-6 py-5">
+                              <p className="text-text-main dark:text-white font-medium">
+                                {tx.timestamp ? new Date(tx.timestamp).toLocaleDateString('vi-VN') : ""}
+                              </p>
+                              <p className="text-[10px] text-text-sub dark:text-slate-500">
+                                {tx.timestamp ? new Date(tx.timestamp).toLocaleTimeString('vi-VN') : ""}
+                              </p>
+                            </td>
+                            <td className="px-6 py-5">
+                              <div className="flex items-center gap-3">
+                                <div className="size-8 rounded-lg bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center text-blue-600 dark:text-blue-400">
+                                  <span className="material-symbols-outlined text-[18px]">account_balance</span>
+                                </div>
+                                <div>
+                                  <p className="text-text-main dark:text-white font-bold">{tx.bankName}</p>
+                                  <p className="text-xs text-text-sub dark:text-slate-500">{tx.cardNumber}</p>
+                                </div>
+                              </div>
+                            </td>
+                            <td className="px-6 py-5 text-text-sub dark:text-slate-400 max-w-[200px] truncate italic">
+                              {tx.description || "Rút tiền về thẻ"}
+                            </td>
+                            <td className="px-6 py-5">
+                              <span className="font-extrabold text-red-500 text-base">
+                                -{formatVND(tx.amount)}
+                              </span>
+                            </td>
+                            <td className="px-6 py-5">
+                              <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold ring-1 ring-inset ${
+                                tx.status === "SUCCESS"
+                                  ? "bg-green-50 text-green-700 ring-green-600/20 dark:bg-green-900/20 dark:text-green-400"
+                                  : tx.status === "PENDING"
+                                  ? "bg-amber-50 text-amber-700 ring-amber-600/20 dark:bg-amber-900/20 dark:text-amber-400"
+                                  : "bg-red-50 text-red-700 ring-red-600/20 dark:bg-red-900/20 dark:text-red-400"
+                              }`}>
+                                <span className={`size-1.5 rounded-full mr-1.5 ${
+                                  tx.status === "SUCCESS" ? "bg-green-500" : tx.status === "PENDING" ? "bg-amber-500" : "bg-red-500"
+                                }`}></span>
+                                {tx.status === "SUCCESS" ? "Thành công" : tx.status === "PENDING" ? "Đang xử lý" : "Thất bại"}
+                              </span>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
         </main>
       </div>
     </div>
+    
+      {/* ADD CARD MODAL */}
+      {showAddCardModal && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 animate-fadeIn">
+          <div className="bg-white dark:bg-slate-800 rounded-2xl w-full max-w-md p-6 shadow-2xl border border-gray-100 dark:border-slate-800 animate-slideUp">
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="text-xl font-bold text-text-main dark:text-white">Thêm thẻ mới</h3>
+              <button 
+                onClick={() => setShowAddCardModal(false)}
+                className="size-8 rounded-full flex items-center justify-center hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors"
+              >
+                <span className="material-symbols-outlined text-gray-500">close</span>
+              </button>
+            </div>
+            
+            <form onSubmit={handleAddCardSubmit} className="flex flex-col gap-4">
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-text-sub dark:text-slate-400 uppercase ml-1">Số thẻ</label>
+                <input
+                  placeholder="0000 0000 0000 0000"
+                  className="w-full rounded-xl border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-900 px-4 py-3 focus:ring-2 focus:ring-primary outline-none transition-all"
+                  value={newCard.cardNumber}
+                  onChange={e => setNewCard({ ...newCard, cardNumber: e.target.value })}
+                  required
+                />
+              </div>
+              
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-text-sub dark:text-slate-400 uppercase ml-1">Tên chủ thẻ</label>
+                <input
+                  placeholder="NGUYEN VAN A"
+                  className="w-full rounded-xl border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-900 px-4 py-3 focus:ring-2 focus:ring-primary outline-none transition-all"
+                  value={newCard.holderName}
+                  onChange={e => setNewCard({ ...newCard, holderName: e.target.value.toUpperCase() })}
+                  required
+                />
+              </div>
+              
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1">
+                  <label className="text-xs font-bold text-text-sub dark:text-slate-400 uppercase ml-1">Hết hạn</label>
+                  <input
+                    placeholder="MM/YY"
+                    className="w-full rounded-xl border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-900 px-4 py-3 focus:ring-2 focus:ring-primary outline-none transition-all"
+                    value={newCard.expiryDate}
+                    onChange={e => setNewCard({ ...newCard, expiryDate: e.target.value })}
+                    required
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-xs font-bold text-text-sub dark:text-slate-400 uppercase ml-1">CVV</label>
+                  <input
+                    placeholder="***"
+                    type="password"
+                    maxLength="3"
+                    className="w-full rounded-xl border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-900 px-4 py-3 focus:ring-2 focus:ring-primary outline-none transition-all"
+                    value={newCard.cvv}
+                    onChange={e => setNewCard({ ...newCard, cvv: e.target.value })}
+                    required
+                  />
+                </div>
+              </div>
+              
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-text-sub dark:text-slate-400 uppercase ml-1">Loại thẻ</label>
+                <select
+                  className="w-full rounded-xl border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-900 px-4 py-3 focus:ring-2 focus:ring-primary outline-none transition-all"
+                  value={newCard.type}
+                  onChange={e => setNewCard({ ...newCard, type: e.target.value })}
+                >
+                  <option value="Debit">Debit Card</option>
+                  <option value="Credit">Credit Card</option>
+                </select>
+              </div>
+              
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-text-sub dark:text-slate-400 uppercase ml-1">Ngân hàng</label>
+                <input
+                  placeholder="Ví dụ: Vietcombank"
+                  className="w-full rounded-xl border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-900 px-4 py-3 focus:ring-2 focus:ring-primary outline-none transition-all"
+                  value={newCard.bankName}
+                  onChange={e => setNewCard({ ...newCard, bankName: e.target.value })}
+                  required
+                />
+              </div>
+              
+              <div className="flex gap-3 justify-end mt-4">
+                <button 
+                  type="button" 
+                  onClick={() => setShowAddCardModal(false)} 
+                  className="px-6 py-2.5 rounded-xl text-text-sub font-bold hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors"
+                >
+                  Hủy
+                </button>
+                <button 
+                  type="submit" 
+                  className="px-8 py-2.5 rounded-xl bg-primary text-text-main font-bold hover:bg-primary/90 shadow-lg shadow-primary/20 transition-all hover:scale-[1.02]"
+                >
+                  Liên kết thẻ
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+    </>
   );
 }

@@ -8,6 +8,7 @@ import cardService from "../api/cardService";
 import contactService from "../../../api/contactService";
 import TransferService from "../api/transfer/transferService";
 import qrService from "../../../api/qrService";
+import FraudCheckModal from "../components/FraudCheckModal";
 import { useNotification } from "../../../context/NotificationContext";
 import { showSuccess, showError, showWarning, showAlert } from "../../../utils/swalUtils";
 import { useTheme } from "../../../context/ThemeContext";
@@ -16,7 +17,7 @@ export default function DashboardPage() {
     const { isDarkMode, toggleDarkMode } = useTheme();
     const { user, logout } = useAuth();
     const navigate = useNavigate();
-    const { showSuccess } = useNotification();
+    const { showSuccess: showSuccessModal } = useNotification();
 
     const [profile, setProfile] = useState(null);
     const [wallet, setWallet] = useState(null);
@@ -51,6 +52,8 @@ export default function DashboardPage() {
     const [qrPreview, setQrPreview] = useState(null);
     const [qrScanning, setQrScanning] = useState(false);
     const [qrResult, setQrResult] = useState(null);
+    const [fraudResult, setFraudResult] = useState(null);
+    const [showFraudModal, setShowFraudModal] = useState(false);
     const [newCard, setNewCard] = useState({
         cardNumber: "",
         holderName: "",
@@ -303,7 +306,7 @@ export default function DashboardPage() {
 
     const handleLogout = () => {
         logout();
-        showSuccess("Đăng xuất thành công", "Thành công");
+        showSuccessModal("Đăng xuất thành công", "Thành công");
         navigate("/login");
     };
 
@@ -339,7 +342,7 @@ export default function DashboardPage() {
     };
 
     const handleTransfer = async () => {
-        if (!selectedContact || !selectedContact.userId) {
+        if (!selectedContact || (!selectedContact.phone && !selectedContact.userId)) {
             showWarning("Yêu cầu thông tin liên hệ", "Vui lòng chọn người liên hệ hoặc tìm kiếm bằng số điện thoại");
             return;
         }
@@ -349,24 +352,52 @@ export default function DashboardPage() {
         }
 
         try {
-            const result = await TransferService.transfer({
-                toUserId: parseInt(selectedContact.userId), // Convert to integer
+            // Updated to use checkFraud instead of direct transfer
+            const checkRes = await TransferService.checkFraud({
+                toAccountNumber: selectedContact.phone, // Fraud API requires toAccountNumber
                 amount: parseFloat(transferAmount),
                 note: "Quick Transfer from Dashboard"
             });
 
-            if (result.data?.success || result.data?.status === 'COMPLETED') {
+            // Show Fraud Modal
+            setFraudResult(checkRes.data || checkRes);
+            setShowFraudModal(true);
+            
+        } catch (error) {
+            console.error("Fraud Check failed:", error);
+            const errorMsg = error.response?.data?.details || error.response?.data?.message || error.message;
+            showError("Kiểm tra giao dịch thất bại", errorMsg);
+        }
+    };
+
+    const handleConfirmTransfer = async (sessionToken, faceVerified) => {
+        try {
+            setShowFraudModal(false);
+
+            const result = await TransferService.confirmTransfer({
+                sessionToken,
+                faceVerified
+            });
+
+            // The confirmAPI returns result directly because it doesn't have data wrapper sometimes
+            const responseData = result.data || result;
+
+            if (responseData?.success || responseData?.status === 'COMPLETED') {
                 showSuccess("Chuyển tiền thành công", `Đã gửi $${transferAmount} đến ${selectedContact.fullName || selectedContact.name}`);
                 setTransferAmount("");
                 setSelectedContact(null);
                 setPhoneSearch("");
                 setSearchResults([]);
+                setFraudResult(null);
                 // Refresh data
                 await refreshData();
+            } else {
+                const errorMsg = responseData?.message || responseData?.details || "Giao dịch không thành công";
+                showError("Chuyển tiền thất bại", errorMsg);
             }
         } catch (error) {
-            console.error("Transfer failed:", error);
-            const errorMsg = error.response?.data?.note || error.response?.data?.message || error.message;
+            console.error("Transfer confirmation failed:", error);
+            const errorMsg = error.response?.data?.details || error.response?.data?.message || error.message;
             showError("Chuyển tiền thất bại", errorMsg);
         }
     };
@@ -601,6 +632,13 @@ export default function DashboardPage() {
                 <Sidebar activeRoute="dashboard" />
 
                 {/* Main Content */}
+                <FraudCheckModal 
+                    isOpen={showFraudModal} 
+                    fraudResult={fraudResult} 
+                    onConfirm={handleConfirmTransfer} 
+                    onCancel={() => setShowFraudModal(false)} 
+                />
+                
                 <main className="flex-1 flex flex-col h-full overflow-y-auto bg-background-light dark:bg-slate-900 p-4 md:p-8">
                     {/* Header */}
                     <header className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
@@ -971,22 +1009,51 @@ export default function DashboardPage() {
                             <div className="bg-white dark:bg-slate-800 rounded-xl p-6 border border-gray-100 dark:border-slate-800">
                                 <h3 className="text-lg font-semibold text-text-main dark:text-white mb-4">Chuyển khoản nhanh</h3>
                                 <div className="flex gap-3 mb-6 overflow-x-auto pb-2">
-                                    {contacts.length > 0 ? contacts.map((contact, i) => (
-                                        <div
-                                            key={contact.userId || contact.id || i}
-                                            className="flex flex-col items-center gap-2 cursor-pointer group min-w-[70px]"
-                                            onClick={() => setSelectedContact(contact)}
-                                        >
+                                    {contacts.length > 0 ? contacts.map((contact, i) => {
+                                        // Generate a stable color based on the name for the placeholder
+                                        const colors = ['bg-blue-400', 'bg-emerald-400', 'bg-violet-400', 'bg-amber-400', 'bg-rose-400'];
+                                        const colorIndex = (contact.name || '').length % colors.length;
+                                        const bgColor = colors[colorIndex];
+                                        const initials = (contact.name || '?').charAt(0).toUpperCase();
 
-                                            {/* Phone number if available */}
-                                            {contact.phone && (
-                                                <p className="text-[10px] text-text-sub dark:text-gray-500 truncate w-full text-center">
-                                                    {contact.phone}
+                                        return (
+                                            <div
+                                                key={contact.userId || contact.id || i}
+                                                className="flex flex-col items-center gap-2 cursor-pointer group min-w-[80px]"
+                                                onClick={() => setSelectedContact({
+                                                    ...contact,
+                                                    phone: contact.accountNumber, // Map for compatibility with handleTransfer
+                                                    userId: contact.toUserId || contact.userId // Map corresponding IDs
+                                                })}
+                                            >
+                                                <div className="relative">
+                                                    <div className={`size-12 rounded-full flex items-center justify-center text-white font-bold text-lg shadow-sm group-hover:shadow-md transition-all duration-300 group-hover:scale-110 overflow-hidden ${!contact.avatarUrl ? bgColor : ''}`}>
+                                                        {contact.avatarUrl ? (
+                                                            <img 
+                                                                src={contact.avatarUrl.startsWith('data') ? contact.avatarUrl : `data:image/jpeg;base64,${contact.avatarUrl}`} 
+                                                                alt={contact.name}
+                                                                className="size-full object-cover"
+                                                                onError={(e) => { e.target.style.display = 'none'; e.target.parentElement.classList.add(bgColor); }}
+                                                            />
+                                                        ) : (
+                                                            <span>{initials}</span>
+                                                        )}
+                                                    </div>
+                                                    <div className="absolute -bottom-1 -right-1 size-4 bg-primary rounded-full border-2 border-white dark:border-slate-800 scale-0 group-hover:scale-100 transition-transform"></div>
+                                                </div>
+
+                                                <p className="text-[11px] font-semibold text-text-main dark:text-white truncate w-full text-center group-hover:text-primary transition-colors">
+                                                    {contact.name || 'Người dùng'}
                                                 </p>
-                                            )}
+                                                <p className="text-[9px] text-text-sub dark:text-slate-500 truncate w-full text-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                                    {contact.accountNumber || 'N/A'}
+                                                </p>
+                                            </div>
+                                        );
+                                    }) : (
+                                        <div className="w-full text-center py-4 text-text-sub dark:text-slate-500 text-xs italic">
+                                            Chưa có liên hệ thường xuyên
                                         </div>
-                                    )) : (
-                                        <div className="w-full text-center py-4"></div>
                                     )}
                                 </div>
                                 <div className="space-y-3">

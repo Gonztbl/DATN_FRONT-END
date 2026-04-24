@@ -29,7 +29,7 @@ activate UI
 
 UI -> CTRL : Lấy thực đơn hiện tại
 activate CTRL
-CTRL -> API : GET /api/merchant/products
+CTRL -> API : GET /api/restaurant-owner/products
 activate API
 API -> DB : Truy vấn danh sách món ăn của nhà hàng
 activate DB
@@ -46,7 +46,7 @@ UI -> UI : Hiển thị Form nhập liệu
 Merchant -> UI : Nhấn "Lưu Sản Phẩm"
 UI -> CTRL : Gửi dữ liệu món mới (kèm Ảnh Base64)
 activate CTRL
-CTRL -> API : POST /api/merchant/products
+CTRL -> API : POST /api/restaurant-owner/products
 activate API
 API -> DB : INSERT Sản phẩm mới
 activate DB

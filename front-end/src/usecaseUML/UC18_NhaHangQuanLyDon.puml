@@ -29,7 +29,7 @@ activate UI
 
 UI -> CTRL : Tải danh sách đơn hiện có
 activate CTRL
-CTRL -> API : GET /api/merchant/orders
+CTRL -> API : GET /api/restaurant-owner/orders
 activate API
 API -> DB : Truy vấn đơn hàng thuộc nhà hàng theo UserID
 activate DB
@@ -41,9 +41,9 @@ CTRL --> UI : Hiển thị bảng đơn hàng (Phân loại theo trạng thái)
 deactivate CTRL
 
 Merchant -> UI : Nhấn "Xác nhận chuẩn bị món"
-UI -> CTRL : Cập nhật trạng thái PREPARING
+UI -> CTRL : Cập nhật trạng thái CONFIRMED
 activate CTRL
-CTRL -> API : PUT /api/merchant/orders/{id}/preparing
+CTRL -> API : PUT /api/restaurant-owner/orders/{id}/confirm
 activate API
 API -> DB : Cập nhật status
 activate DB
@@ -55,9 +55,9 @@ CTRL --> UI : Cập nhật UI
 deactivate CTRL
 
 Merchant -> UI : Nhấn "Món đã xong - Gọi Shipper"
-UI -> CTRL : Chuyển trạng thái PAID
+UI -> CTRL : Chuyển trạng thái READY_FOR_PICKUP
 activate CTRL
-CTRL -> API : PUT /api/merchant/orders/{id}/ready
+CTRL -> API : PUT /api/restaurant-owner/orders/{id}/ready
 activate API
 API -> DB : Đưa đơn vào hàng chờ Shipper
 activate DB

@@ -15,7 +15,6 @@ const ViewOrder = () => {
     const [actionLoading, setActionLoading] = useState(false);
     
     // Additional info states
-    const [productDetails, setProductDetails] = useState({});
     const [shipper, setShipper] = useState(null);
     const [restaurantInfo, setRestaurantInfo] = useState(null);
 
@@ -42,34 +41,26 @@ const ViewOrder = () => {
                     }
                 }
 
-                // Fetch Additional Info: Products
+                // The updated API directly returns product details (name, image) inside the order items.
+                // However, we still need to identify the restaurant from the first item if not at root.
                 const itemsList = Array.isArray(orderData.items) ? orderData.items : (Array.isArray(orderData.orderItems) ? orderData.orderItems : []);
-                const pDetailsTemp = {};
-                let foundRestaurantInfo = null;
-
-                try {
-                    await Promise.all(itemsList.map(async (item) => {
-                        try {
-                            const pRes = await orderService.getProductById(item.productId);
-                            if (pRes && pRes.data) {
-                                pDetailsTemp[item.productId] = pRes.data;
-                                if (pRes.data.restaurant && !foundRestaurantInfo) {
-                                    foundRestaurantInfo = pRes.data.restaurant;
-                                }
+                
+                if (itemsList.length > 0) {
+                    const firstItem = itemsList[0];
+                    if (firstItem.restaurantName) {
+                        setRestaurantInfo({ name: firstItem.restaurantName, id: firstItem.restaurantId });
+                    } else {
+                        // Fallback: Fetch product details to get restaurant info if missing
+                        orderService.getProductById(firstItem.productId).then(pRes => {
+                            if (pRes && pRes.data && pRes.data.restaurant) {
+                                setRestaurantInfo(pRes.data.restaurant);
                             }
-                        } catch(e) { console.warn("Lỗi tải SP", item.productId); }
-                    }));
-                    setProductDetails(pDetailsTemp);
-                    if (foundRestaurantInfo) setRestaurantInfo(foundRestaurantInfo);
-                } catch(e) { console.error("Lỗi fetch products", e); }
-
-                // Fetch Additional Info: Shipper
-                if (orderData.shipperId) {
-                    try {
-                        const sRes = await orderService.getShipperAdmin(orderData.shipperId);
-                        if (sRes && sRes.data) setShipper(sRes.data);
-                    } catch(e) { console.warn("Lỗi tải Shipper"); }
+                        }).catch(e => console.warn("Lỗi lấy thông tin nhà hàng từ sản phẩm"));
+                    }
                 }
+
+                // Shipper info is now provided in a nested object 'shipper' according to the latest API update.
+                // Fields: order.shipper.name, order.shipper.phone, order.shipper.avatar
 
 
             } else {
@@ -304,9 +295,8 @@ const ViewOrder = () => {
                                     </thead>
                                     <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                                         {orderItems.map((item, i) => {
-                                            const pDetail = productDetails[item.productId] || {};
-                                            const name = pDetail.name || item.productName || `Món #${item.productId}`;
-                                            const image = pDetail.imageBase64 || item.productImage;
+                                            const name = item.productName || `Món #${item.productId}`;
+                                            const image = item.productImage;
                                             
                                             return (
                                                 <tr key={i}>
@@ -389,7 +379,7 @@ const ViewOrder = () => {
                             <div className="space-y-3">
                                 <div>
                                     <p className="text-[10px] uppercase text-slate-400 font-bold">Nhà hàng</p>
-                                    <p className="text-sm font-bold">{restaurantInfo?.name || order.restaurantName || `Nhà hàng #${order.restaurantId || 'N/A'}`}</p>
+                                    <p className="text-sm font-bold">{order.restaurantName || restaurantInfo?.name || `Nhà hàng #${order.restaurantId || 'N/A'}`}</p>
                                 </div>
                             </div>
                         </section>
@@ -400,19 +390,19 @@ const ViewOrder = () => {
                                 <span className="material-symbols-outlined text-emerald-600">two_wheeler</span>
                                 <h3 className="font-bold text-sm">Tài xế nhận giao</h3>
                             </div>
-                            {shipper ? (
+                            {order.shipper ? (
                                 <div className="flex items-center gap-4">
                                     <div className="size-12 rounded-full border-2 border-emerald-100 bg-emerald-50 text-emerald-600 flex items-center justify-center overflow-hidden shrink-0">
-                                        {shipper.avatarUrl ? (
-                                            <img src={shipper.avatarUrl} alt={shipper.fullName} className="w-full h-full object-cover" />
+                                        {order.shipper.avatar ? (
+                                            <img src={order.shipper.avatar} alt={order.shipper.name} className="w-full h-full object-cover" />
                                         ) : (
                                             <span className="material-symbols-outlined">person</span>
                                         )}
                                     </div>
                                     <div className="min-w-0">
-                                        <p className="text-sm font-bold uppercase truncate">{shipper.fullName || shipper.userName}</p>
+                                        <p className="text-sm font-bold uppercase truncate">{order.shipper.name}</p>
                                         <p className="text-xs text-slate-500 font-medium tracking-wide">
-                                            {shipper.phone || 'Không có SĐT'}
+                                            {order.shipper.phone || 'Có shipper nhận đơn'}
                                         </p>
                                     </div>
                                 </div>

@@ -21,51 +21,58 @@ skinparam sequence {
 actor "Người nhận" as User
 boundary ":ReceiveMoneyUI" as UI
 control ":WalletController" as CTRL
+entity ":QRService" as QRS
 entity ":Profile" as API
 database ":CSDL" as DB
 
 User -> UI : Truy cập trang Nhận tiền
 activate UI
 
-UI -> CTRL : Lấy thông tin ID người dùng
+UI -> CTRL : Lấy Profile & Wallet Info
 activate CTRL
 CTRL -> API : GET /api/users/profile
 activate API
-API -> DB : Truy vấn thông tin tài khoản
+API -> DB : Truy vấn thông tin
 activate DB
-DB --> API : Trả về thông tin Profile (userId/phone)
+DB --> API : Profile Data
 deactivate DB
 API --> CTRL : Dữ liệu đầy đủ
 deactivate API
-CTRL --> UI : Trả về Profile Data
+CTRL --> UI : Hiển thị tên & ID Ví
 deactivate CTRL
 
-UI -> UI : Tạo QR Code từ userId & phone
+UI -> QRS : Lấy mã QR mặc định (GET /api/qr/wallet)
+activate QRS
+QRS --> UI : QR Base64 Image
+deactivate QRS
 
 alt Nhập số tiền nhận (Tùy chọn)
-    User -> UI : Nhập số tiền nhận cụ thể
-    UI -> UI : Cập nhật QR Code mới kèm số tiền
+    User -> UI : Nhập số tiền nhận cụ thể (Set Amount)
+    UI -> QRS : Yêu cầu tạo QR kèm tiền (GET /api/qr/wallet?amount=...)
+    activate QRS
+    QRS --> UI : QR Base64 Image mới
+    deactivate QRS
 end
 
 UI --> User : Hiển thị mã QR lên màn hình
 
-UI -> CTRL : Theo dõi giao dịch đến (Polling/Websocket)
-loop Chờ người gửi thanh toán
+loop Định kỳ 5s cập nhật
+    UI -> CTRL : Lấy các giao dịch đến mới nhất
     activate CTRL
-    CTRL -> API : GET /api/wallet/transactions?type=RECEIVE
+    CTRL -> API : GET /api/transactions/incoming
     activate API
-    API -> DB : Kiểm tra giao dịch mới nhất
+    API -> DB : Kiểm tra biến động số dư
     activate DB
-    DB --> API : Không có / Có giao dịch mới
+    DB --> API : Danh sách giao dịch mới
     deactivate DB
-    API --> CTRL : Kết quả
+    API --> CTRL : [TX1, TX2, ...]
     deactivate API
-    
-    alt Phát hiện tiền đã vào ví
-        CTRL --> UI : Thông báo nhận tiền thành công
-        UI --> User : "Bạn vừa nhận được {Amount}đ!"
-    end
+    CTRL --> UI : Cập nhật danh sách "Tiền nhận gần đây"
     deactivate CTRL
+    
+    alt Có giao dịch thành công mới
+        UI --> User : Thông báo "Bạn vừa nhận được {Amount}đ!"
+    end
 end
 
 deactivate UI

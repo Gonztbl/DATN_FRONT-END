@@ -29,7 +29,7 @@ activate UI
 
 UI -> CTRL : Tải toàn bộ danh sách users
 activate CTRL
-CTRL -> ENT : GET /api/admin/users
+CTRL -> ENT : GET /api/userManager/all
 activate ENT
 ENT -> DB : Truy vấn All Users từ bảng Account
 activate DB
@@ -44,9 +44,9 @@ Admin -> UI : Nhấn "Khóa/Mở khóa" tài khoản
 UI -> UI : Hiển thị xác nhận thay đổi trạng thái
 Admin -> UI : Xác nhận (Khóa/Mở)
 
-UI -> CTRL : Gửi yêu cầu thay đổi Active status
+UI -> CTRL : Gửi yêu cầu thay đổi trạng thái
 activate CTRL
-CTRL -> ENT : PUT /api/admin/users/{id}/toggle-status
+CTRL -> ENT : PUT /api/userManager/lock/{id} hoặc /unlock/{id}
 activate ENT
 ENT -> DB : Cập nhật trường 'active' theo ID
 activate DB

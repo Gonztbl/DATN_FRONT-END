@@ -12,12 +12,12 @@ UI -> CTRL : 2: toggleWalletStatus(walletId)
 activate CTRL
 
 alt Ví đang ACTIVE -> Khóa
-    CTRL -> DB : 3a: PUT /api/admin/wallets/{id}/lock
+    CTRL -> DB : 3a: PUT /api/admin/wallets/lock/{id}
     activate DB
     DB --> CTRL : 4a: 200 OK
     deactivate DB
 else Ví đang LOCKED -> Mở khóa
-    CTRL -> DB : 3b: PUT /api/admin/wallets/{id}/unlock
+    CTRL -> DB : 3b: PUT /api/admin/wallets/unlock/{id}
     activate DB
     DB --> CTRL : 4b: 200 OK
     deactivate DB

@@ -37,6 +37,15 @@ const cardService = {
     getDepositHistory: async () => {
         const response = await apiClient.get('/api/cards/deposit/history');
         return response.data;
+    },
+
+    /**
+     * Get withdraw history to cards
+     * Endpoint: /api/cards/withdraw/history
+     */
+    getWithdrawHistory: async () => {
+        const response = await apiClient.get('/api/cards/withdraw/history');
+        return response.data;
     }
 };
 

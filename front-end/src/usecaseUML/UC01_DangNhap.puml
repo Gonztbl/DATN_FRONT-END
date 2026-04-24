@@ -44,9 +44,15 @@ deactivate DB
 
 alt Xác thực thành công
     API --> CTRL : Trả về JWT Token & User Info
-    CTRL --> UI : Đăng nhập thành công
-    UI -> CTRL : Lưu Session (Token/User)
-    UI -> UI : Điều hướng theo vai trò (Admin/Shipper/...)
+    CTRL -> CTRL : Kiểm tra status tài khoản
+    alt Tài khoản Active
+        CTRL --> UI : Đăng nhập thành công
+        UI -> CTRL : Lưu Session (Token/User)
+        UI -> UI : Điều hướng theo vai trò (Admin/Shipper/...)
+    else Tài khoản Inactive
+        CTRL --> UI : Hiển thị lỗi tài khoản chưa kích hoạt
+        UI --> User : Thông báo "Tài khoản chưa kích hoạt"
+    end
 else Xác thực thất bại
     API --> CTRL : Trả về lỗi (401/403)
     deactivate API

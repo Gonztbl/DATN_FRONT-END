@@ -37,12 +37,16 @@
         1) Người dùng nhập SĐT người nhận vào ô tìm kiếm.
         2) Hệ thống xác thực SĐT và hiển thị thông tin người nhận (Tên, Ảnh). [A1]
         3) Người dùng nhập số tiền và nội dung chuyển khoản.
-        4) Nhấn "Send Now" và xác nhận giao dịch.
-        5) Hệ thống kiểm tra số dư ví người gửi. [A2]
-        6) Hệ thống thực hiện trừ tiền người gửi, cộng tiền người nhận và thông báo thành công.
+        4) Nhấn "Send Now".
+        5) **Kiểm tra rủi ro (AI Fraud Check)**: Hệ thống gọi API AI để đánh giá mức độ rủi ro của giao dịch. [A3]
+        6) **Xác thực khuôn mặt (Face Verification)**: Nếu giao dịch rơi vào vùng "Review", yêu cầu người dùng xác thực khuôn mặt để tiếp tục. [A4]
+        7) **Xác nhận giao dịch**: Hệ thống kiểm tra số dư ví người gửi. [A2]
+        8) Hệ thống thực hiện trừ tiền người gửi, cộng tiền người nhận và thông báo thành công.
     - **3.2 Các luồng rẽ nhánh**:
         1) **[A1] Không tìm thấy người dùng**: Nếu SĐT không tồn tại trên hệ thống, hiển thị thông báo "User not found".
         2) **[A2] Số dư không đủ**: Nếu số tiền chuyển vượt quá số dư ví, hiển thị thông báo lỗi và không cho phép thực hiện.
+        3) **[A3] Giao dịch bị từ chối bởi AI**: Nếu AI đánh giá rủi ro quá cao, giao dịch bị chặn ngay lập tức.
+        4) **[A4] Xác thực khuôn mặt thất bại**: Nếu không khớp khuôn mặt, giao dịch bị hủy.
 4. **Tiền điều kiện**: Đăng nhập thành công và có số dư ví khả dụng.
 5. **Hậu điều kiện**: Tiền được chuyển tức thì, cả hai bên đều nhận được thông báo biến động số dư.
 

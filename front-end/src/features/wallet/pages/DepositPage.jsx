@@ -3,13 +3,12 @@ import { useNavigate } from "react-router-dom";
 import cardService from "../api/cardService";
 import walletService from "../api/walletService";
 import { useAuth } from "../../auth/context/AuthContext";
-import { useNotification } from "../../../context/NotificationContext";
 import { useTheme } from "../../../context/ThemeContext";
+import { showSuccess, showError, showWarning } from "../../../utils/swalUtils";
 import Sidebar from "../../../components/layout/Sidebar";
 
 const DepositPage = () => {
   const navigate = useNavigate();
-  const { showSuccess } = useNotification();
   const { isDarkMode, toggleDarkMode } = useTheme();
   const [error, setError] = useState("");
   const [recentDeposits, setRecentDeposits] = useState([]);
@@ -21,6 +20,17 @@ const DepositPage = () => {
   const [selectedCardId, setSelectedCardId] = useState(null);
   const [wallet, setWallet] = useState(null);
   const [loadingCards, setLoadingCards] = useState(true);
+
+  // Modal State
+  const [showAddCardModal, setShowAddCardModal] = useState(false);
+  const [newCard, setNewCard] = useState({
+    cardNumber: "",
+    holderName: "",
+    expiryDate: "",
+    cvv: "",
+    type: "Debit",
+    bankName: ""
+  });
 
   // Fetch Wallet (for balance) and Cards
   const fetchData = async () => {
@@ -117,8 +127,28 @@ const DepositPage = () => {
     } catch (e) {
       console.error(e);
       // Check for specific error message from backend
-      const msg = e.response?.data?.message || "Deposit failed";
-      setError(msg);
+      const msg = e.response?.data?.message || "Nạp tiền thất bại";
+      showError("Lỗi", msg);
+    }
+  };
+
+  const handleAddCardSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      await cardService.createCard(newCard);
+      showSuccess("Đã thêm thẻ thành công!", "Thành công");
+      setShowAddCardModal(false);
+      setNewCard({ cardNumber: "", holderName: "", expiryDate: "", cvv: "", type: "Debit", bankName: "" });
+
+      // Refresh cards list
+      const cardsRes = await cardService.getCards();
+      setCards(cardsRes);
+      if (cardsRes.length > 0 && !selectedCardId) {
+        setSelectedCardId(cardsRes[0].id);
+      }
+    } catch (error) {
+      console.error("Add card failed:", error);
+      showError("Thêm thẻ thất bại", (error.response?.data?.message || error.message));
     }
   };
 
@@ -179,13 +209,23 @@ const DepositPage = () => {
 
             {/* CREDIT CARD SELECTION */}
             <div>
-              <h3 className="text-lg font-bold mb-3 text-[#111714] dark:text-white">Chọn thẻ</h3>
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="text-lg font-bold text-[#111714] dark:text-white">Chọn thẻ</h3>
+                <button 
+                  onClick={() => setShowAddCardModal(true)}
+                  className="text-sm font-bold text-primary hover:underline flex items-center gap-1"
+                >
+                  <span className="material-symbols-outlined text-sm">add_circle</span>
+                  Thêm thẻ mới
+                </button>
+              </div>
               {loadingCards ? (
                 <p>Đang tải thẻ...</p>
               ) : cards.length === 0 ? (
-                <div className="p-4 border rounded-lg text-center">
-                  <p className="text-gray-500 mb-2">Không có thẻ liên kết.</p>
-                  <button onClick={() => navigate('/cards')} className="text-primary font-bold hover:underline">Liên kết thẻ ngay</button>
+                <div className="p-8 border-2 border-dashed border-gray-200 dark:border-slate-800 rounded-xl text-center bg-white dark:bg-slate-800/50">
+                  <span className="material-symbols-outlined text-4xl text-gray-300 mb-2 block">credit_card_off</span>
+                  <p className="text-gray-500 mb-4">Bạn chưa có thẻ nào liên kết.</p>
+                  <button onClick={() => setShowAddCardModal(true)} className="px-6 py-2 bg-primary text-text-main font-bold rounded-lg hover:bg-primary/90 transition-all">Liên kết thẻ ngay</button>
                 </div>
               ) : (
                 <div className="grid sm:grid-cols-2 gap-3">
@@ -381,6 +421,111 @@ const DepositPage = () => {
           </div>
         </main>
       </div>
+
+      {/* ADD CARD MODAL */}
+      {showAddCardModal && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 animate-fadeIn">
+          <div className="bg-white dark:bg-slate-800 rounded-2xl w-full max-w-md p-6 shadow-2xl border border-gray-100 dark:border-slate-800 animate-slideUp">
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="text-xl font-bold text-text-main dark:text-white">Thêm thẻ mới</h3>
+              <button 
+                onClick={() => setShowAddCardModal(false)}
+                className="size-8 rounded-full flex items-center justify-center hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors"
+              >
+                <span className="material-symbols-outlined text-gray-500">close</span>
+              </button>
+            </div>
+            
+            <form onSubmit={handleAddCardSubmit} className="flex flex-col gap-4">
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-text-sub dark:text-slate-400 uppercase ml-1">Số thẻ</label>
+                <input
+                  placeholder="0000 0000 0000 0000"
+                  className="w-full rounded-xl border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-900 px-4 py-3 focus:ring-2 focus:ring-primary outline-none transition-all"
+                  value={newCard.cardNumber}
+                  onChange={e => setNewCard({ ...newCard, cardNumber: e.target.value })}
+                  required
+                />
+              </div>
+              
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-text-sub dark:text-slate-400 uppercase ml-1">Tên chủ thẻ</label>
+                <input
+                  placeholder="NGUYEN VAN A"
+                  className="w-full rounded-xl border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-900 px-4 py-3 focus:ring-2 focus:ring-primary outline-none transition-all"
+                  value={newCard.holderName}
+                  onChange={e => setNewCard({ ...newCard, holderName: e.target.value.toUpperCase() })}
+                  required
+                />
+              </div>
+              
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1">
+                  <label className="text-xs font-bold text-text-sub dark:text-slate-400 uppercase ml-1">Hết hạn</label>
+                  <input
+                    placeholder="MM/YY"
+                    className="w-full rounded-xl border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-900 px-4 py-3 focus:ring-2 focus:ring-primary outline-none transition-all"
+                    value={newCard.expiryDate}
+                    onChange={e => setNewCard({ ...newCard, expiryDate: e.target.value })}
+                    required
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-xs font-bold text-text-sub dark:text-slate-400 uppercase ml-1">CVV</label>
+                  <input
+                    placeholder="***"
+                    type="password"
+                    maxLength="3"
+                    className="w-full rounded-xl border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-900 px-4 py-3 focus:ring-2 focus:ring-primary outline-none transition-all"
+                    value={newCard.cvv}
+                    onChange={e => setNewCard({ ...newCard, cvv: e.target.value })}
+                    required
+                  />
+                </div>
+              </div>
+              
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-text-sub dark:text-slate-400 uppercase ml-1">Loại thẻ</label>
+                <select
+                  className="w-full rounded-xl border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-900 px-4 py-3 focus:ring-2 focus:ring-primary outline-none transition-all"
+                  value={newCard.type}
+                  onChange={e => setNewCard({ ...newCard, type: e.target.value })}
+                >
+                  <option value="Debit">Debit Card</option>
+                  <option value="Credit">Credit Card</option>
+                </select>
+              </div>
+              
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-text-sub dark:text-slate-400 uppercase ml-1">Ngân hàng</label>
+                <input
+                  placeholder="Ví dụ: Vietcombank"
+                  className="w-full rounded-xl border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-900 px-4 py-3 focus:ring-2 focus:ring-primary outline-none transition-all"
+                  value={newCard.bankName}
+                  onChange={e => setNewCard({ ...newCard, bankName: e.target.value })}
+                  required
+                />
+              </div>
+              
+              <div className="flex gap-3 justify-end mt-4">
+                <button 
+                  type="button" 
+                  onClick={() => setShowAddCardModal(false)} 
+                  className="px-6 py-2.5 rounded-xl text-text-sub font-bold hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors"
+                >
+                  Hủy
+                </button>
+                <button 
+                  type="submit" 
+                  className="px-8 py-2.5 rounded-xl bg-primary text-text-main font-bold hover:bg-primary/90 shadow-lg shadow-primary/20 transition-all hover:scale-[1.02]"
+                >
+                  Liên kết thẻ
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

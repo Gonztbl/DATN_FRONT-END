@@ -3,6 +3,7 @@ import { useState, useEffect, useRef } from 'react';
 
 const ADMIN_PAGES = [
     { title: "Lịch sử giao dịch", path: "/admin/transactions", icon: "receipt_long" },
+    { title: "Cảnh báo gian lận", path: "/admin/fraud-alerts", icon: "security_update_warning" },
     { title: "Đơn hàng", path: "/admin/orders", icon: "shopping_bag" },
     { title: "Người dùng", path: "/user-manager", icon: "group" },
     { title: "Tạo người dùng", path: "/admin/users/create", icon: "person_add" },
@@ -117,6 +118,17 @@ export default function SidebarAdmin() {
                     >
                         <span className="material-symbols-outlined">receipt_long</span>
                         <span className="text-sm">Lịch sử giao dịch</span>
+                    </Link>
+
+                    <Link
+                        to="/admin/fraud-alerts"
+                        className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors ${isActive('/admin/fraud-alerts')
+                            ? 'bg-amber-500/10 text-amber-500 font-bold'
+                            : 'hover:bg-slate-50 dark:hover:bg-slate-800 font-semibold'
+                            }`}
+                    >
+                        <span className="material-symbols-outlined">security_update_warning</span>
+                        <span className="text-sm">Cảnh báo gian lận</span>
                     </Link>
                     
                     <Link

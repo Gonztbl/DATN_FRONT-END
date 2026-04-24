@@ -35,7 +35,7 @@ UI --> Admin : 13: Đóng modal, refresh danh sách
 Admin -> UI : 14: Nhấn nút gạt Status (Available/Unavailable)
 UI -> CTRL : 15: toggleProductAvailability(id)
 activate CTRL
-CTRL -> DB : 16: PATCH /api/admin/products/{id}/status
+CTRL -> DB : 16: PUT /api/admin/products/{id}/status
 activate DB
 DB --> CTRL : 17: 200 OK
 deactivate DB

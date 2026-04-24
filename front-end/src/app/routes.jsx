@@ -41,6 +41,7 @@ import LoanUserApply from "../features/wallet/pages/loans_userapply";
 import LoanHistoryUser from "../features/wallet/pages/loans_historyuser";
 import AdminListLoans from "../features/admin/pages/AdminListLoans";
 import AdminAllLoans from "../features/admin/pages/AdminAllLoans";
+import AdminFraudAlertPage from "../features/admin/pages/AdminFraudAlertPage";
 
 function AppRoutes() {
   return (
@@ -141,6 +142,14 @@ function AppRoutes() {
         element={
           <ProtectedRoute allowedRoles={['ADMIN']}>
             <AdminTransactionHistoryPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin/fraud-alerts"
+        element={
+          <ProtectedRoute allowedRoles={['ADMIN']}>
+            <AdminFraudAlertPage />
           </ProtectedRoute>
         }
       />

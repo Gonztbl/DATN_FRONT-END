@@ -4,7 +4,7 @@
 - **Tên màn hình**: Xác thực Khuôn mặt (Face Authentication)
 - **File**: `FaceAuthenticationPage.jsx`
 - **Role**: User (SmartPay)
-- **Mô tả**: Màn hình thực hiện so khớp khuôn mặt để xác thực các hành động quan trọng như giao dịch tài chính hoặc đăng nhập.
+- **Mô tả**: Giao diện quản lý và kiểm tra sinh trắc học khuôn mặt. Cho phép người dùng đăng ký các góc mặt (poses), xóa dữ liệu đã đăng ký và chạy thử nghiệm tính năng nhận diện.
 
 ## 2. Yêu cầu chức năng (Functional Requirements)
 

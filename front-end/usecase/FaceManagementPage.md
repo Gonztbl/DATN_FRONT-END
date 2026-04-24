@@ -34,7 +34,8 @@
     - **3.1 Luồng cơ bản**:
         1) Người dùng vào trang "Biometric Management".
         2) Hệ thống hiển thị 3 trạng thái: Front, Left, Right.
-        3) Người dùng nhấn biểu tượng "Thùng rác" để xóa một góc mặt.
-        4) Nhấn "Scan Now" để đi tới trang kiểm tra xác thực.
+        3) Người dùng nhấn biểu tượng "XÓA" để xóa một góc mặt cụ thể.
+        4) Nhấn "Làm mới tất cả" để xóa toàn bộ các góc mặt đã đăng ký.
+        5) Nhấn "Thêm góc mặt" hoặc "THÊM NGAY" để đi tới trang chụp ảnh khuôn mặt.
 4. **Tiền điều kiện**: Đã đăng nhập.
-5. **Hậu điều kiện**: Không có.
+5. **Hậu điều kiện**: Dữ liệu sinh trắc học được cập nhật.

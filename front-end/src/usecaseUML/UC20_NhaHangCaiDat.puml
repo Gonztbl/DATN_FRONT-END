@@ -29,7 +29,7 @@ activate UI
 
 UI -> CTRL : Tải cấu hình nhà hàng
 activate CTRL
-CTRL -> API : GET /api/merchant/restaurant/me
+CTRL -> API : GET /api/restaurant-owner/my-restaurant
 activate API
 API -> DB : Truy vấn Profile nhà hàng
 activate DB
@@ -41,9 +41,9 @@ CTRL --> UI : Hiển thị form thông tin
 deactivate CTRL
 
 Merchant -> UI : Tick chọn trạng thái "ĐANG MỞ CỬA"
-UI -> CTRL : Yêu cầu cập nhật Status: OPENING
+UI -> CTRL : Yêu cầu cập nhật Status: OPEN
 activate CTRL
-CTRL -> API : PUT /api/merchant/restaurant/status
+CTRL -> API : PUT /api/restaurant-owner/restaurant/status
 activate API
 API -> DB : Update restaurant status
 activate DB
@@ -57,7 +57,7 @@ deactivate CTRL
 Merchant -> UI : Sửa giờ hoạt động & Click "Lưu"
 UI -> CTRL : Cập nhật thông tin Store Profile
 activate CTRL
-CTRL -> API : PUT /api/merchant/restaurant/info
+CTRL -> API : PUT /api/restaurant-owner/restaurant/info
 activate API
 API -> DB : Thực hiện ghi đè cấu hình cũ
 activate DB
