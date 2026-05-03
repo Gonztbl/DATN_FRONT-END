@@ -1,29 +1,40 @@
 @startuml UC63_AdminChiTietGiaoDich
-actor Admin
+title Admin xem chi tiết giao dịch
+
+autonumber "<b>[00]</b>"
+skinparam sequenceArrowThickness 2
+skinparam roundcorner 10
+skinparam defaultFontSize 20
+skinparam titleFontSize 26
+skinparam sequenceFontSize 19
+skinparam sequenceMessageFontSize 20
+skinparam sequenceActorFontSize 20
+skinparam sequenceParticipantFontSize 20
+skinparam noteFontSize 18
+skinparam sequenceArrowFontSize 20
+skinparam sequence {
+    ParticipantPadding 30
+    LifeLinePadding 20
+    MessagePadding 10
+}
+
+actor "Admin" as Admin
 boundary ":AdminTransactionUI" as UI
 control ":TransactionController" as CTRL
 entity ":Transaction" as ENT
-entity ":CSDL" as DB
+database ":CSDL" as DB
 
-Admin -> UI : 1: Nhấn "View" tại một giao dịch
+Admin -> UI : Nhấn "Chi tiết" tại một giao dịch
 activate UI
 
-UI -> CTRL : 2: getTransactionDetail(id)
-activate CTRL
+UI -> UI : setSelectedTransaction(txn) từ danh sách đã tải
+UI -> UI : setShowDetailModal(true)
+UI --> Admin : Hiển thị Modal chi tiết giao dịch
 
-CTRL -> DB : 3: GET /api/admin/transactions/{id}
-activate DB
-DB --> CTRL : 4: 200 OK {detail}
-deactivate DB
+UI --> Admin : Xem chi tiết (Transaction ID, Reference ID, Wallet ID, User ID, Amount, Type, Direction, Partner, Note, Status)
 
-CTRL -> ENT : 5: Mapping chi tiết giao dịch
-activate ENT
-ENT --> CTRL : 6: Transaction data
-deactivate ENT
+Admin -> UI : Nhấn "Đóng"
+UI -> UI : setShowDetailModal(false)
 
-CTRL --> UI : 7: Hiển thị Modal chi tiết
-deactivate CTRL
-
-UI --> Admin : 8: Xem Review chi tiết (Partner, Note, Direction...)
 deactivate UI
 @enduml

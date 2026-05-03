@@ -1,0 +1,40 @@
+@startuml
+title Biểu đồ trình tự: Quản lý trạng thái và hồ sơ (Shipper Profile & Status)
+actor "Tài xế (Shipper)" as Shipper
+boundary "ProfileStatusPage" as UI
+control "ShipperService" as Ctrl
+entity "Database" as DB
+
+== 1. Xem và cập nhật hồ sơ ==
+Shipper -> UI: Truy cập trang Hồ sơ Tài xế
+activate UI
+
+UI -> Ctrl: Yêu cầu thông tin tài xế (GET /api/shipper/profile)
+activate Ctrl
+Ctrl -> DB: Truy vấn dữ liệu Shipper (Tên, Xe, Biển số, Hạng bằng lái)
+activate DB
+DB --> Ctrl: Dữ liệu chi tiết hồ sơ
+deactivate DB
+Ctrl --> UI: Trả về thông tin hiển thị
+deactivate Ctrl
+
+UI --> Shipper: Hiển thị giao diện Hồ sơ cá nhân đầy đủ
+deactivate UI
+
+== 2. Chuyển đổi trạng thái hoạt động (Online/Offline) ==
+Shipper -> UI: Nhấn công tắc (Toggle) Trạng thái Hoạt động
+activate UI
+
+UI -> Ctrl: Gửi yêu cầu cập nhật trạng thái (PUT /api/shipper/status)
+activate Ctrl
+Ctrl -> DB: Lưu thay đổi trạng thái (Ví dụ: ACTIVE -> INACTIVE)
+activate DB
+DB --> Ctrl: Xác nhận thay đổi thành công
+deactivate DB
+Ctrl --> UI: Trả về kết quả cập nhật
+deactivate Ctrl
+
+UI -> UI: Đổi màu cảnh báo/giao diện theo trạng thái mới (Xanh đang rảnh / Xám tắt ứng dụng)
+UI --> Shipper: Hiển thị trạng thái mới
+deactivate UI
+@enduml

@@ -1,5 +1,5 @@
 @startuml UC22_AdminQuanLyDonHang
-title UC22 - Admin quản lý toàn bộ đơn hàng hệ thống
+title Admin quản lý toàn bộ đơn hàng hệ thống
 
 autonumber "<b>[00]</b>"
 skinparam sequenceArrowThickness 2
@@ -37,7 +37,7 @@ DB --> ENT : Danh sách đầy đủ đơn hàng
 deactivate DB
 ENT --> CTRL : Trả về dữ liệu Order[]
 deactivate ENT
-CTRL --> UI : Hiển thị bảng quản trị đa năng
+CTRL --> UI : Hiển thị bảng quản trị đơn hàng
 deactivate CTRL
 
 Admin -> UI : Chọn bộ lọc (Nhà hàng / Shipper / Trạng thái)
@@ -55,14 +55,15 @@ CTRL --> UI : Refresh bảng dữ liệu
 deactivate CTRL
 
 Admin -> UI : Nhấn "Xem chi tiết" đơn #{id}
-UI -> UI : Điều hướng tới trang Chi tiết quản trị
+UI --> Admin : Điều hướng tới trang Chi tiết đơn hàng
 
-Admin -> UI : Nhấn "Xóa đơn hàng" (Force Delete)
-UI -> UI : Hiển thị cảnh báo rủi ro cao
-Admin -> UI : Xác nhận xóa vĩnh viễn
+Admin -> UI : Nhấn "Xóa đơn hàng"
+UI -> UI : Hiển thị cảnh báo xóa vĩnh viễn
+Admin -> UI : Xác nhận xóa
+
 UI -> CTRL : DELETE /api/admin/orders/{id}
 activate CTRL
-CTRL -> ENT : Gửi yêu cầu xóa dữ liệu hệ thống
+CTRL -> ENT : Gửi yêu cầu xóa dữ liệu
 activate ENT
 ENT -> DB : Xóa record khỏi database
 activate DB

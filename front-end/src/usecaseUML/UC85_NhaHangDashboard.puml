@@ -1,0 +1,42 @@
+@startuml
+title Biểu đồ trình tự: Bảng điều khiển cửa hàng (Merchant Dashboard)
+actor "Chủ cửa hàng (Merchant)" as Merchant
+boundary "MerchantDashboardPage" as UI
+control "MerchantService" as Ctrl
+control "OrderService" as OrderCtrl
+entity "Database" as DB
+
+Merchant -> UI: Truy cập trang Bảng điều khiển cửa hàng
+activate UI
+
+note right of UI: Tải dữ liệu phân tích và vận hành song song
+
+par Lấy Thống kê tổng quan
+    UI -> Ctrl: Yêu cầu thống kê (GET /api/merchant/stats)
+    activate Ctrl
+    Ctrl -> DB: Truy vấn Doanh thu, Đơn hủy, Đơn thành công
+    activate DB
+    DB --> Ctrl: Trả về số liệu thống kê (Ngày/Tuần/Tháng)
+    deactivate DB
+    Ctrl --> UI: Dữ liệu thống kê doanh thu
+    deactivate Ctrl
+else Lấy Danh sách Đơn hàng mới
+    UI -> OrderCtrl: Lấy đơn hàng chờ (GET /api/merchant/orders?status=PENDING)
+    activate OrderCtrl
+    OrderCtrl -> DB: Truy vấn đơn hàng đang chờ xác nhận
+    activate DB
+    DB --> OrderCtrl: Danh sách đơn hàng mới
+    deactivate DB
+    OrderCtrl --> UI: Dữ liệu các đơn cần xử lý gấp
+    deactivate OrderCtrl
+end
+
+UI -> UI: Tổng hợp & Render biểu đồ, thẻ số liệu, danh sách đơn
+UI --> Merchant: Hiển thị Bảng điều khiển cửa hàng (Dashboard)
+deactivate UI
+
+Merchant -> UI: Tương tác (Xem báo cáo chi tiết, Xử lý đơn...)
+activate UI
+UI --> Merchant: Mở màn hình/Chức năng tương ứng
+deactivate UI
+@enduml

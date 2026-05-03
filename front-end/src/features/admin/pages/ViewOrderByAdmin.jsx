@@ -16,7 +16,7 @@ const ViewOrderByAdmin = () => {
     const [loading, setLoading] = useState(true);
     const [actionLoading, setActionLoading] = useState(false);
     const [cancelReason, setCancelReason] = useState('');
-    
+
     // Additional Details State
     const [shipperData, setShipperData] = useState(null);
     const [restaurantInfo, setRestaurantInfo] = useState(null);
@@ -33,12 +33,12 @@ const ViewOrderByAdmin = () => {
                 const oData = response.data.data || response.data;
                 setOrder(oData);
                 setSelectedStatus(oData.status);
-                
+
                 // Fetch Products & Restaurant info
                 let foundRestaurantInfo = null;
                 const pDetailsTemp = {};
                 const itemsList = Array.isArray(oData.items) ? oData.items : (Array.isArray(oData.orderItems) ? oData.orderItems : []);
-                
+
                 try {
                     await Promise.all(itemsList.map(async (item) => {
                         try {
@@ -49,18 +49,18 @@ const ViewOrderByAdmin = () => {
                                     foundRestaurantInfo = pRes.data.restaurant;
                                 }
                             }
-                        } catch(e) {}
+                        } catch (e) { }
                     }));
                     setProductDetails(pDetailsTemp);
                     if (foundRestaurantInfo) setRestaurantInfo(foundRestaurantInfo);
-                } catch(e) {}
+                } catch (e) { }
 
                 // Fetch Shipper Info
                 if (oData.shipperId) {
                     try {
                         const sRes = await adminOrderService.getShipperDetail(oData.shipperId);
                         if (sRes?.data) setShipperData(sRes.data);
-                    } catch(e) {}
+                    } catch (e) { }
                 }
 
                 // Fetch Restaurant Owner Phone
@@ -71,7 +71,7 @@ const ViewOrderByAdmin = () => {
                         const contents = owRes?.data?.content || owRes?.data || owRes?.content || (Array.isArray(owRes) ? owRes : []);
                         const owner = contents.find(o => o.restaurants?.some(r => String(r.id) === String(rId)));
                         if (owner) setRestaurantOwner(owner);
-                    } catch(e) {}
+                    } catch (e) { }
                 }
 
                 // Fetch Customer Info
@@ -80,7 +80,7 @@ const ViewOrderByAdmin = () => {
                     try {
                         const cRes = await userManageService.getUserById(uId);
                         if (cRes) setCustomerInfo(cRes);
-                    } catch(e) {}
+                    } catch (e) { }
                 }
             }
         } catch (error) {
@@ -177,7 +177,7 @@ const ViewOrderByAdmin = () => {
                     {/* Header Controls */}
                     <div className="flex items-center justify-between mb-8">
                         <div className="flex items-center gap-4">
-                            <button 
+                            <button
                                 onClick={() => navigate('/admin/orders')}
                                 className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors flex items-center justify-center text-slate-600 dark:text-slate-400"
                             >
@@ -197,7 +197,7 @@ const ViewOrderByAdmin = () => {
                                 In hóa đơn
                             </button>
                             <div className="h-8 w-px bg-slate-200 dark:bg-slate-700 mx-2 hidden md:block"></div>
-                            <button 
+                            <button
                                 className="bg-primary text-white px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2 shadow-sm hover:brightness-110 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                                 disabled={actionLoading || selectedStatus === order?.status}
                                 onClick={handleSaveStatus}
@@ -212,7 +212,7 @@ const ViewOrderByAdmin = () => {
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
                         <div className="bg-white dark:bg-slate-900 p-5 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm transition-all hover:shadow-md">
                             <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Trạng thái đơn hàng</label>
-                            <select 
+                            <select
                                 value={selectedStatus}
                                 onChange={(e) => setSelectedStatus(e.target.value)}
                                 disabled={actionLoading}
@@ -244,10 +244,7 @@ const ViewOrderByAdmin = () => {
                                 <span className="material-symbols-outlined text-primary">account_balance_wallet</span>
                                 <div className="text-lg font-bold text-slate-900 dark:text-white">{order.payment?.method || order.paymentMethod || order.payment_method || 'Ví SmartPay'}</div>
                             </div>
-                            <div className="text-xs text-emerald-600 font-bold uppercase tracking-tighter mt-1 flex items-center gap-1">
-                                <span className="material-symbols-outlined text-xs">verified</span>
-                                Đã thanh toán
-                            </div>
+
                         </div>
                     </div>
 
@@ -369,29 +366,30 @@ const ViewOrderByAdmin = () => {
                                                 const name = pDetail.name || item.productName || `Món #${item.productId}`;
                                                 const image = pDetail.imageBase64 || item.image || item.productImage;
                                                 return (
-                                                <tr key={index}>
-                                                    <td className="px-6 py-4">
-                                                        <div className="flex items-center gap-3">
-                                                            <div className="size-12 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center overflow-hidden shrink-0 border border-slate-200 dark:border-slate-700">
-                                                                {image ? (
-                                                                    <img src={image.startsWith('data:') ? image : `data:image/png;base64,${image}`} className="w-full h-full object-cover" alt="item" />
-                                                                ) : (
-                                                                    <span className="material-symbols-outlined text-slate-400 text-lg">fastfood</span>
-                                                                )}
+                                                    <tr key={index}>
+                                                        <td className="px-6 py-4">
+                                                            <div className="flex items-center gap-3">
+                                                                <div className="size-12 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center overflow-hidden shrink-0 border border-slate-200 dark:border-slate-700">
+                                                                    {image ? (
+                                                                        <img src={image.startsWith('data:') ? image : `data:image/png;base64,${image}`} className="w-full h-full object-cover" alt="item" />
+                                                                    ) : (
+                                                                        <span className="material-symbols-outlined text-slate-400 text-lg">fastfood</span>
+                                                                    )}
+                                                                </div>
+                                                                <div>
+                                                                    <p className="font-bold text-sm text-slate-900 dark:text-slate-100">{name}</p>
+                                                                    {item.note && <p className="text-[10px] text-amber-600 dark:text-amber-400 italic mt-0.5">Note: {item.note}</p>}
+                                                                </div>
                                                             </div>
-                                                            <div>
-                                                                <p className="font-bold text-sm text-slate-900 dark:text-slate-100">{name}</p>
-                                                                {item.note && <p className="text-[10px] text-amber-600 dark:text-amber-400 italic mt-0.5">Note: {item.note}</p>}
-                                                            </div>
-                                                        </div>
-                                                    </td>
-                                                    <td className="px-6 py-4 text-center font-bold text-sm">{item.quantity}</td>
-                                                    <td className="px-6 py-4 text-right text-sm">{formatCurrency(item.priceAtTime || item.price)}</td>
-                                                    <td className="px-6 py-4 text-right font-black text-sm text-slate-900 dark:text-slate-100">
-                                                        {formatCurrency(item.subtotal || (item.priceAtTime || item.price || 0) * (item.quantity || 0))}
-                                                    </td>
-                                                </tr>
-                                            )})}
+                                                        </td>
+                                                        <td className="px-6 py-4 text-center font-bold text-sm">{item.quantity}</td>
+                                                        <td className="px-6 py-4 text-right text-sm">{formatCurrency(item.priceAtTime || item.price)}</td>
+                                                        <td className="px-6 py-4 text-right font-black text-sm text-slate-900 dark:text-slate-100">
+                                                            {formatCurrency(item.subtotal || (item.priceAtTime || item.price || 0) * (item.quantity || 0))}
+                                                        </td>
+                                                    </tr>
+                                                )
+                                            })}
                                         </tbody>
                                         <tfoot className="bg-slate-50 dark:bg-slate-800/50">
                                             <tr className="text-slate-500 font-bold border-t border-slate-200 dark:border-slate-700">
@@ -418,27 +416,27 @@ const ViewOrderByAdmin = () => {
                                 </h3>
                                 <div className="space-y-8 relative ml-4">
                                     <div className="absolute left-0 top-0 bottom-0 w-px bg-slate-100 dark:bg-slate-800 ml-3.5"></div>
-                                    
+
                                     {(order.statusHistory || []).map((history, idx) => (
                                         <div key={idx} className="relative flex items-center justify-between gap-4">
                                             <div className="flex items-center">
                                                 <div className="absolute left-0 size-8 flex items-center justify-center bg-primary text-white rounded-full ring-4 ring-white dark:ring-slate-900 z-10 shadow-sm shadow-primary/40">
                                                     <span className="material-symbols-outlined text-sm">
-                                                        {history.status === 'PENDING' ? 'shopping_cart' : 
-                                                         history.status === 'CONFIRMED' ? 'check_circle' : 
-                                                         history.status === 'PREPARING' ? 'skillet' : 'local_shipping'}
+                                                        {history.status === 'PENDING' ? 'shopping_cart' :
+                                                            history.status === 'CONFIRMED' ? 'check_circle' :
+                                                                history.status === 'PREPARING' ? 'skillet' : 'local_shipping'}
                                                     </span>
                                                 </div>
                                                 <div className="ml-12">
                                                     <p className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-tighter">
-                                                        {history.status === 'PENDING' ? 'CHỜ XỬ LÝ' : 
-                                                         history.status === 'CONFIRMED' ? 'ĐÃ XÁC NHẬN' : 
-                                                         history.status === 'PREPARING' ? 'ĐANG CHUẨN BỊ' : 
-                                                         history.status === 'READY' || history.status === 'READY_FOR_PICKUP' ? 'SẴN SÀNG' : 
-                                                         history.status === 'DELIVERING' ? 'ĐANG GIAO' : 
-                                                         history.status === 'COMPLETED' ? 'HOÀN THÀNH' : 
-                                                         history.status === 'CANCELLED' ? 'ĐÃ HỦY' : 
-                                                         history.status === 'DELIVERY_FAILED' ? 'THẤT BẠI' : history.status}
+                                                        {history.status === 'PENDING' ? 'CHỜ XỬ LÝ' :
+                                                            history.status === 'CONFIRMED' ? 'ĐÃ XÁC NHẬN' :
+                                                                history.status === 'PREPARING' ? 'ĐANG CHUẨN BỊ' :
+                                                                    history.status === 'READY' || history.status === 'READY_FOR_PICKUP' ? 'SẴN SÀNG' :
+                                                                        history.status === 'DELIVERING' ? 'ĐANG GIAO' :
+                                                                            history.status === 'COMPLETED' ? 'HOÀN THÀNH' :
+                                                                                history.status === 'CANCELLED' ? 'ĐÃ HỦY' :
+                                                                                    history.status === 'DELIVERY_FAILED' ? 'THẤT BẠI' : history.status}
                                                     </p>
                                                     <p className="text-[10px] text-slate-400 font-medium italic">{history.note || '—'}</p>
                                                 </div>
@@ -448,9 +446,9 @@ const ViewOrderByAdmin = () => {
                                             </div>
                                         </div>
                                     ))}
-                                    
+
                                     {order.status === 'CANCELLED' && (
-                                         <div className="relative flex items-center justify-between gap-4">
+                                        <div className="relative flex items-center justify-between gap-4">
                                             <div className="flex items-center">
                                                 <div className="absolute left-0 size-8 flex items-center justify-center bg-rose-600 text-white rounded-full ring-4 ring-white dark:ring-slate-900 z-10 shadow-lg shadow-rose-200">
                                                     <span className="material-symbols-outlined text-sm">cancel</span>
@@ -472,7 +470,7 @@ const ViewOrderByAdmin = () => {
                                     <div className="pt-2">
                                         <label className="block text-[10px] font-black text-rose-500 uppercase tracking-widest mb-3">Hủy đơn hàng</label>
                                         <div className="flex flex-col gap-3">
-                                            <select 
+                                            <select
                                                 value={cancelReason}
                                                 onChange={(e) => setCancelReason(e.target.value)}
                                                 className="w-full text-sm rounded-xl border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:border-rose-500 focus:ring-rose-500 h-11 px-3 outline-none"
@@ -483,7 +481,7 @@ const ViewOrderByAdmin = () => {
                                                 <option value="Sự cố" className="dark:bg-slate-900">Sự cố vận hành/tài xế</option>
                                                 <option value="Khác" className="dark:bg-slate-900">Lý do khác...</option>
                                             </select>
-                                            <button 
+                                            <button
                                                 onClick={handleCancelOrder}
                                                 disabled={actionLoading || !cancelReason}
                                                 className="w-full py-3.5 px-4 bg-rose-600 hover:bg-rose-700 text-white rounded-xl font-black text-sm uppercase tracking-tighter transition-all shadow-xl shadow-rose-100 dark:shadow-none disabled:opacity-30 flex items-center justify-center gap-2"
@@ -498,7 +496,7 @@ const ViewOrderByAdmin = () => {
                         </div>
                     </div>
                 </div>
-                
+
                 <footer className="mt-auto bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 px-8 py-6 text-center text-slate-400 text-xs font-medium">
                     <p>© 2024 SmartPay Fintech Solution. Hệ thống quản trị nội bộ v2.0</p>
                 </footer>

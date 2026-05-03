@@ -21,6 +21,7 @@ Tài liệu này tổng hợp toàn bộ Use Case và biểu đồ trình tự (
 | UC03 | Đăng ký khuôn mặt | `UC03_DangKyKhuonMat.puml` | User | Chụp 3 tư thế (front/left/right) → lưu face embedding |
 | UC04 | Xác thực khuôn mặt | `UC04_XacThucKhuonMat.puml` | User | So sánh ảnh chụp với embedding đã lưu |
 | UC05 | Quản lý khuôn mặt | `UC05_QuanLyKhuonMat.puml` | User | Xem, xóa, thêm tư thế khuôn mặt đã đăng ký |
+| UC83 | Quản lý Hồ sơ cá nhân | `UC83_HoSoCaNhan.puml` | User | Xem thông tin chi tiết và cập nhật hồ sơ (tên, avatar) |
 
 ---
 
@@ -35,6 +36,7 @@ Tài liệu này tổng hợp toàn bộ Use Case và biểu đồ trình tự (
 | UC10 | Nhận tiền qua QR | `UC10_NhanTienQR.puml` | User (nhận) | Tạo QR code, theo dõi giao dịch đến |
 | UC11 | Lịch sử giao dịch | `UC11_LichSuGiaoDich.puml` | User | Xem, lọc, phân trang lịch sử giao dịch |
 | UC12 | Thống kê chi tiêu | `UC12_ThongKeChi.puml` | User | Thống kê theo kỳ, biểu đồ chi tiêu |
+| UC84 | Bảng điều khiển ví | `UC84_BangDieuKhienVi.puml` | User | Tổng hợp số dư, thẻ rút/nạp nhanh, biểu đồ & giao dịch mới nhất |
 
 ---
 
@@ -54,6 +56,8 @@ Tài liệu này tổng hợp toàn bộ Use Case và biểu đồ trình tự (
 |-------|-------------|---------------|-------|---------|
 | UC16 | Shipper nhận đơn | `UC16_ShipperNhanDon.puml` | Shipper | Xem đơn chờ lấy, nhận đơn, xác nhận lấy hàng |
 | UC17 | Shipper giao hàng | `UC17_ShipperGiaoHang.puml` | Shipper | Xem chi tiết đơn, xác nhận giao thành công / báo thất bại |
+| UC87 | Bảng điều khiển tài xế | `UC87_ShipperDashboard.puml` | Shipper | Thống kê thu nhập, xem danh sách đơn gợi ý quanh vị trí |
+| UC88 | Quản lý trạng thái và hồ sơ | `UC88_ShipperHoSo.puml` | Shipper | Xem thông tin phương tiện, chuyển trạng thái Online/Offline |
 
 ---
 
@@ -64,6 +68,8 @@ Tài liệu này tổng hợp toàn bộ Use Case và biểu đồ trình tự (
 | UC18 | Nhà hàng quản lý đơn | `UC18_NhaHangQuanLyDon.puml` | Merchant | Xem đơn theo tab, xác nhận, báo sẵn sàng, từ chối đơn |
 | UC19 | Nhà hàng quản lý menu | `UC19_NhaHangQuanLyMenu.puml` | Merchant | CRUD sản phẩm, toggle trạng thái AVAILABLE/UNAVAILABLE |
 | UC20 | Nhà hàng cài đặt | `UC20_NhaHangCaiDat.puml` | Merchant | Cập nhật thông tin, toggle mở/đóng cửa, lịch hoạt động |
+| UC85 | Bảng điều khiển cửa hàng| `UC85_NhaHangDashboard.puml` | Merchant | Xem thống kê doanh thu, đơn hàng tổng quan |
+| UC86 | Chi tiết đơn hàng (Nhà hàng)| `UC86_NhaHangChiTietDon.puml` | Merchant | Xem chi tiết item, ghi chú và xử lý thay đổi trạng thái |
 
 ---
 
@@ -95,6 +101,15 @@ Tài liệu này tổng hợp toàn bộ Use Case và biểu đồ trình tự (
 | UC78 | Phân phối doanh thu (95/5)| `UC78_PhanPhoiDoanhThu.puml` | System | Tự động chia tiền cho Nhà hàng và Shipper khi hoàn tất |
 | UC79 | Admin Dashboard Tài chính| `UC79_AdminTaiChinh.puml` | Admin | Thống kê doanh thu và tổng số dư toàn hệ thống |
 | UC80 | Admin chi tiết đơn hàng | `UC80_AdminChiTietDonHang.puml` | Admin | Xem timeline và chi tiết đối soát của một đơn hàng |
+
+---
+
+### 🌐 Module: Khám phá & Trợ lý ảo (Discovery & AI Assistant)
+
+| Mã UC | Tên Use Case | File PlantUML | Actor | Tóm tắt |
+|-------|-------------|---------------|-------|---------|
+| UC81 | Xem Landing Page | `UC81_LandingPage.puml` | Guest/User | Truy cập trang chủ giới thiệu ứng dụng, tải ứng dụng |
+| UC82 | Chatbot AI Hỗ trợ | `UC82_ChatbotAI.puml` | User | Nhắn tin hỏi đáp với trợ lý AI, đề xuất món ăn/dịch vụ |
 
 ---
 

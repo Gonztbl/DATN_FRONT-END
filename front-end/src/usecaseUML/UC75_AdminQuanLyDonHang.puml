@@ -1,42 +1,78 @@
 @startuml UC75_AdminQuanLyDonHang
-actor Admin
-boundary ":AdminOrderUI" as UI
+title Admin giám sát đơn hàng toàn hệ thống
+
+autonumber "<b>[00]</b>"
+skinparam sequenceArrowThickness 2
+skinparam roundcorner 10
+skinparam defaultFontSize 20
+skinparam titleFontSize 26
+skinparam sequenceFontSize 19
+skinparam sequenceMessageFontSize 20
+skinparam sequenceActorFontSize 20
+skinparam sequenceParticipantFontSize 20
+skinparam noteFontSize 18
+skinparam sequenceArrowFontSize 20
+skinparam sequence {
+    ParticipantPadding 30
+    LifeLinePadding 20
+    MessagePadding 10
+}
+
+actor "Admin" as Admin
+boundary ":ListOrderAdminUI" as UI
 control ":OrderController" as CTRL
 entity ":Order" as ENT
-entity ":CSDL" as DB
+database ":CSDL" as DB
 
-Admin -> UI : 1: Truy cập "Quản lý đơn hàng"
+Admin -> UI : Truy cập danh sách đơn hàng
 activate UI
 
-UI -> CTRL : 2: getAllSystemOrders(filters)
+UI -> CTRL : Tải Restaurants & Shippers & Orders
 activate CTRL
-CTRL -> DB : 3: GET /api/admin/orders?...
+CTRL -> ENT : GET /api/admin/restaurant-owners & /api/admin/shippers & /api/admin/orders
+activate ENT
+ENT -> DB : Truy vấn dữ liệu
 activate DB
-DB --> CTRL : 4: 200 OK {orders: [...]}
+DB --> ENT : Restaurants[], Shippers[], Orders[]
 deactivate DB
-CTRL --> UI : 5: Hiển thị danh sách đơn hàng mới nhất
+ENT --> CTRL : Trả về dữ liệu
+deactivate ENT
+CTRL --> UI : Hiển thị bảng quản lý đơn hàng
 deactivate CTRL
 
-== Xem chi tiết ==
-Admin -> UI : 6: Nhấn "Xem" (Visibility icon)
-UI -> UI : 7: Điều hướng về ViewOrderByAdmin
-
-== Hủy đơn & Hoàn tiền ==
-Admin -> UI : 8: Nhấn "Hủy đơn", chọn lý do
-UI -> CTRL : 9: cancelOrder(id, reason)
+Admin -> UI : Thay đổi bộ lọc (Ngày / Trạng thái / Nhà hàng / Shipper)
+UI -> CTRL : getAllOrders(params)
 activate CTRL
-CTRL -> DB : 10: POST /api/admin/orders/{id}/cancel
+CTRL -> ENT : GET /api/admin/orders?filters
+activate ENT
+ENT -> DB : Truy vấn với điều kiện lọc
 activate DB
-alt Đã thanh toán ví
-    DB -> DB : 10.1: Tự động hoàn tiền vào ví User
-    DB --> CTRL : 11.1: 200 OK {refundId, status: CANCELLED}
-else Chưa thanh toán
-    DB --> CTRL : 11.2: 200 OK {status: CANCELLED}
-end
+DB --> ENT : Kết quả lọc
 deactivate DB
-CTRL --> UI : 12: Thành công
+ENT --> CTRL : Trả về dữ liệu
+deactivate ENT
+CTRL --> UI : Cập nhật danh sách
 deactivate CTRL
-UI --> Admin : 13: Thông báo thành công, cập nhật Timeline
+
+Admin -> UI : Nhấn "Xem chi tiết" đơn hàng
+UI --> Admin : Chuyển hướng /admin/orders/{id}
+
+Admin -> UI : Nhấn "Xóa đơn hàng"
+UI -> UI : Hiển thị cảnh báo "Xóa vĩnh viễn"
+Admin -> UI : Xác nhận xóa
+
+UI -> CTRL : deleteOrder(id)
+activate CTRL
+CTRL -> ENT : DELETE /api/admin/orders/{id}
+activate ENT
+ENT -> DB : Xóa đơn hàng
+activate DB
+DB --> ENT : Success
+deactivate DB
+ENT --> CTRL : Deleted
+deactivate ENT
+CTRL --> UI : Thông báo "Xóa thành công" & Refresh
+deactivate CTRL
 
 deactivate UI
 @enduml

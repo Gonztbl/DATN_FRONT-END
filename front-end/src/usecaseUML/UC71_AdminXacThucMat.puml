@@ -1,32 +1,52 @@
 @startuml UC71_AdminXacThucMat
-actor Admin
+title Admin kiểm tra xác thực khuôn mặt
+
+autonumber "<b>[00]</b>"
+skinparam sequenceArrowThickness 2
+skinparam roundcorner 10
+skinparam defaultFontSize 20
+skinparam titleFontSize 26
+skinparam sequenceFontSize 19
+skinparam sequenceMessageFontSize 20
+skinparam sequenceActorFontSize 20
+skinparam sequenceParticipantFontSize 20
+skinparam noteFontSize 18
+skinparam sequenceArrowFontSize 20
+skinparam sequence {
+    ParticipantPadding 30
+    LifeLinePadding 20
+    MessagePadding 10
+}
+
+actor "Admin" as Admin
 boundary ":AdminVerifyFaceUI" as UI
 control ":FaceController" as CTRL
-entity ":CSDL" as DB
+entity ":FaceEmbedding" as ENT
+database ":CSDL" as DB
 
-Admin -> UI : 1: Truy cập trang xác thực mặt cho User ID
+Admin -> UI : Truy cập kiểm tra xác thực khuôn mặt
 activate UI
 
-UI --> Admin : 2: Hiển thị Video Stream & Khung Oval
+UI -> UI : Mở Camera (getUserMedia)
+UI --> Admin : Hiển thị Stream Camera & Khung Oval
 
-loop Liên tục (Auto-Capture)
-    UI -> CTRL : 3: verifyFaceRecognition(userId, imageBlob)
-    activate CTRL
-    CTRL -> DB : 4: POST /api/admin/face/verify
-    activate DB
-    
-    alt Không khớp (Similarity < Threshold)
-        DB --> CTRL : 4.1: 200 OK {match: false, similarity: 0.x}
-        CTRL --> UI : 4.2: Trả về kết quả No Match
-        UI --> Admin : 4.3: Hiển thị thông báo Đỏ
-    else Khớp
-        DB --> CTRL : 5.1: 200 OK {match: true, similarity: 0.9x}
-        deactivate DB
-        CTRL --> UI : 5.2: Trả về kết quả Match
-        deactivate CTRL
-        UI --> Admin : 6: Hiển thị trạng thái Xanh + Điểm số %
-    end
-end
+Admin -> UI : Nhấn "Thử nghiệm nhận diện"
+UI -> UI : captureImage() chuyển frame thành Blob
+
+UI -> CTRL : verifyFace(formData) [image: Blob, userId: id]
+activate CTRL
+CTRL -> ENT : POST /api/face/verify
+activate ENT
+ENT -> DB : So khớp embedding khuôn mặt
+activate DB
+DB --> ENT : Kết quả so khớp (PASS/FAIL, similarity)
+deactivate DB
+ENT --> CTRL : Trả về kết quả xác thực
+deactivate ENT
+CTRL --> UI : Kết quả (success/fail, confidence)
+deactivate CTRL
+
+UI --> Admin : Hiển thị kết quả xác thực (Khớp/Không khớp & % Tương đồng)
 
 deactivate UI
 @enduml

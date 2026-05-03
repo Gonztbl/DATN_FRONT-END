@@ -1,37 +1,81 @@
 @startuml UC70_AdminDangKyMat
-actor Admin
+title Admin đăng ký sinh trắc học
+
+autonumber "<b>[00]</b>"
+skinparam sequenceArrowThickness 2
+skinparam roundcorner 10
+skinparam defaultFontSize 20
+skinparam titleFontSize 26
+skinparam sequenceFontSize 19
+skinparam sequenceMessageFontSize 20
+skinparam sequenceActorFontSize 20
+skinparam sequenceParticipantFontSize 20
+skinparam noteFontSize 18
+skinparam sequenceArrowFontSize 20
+skinparam sequence {
+    ParticipantPadding 30
+    LifeLinePadding 20
+    MessagePadding 10
+}
+
+actor "Admin" as Admin
 boundary ":AdminFaceRegisterUI" as UI
 control ":FaceController" as CTRL
-entity ":CSDL" as DB
+entity ":FaceEmbedding" as ENT
+database ":CSDL" as DB
 
-Admin -> UI : 1: Truy cập trang đăng ký mặt cho User ID
+Admin -> UI : Truy cập đăng ký khuôn mặt cho user
 activate UI
 
-UI -> CTRL : 2: getUserInfo(id)
+UI -> UI : Mở Camera (getUserMedia)
+UI --> Admin : Hiển thị Stream Camera & Hướng dẫn tư thế
+
+Admin -> UI : Nhấn "Chụp ảnh" tư thế Chính diện
+UI -> UI : captureImage() cắt hình từ Video
+
+UI -> CTRL : registerFace(formData) [pose: front]
 activate CTRL
-CTRL -> DB : 3: GET /api/admin/users/{id}
+CTRL -> ENT : POST /api/face/register
+activate ENT
+ENT -> DB : Lưu embedding khuôn mặt Chính diện
 activate DB
-DB --> CTRL : 4: 200 OK {user}
+DB --> ENT : Thành công
 deactivate DB
-CTRL --> UI : 5: Hiển thị tên User
+ENT --> CTRL : Đăng ký thành công
+deactivate ENT
+CTRL --> UI : Trả về kết quả
 deactivate CTRL
 
-UI --> Admin : 6: Hiển thị Video Stream & Hướng dẫn
+Admin -> UI : Nhấn "Chụp ảnh" tư thế Trái
+UI -> CTRL : registerFace(formData) [pose: left]
+activate CTRL
+CTRL -> ENT : POST /api/face/register
+activate ENT
+ENT -> DB : Lưu embedding khuôn mặt Trái
+activate DB
+DB --> ENT : Thành công
+deactivate DB
+ENT --> CTRL : Đăng ký thành công
+deactivate ENT
+CTRL --> UI : Trả về kết quả
+deactivate CTRL
 
-loop 3 tư thế (Chính diện, Trái, Phải)
-    Admin -> UI : 7: Nhấn "Capture"
-    UI -> CTRL : 8: registerFacePose({userId, imageBlob, pose})
-    activate CTRL
-    CTRL -> DB : 9: POST /api/admin/face/register
-    activate DB
-    DB --> CTRL : 10: 200 OK {success: true}
-    deactivate DB
-    CTRL --> UI : 11: Thành công
-    deactivate CTRL
-    UI --> Admin : 12: Hiển thị Preview nhỏ
-end
+Admin -> UI : Nhấn "Chụp ảnh" tư thế Phải
+UI -> CTRL : registerFace(formData) [pose: right]
+activate CTRL
+CTRL -> ENT : POST /api/face/register
+activate ENT
+ENT -> DB : Lưu embedding khuôn mặt Phải
+activate DB
+DB --> ENT : Thành công
+deactivate DB
+ENT --> CTRL : Đăng ký thành công
+deactivate ENT
+CTRL --> UI : Trả về kết quả
+deactivate CTRL
 
-UI --> Admin : 13: Thông báo hoàn tất đủ 3 mẫu
-UI -> UI : 14: Điều hướng về UserDetailPage
+UI --> Admin : Thông báo "Đăng ký hoàn tất cả 3 tư thế!"
+UI --> Admin : Chuyển hướng về trang Chi tiết người dùng
+
 deactivate UI
 @enduml

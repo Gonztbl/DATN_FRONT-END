@@ -1,29 +1,56 @@
 @startuml UC62_AdminXemGiaoDich
-actor Admin
+title Admin xem lịch sử giao dịch hệ thống
+
+autonumber "<b>[00]</b>"
+skinparam sequenceArrowThickness 2
+skinparam roundcorner 10
+skinparam defaultFontSize 20
+skinparam titleFontSize 26
+skinparam sequenceFontSize 19
+skinparam sequenceMessageFontSize 20
+skinparam sequenceActorFontSize 20
+skinparam sequenceParticipantFontSize 20
+skinparam noteFontSize 18
+skinparam sequenceArrowFontSize 20
+skinparam sequence {
+    ParticipantPadding 30
+    LifeLinePadding 20
+    MessagePadding 10
+}
+
+actor "Admin" as Admin
 boundary ":AdminTransactionUI" as UI
 control ":TransactionController" as CTRL
 entity ":Transaction" as ENT
-entity ":CSDL" as DB
+database ":CSDL" as DB
 
-Admin -> UI : 1: Truy cập trang Lịch sử giao dịch hệ thống
+Admin -> UI : Truy cập lịch sử giao dịch
 activate UI
 
-UI -> CTRL : 2: getAllTransactions()
+UI -> CTRL : getAllAdminTransactions()
 activate CTRL
-
-CTRL -> DB : 3: GET /api/admin/transactions
-activate DB
-DB --> CTRL : 4: 200 OK {transactions: [...]}
-deactivate DB
-
-CTRL -> ENT : 5: Mapping danh sách giao dịch
+CTRL -> ENT : GET /api/admin/transactions
 activate ENT
-ENT --> CTRL : 6: Trả về list
+ENT -> DB : Truy vấn toàn bộ giao dịch
+activate DB
+DB --> ENT : Danh sách Transaction[]
+deactivate DB
+ENT --> CTRL : Trả về dữ liệu
 deactivate ENT
-
-CTRL --> UI : 7: Danh sách giao dịch hiển thị
+CTRL --> UI : Hiển thị bảng lịch sử giao dịch
 deactivate CTRL
 
-UI --> Admin : 8: Hiển thị bảng giao dịch (ID, Type, Amount, Status, User...)
+Admin -> UI : Lọc theo ID / Trạng thái / Loại giao dịch
+UI -> UI : Sắp xếp & Lọc & Phân trang Client-side
+UI --> Admin : Hiển thị danh sách kết quả phù hợp
+
+Admin -> UI : Nhấn "Chi tiết" tại 1 giao dịch
+UI -> UI : setSelectedTransaction(txn) & showDetailModal
+UI --> Admin : Hiển thị Modal chi tiết giao dịch (dữ liệu từ danh sách đã tải)
+
+UI --> Admin : Hiển thị thông tin (Status, ID, Wallet ID, Số tiền, Loại, Ghi chú)
+Admin -> UI : Nhấn "Đóng"
+UI -> UI : Đóng Modal
+
 deactivate UI
 @enduml

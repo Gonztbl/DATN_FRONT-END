@@ -1,0 +1,104 @@
+@startuml UC90_AIDanhGiaTinDung
+title Admin đánh giá tín dụng khách hàng
+
+autonumber "<b>[00]</b>"
+skinparam sequenceArrowThickness 2
+skinparam roundcorner 10
+skinparam defaultFontSize 20
+skinparam titleFontSize 26
+skinparam sequenceFontSize 19
+skinparam sequenceMessageFontSize 20
+skinparam sequenceActorFontSize 20
+skinparam sequenceParticipantFontSize 20
+skinparam noteFontSize 18
+skinparam sequenceArrowFontSize 20
+skinparam sequence {
+    ParticipantPadding 30
+    LifeLinePadding 20
+    MessagePadding 10
+}
+
+actor "Admin" as Admin
+boundary ":AdminLoanUI" as UI
+control ":LoanController" as CTRL
+entity ":Loan" as ENT
+database ":CSDL" as DB
+
+Admin -> UI : Truy cập quản lý khoản vay
+activate UI
+
+UI -> CTRL : getDashboardStats() & getPendingLoans(params)
+activate CTRL
+CTRL -> ENT : GET /api/v1/admin/loans/stats & GET /api/v1/admin/loans
+activate ENT
+ENT -> DB : Truy vấn thống kê & danh sách đơn chờ duyệt
+activate DB
+DB --> ENT : Stats & Loans[] (Page)
+deactivate DB
+ENT --> CTRL : Trả về dữ liệu
+deactivate ENT
+CTRL --> UI : Hiển thị Dashboard & Danh sách đơn chờ duyệt
+deactivate CTRL
+
+Admin -> UI : Lọc theo Keyword / Mức rủi ro
+UI -> CTRL : getPendingLoans(params)
+activate CTRL
+CTRL -> ENT : GET /api/v1/admin/loans?filters
+activate ENT
+ENT -> DB : Truy vấn với điều kiện lọc
+activate DB
+DB --> ENT : Loans[] mới
+deactivate DB
+ENT --> CTRL : Trả về dữ liệu
+deactivate ENT
+CTRL --> UI : Cập nhật danh sách
+deactivate CTRL
+
+Admin -> UI : Nhấn "Xem xét" tại 1 đơn vay
+UI -> CTRL : getLoanDetail(loanId) & getUserAiAnalysis(userId)
+activate CTRL
+CTRL -> ENT : GET /api/v1/admin/loans/{id} & GET /api/v1/admin/users/{userId}/ai-analysis
+activate ENT
+ENT -> DB : Truy vấn chi tiết khoản vay & phân tích AI
+activate DB
+DB --> ENT : Loan Detail & AI Analysis (Score, Cash Flow, Risk)
+deactivate DB
+ENT --> CTRL : Trả về chi tiết & AI Score
+deactivate ENT
+CTRL --> UI : Hiển thị Chi Tiết & Phân tích AI
+deactivate CTRL
+
+UI --> Admin : Hiển thị thông tin khoản vay & AI Score
+
+Admin -> UI : Nhấn "Duyệt khoản vay" & Ghi chú
+UI -> CTRL : approveLoan(loanId, adminNote)
+activate CTRL
+CTRL -> ENT : POST /api/v1/admin/loans/{id}/approve
+activate ENT
+ENT -> DB : Cập nhật trạng thái APPROVED
+activate DB
+DB --> ENT : Thành công
+deactivate DB
+ENT --> CTRL : OK
+deactivate ENT
+CTRL --> UI : Duyệt thành công
+deactivate CTRL
+UI --> Admin : Hiển thị Toast thành công
+
+Admin -> UI : Nhấn "Từ chối" & Ghi chú (Bắt buộc)
+UI -> CTRL : rejectLoan(loanId, adminNote)
+activate CTRL
+CTRL -> ENT : POST /api/v1/admin/loans/{id}/reject
+activate ENT
+ENT -> DB : Cập nhật trạng thái REJECTED
+activate DB
+DB --> ENT : Thành công
+deactivate DB
+ENT --> CTRL : OK
+deactivate ENT
+CTRL --> UI : Từ chối thành công
+deactivate CTRL
+UI --> Admin : Hiển thị Toast từ chối & Đóng Modal
+
+deactivate UI
+@enduml

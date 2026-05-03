@@ -1,0 +1,76 @@
+@startuml UC89_AIPhatHienBatThuong
+title Admin phát hiện giao dịch bất thường
+
+autonumber "<b>[00]</b>"
+skinparam sequenceArrowThickness 2
+skinparam roundcorner 10
+skinparam defaultFontSize 20
+skinparam titleFontSize 26
+skinparam sequenceFontSize 19
+skinparam sequenceMessageFontSize 20
+skinparam sequenceActorFontSize 20
+skinparam sequenceParticipantFontSize 20
+skinparam noteFontSize 18
+skinparam sequenceArrowFontSize 20
+skinparam sequence {
+    ParticipantPadding 30
+    LifeLinePadding 20
+    MessagePadding 10
+}
+
+actor "Admin" as Admin
+boundary ":FraudAlertUI" as UI
+control ":FraudController" as CTRL
+entity ":FraudAlert" as ENT
+database ":CSDL" as DB
+
+Admin -> UI : Truy cập quản lý cảnh báo gian lận
+activate UI
+
+UI -> CTRL : getFraudStats() & getFraudAlerts(params)
+activate CTRL
+CTRL -> ENT : GET /api/v1/admin/fraud-alerts/stats & GET /api/v1/admin/fraud-alerts
+activate ENT
+ENT -> DB : Truy vấn thống kê & danh sách cảnh báo
+activate DB
+DB --> ENT : Stats (Tổng số, Cần Review, Chặn) & Alerts[]
+deactivate DB
+ENT --> CTRL : Trả về dữ liệu
+deactivate ENT
+CTRL --> UI : Hiển thị Dashboard & Bảng cảnh báo
+deactivate CTRL
+
+Admin -> UI : Lọc theo Text Search / Zone / Status
+UI -> CTRL : getFraudAlerts(params_mới)
+activate CTRL
+CTRL -> ENT : GET /api/v1/admin/fraud-alerts?filters
+activate ENT
+ENT -> DB : Truy vấn với điều kiện lọc
+activate DB
+DB --> ENT : Alerts[] mới
+deactivate DB
+ENT --> CTRL : Trả về dữ liệu
+deactivate ENT
+CTRL --> UI : Cập nhật bảng
+deactivate CTRL
+
+Admin -> UI : Nhấn "Xem" chi tiết cảnh báo
+UI -> CTRL : getFraudAlertDetail(id)
+activate CTRL
+CTRL -> ENT : GET /api/v1/admin/fraud-alerts/{id}
+activate ENT
+ENT -> DB : Truy vấn chi tiết cảnh báo
+activate DB
+DB --> ENT : Full Detail (Fraud Score, Zone, Features)
+deactivate DB
+ENT --> CTRL : Trả về chi tiết
+deactivate ENT
+CTRL --> UI : Hiển thị Modal chi tiết
+deactivate CTRL
+
+UI --> Admin : Hiển thị thông tin AI (Fraud Score, Zone, 13 Features)
+Admin -> UI : Nhấn "Đóng"
+UI -> UI : Đóng Modal
+
+deactivate UI
+@enduml

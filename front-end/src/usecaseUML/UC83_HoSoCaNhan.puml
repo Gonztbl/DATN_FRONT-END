@@ -1,0 +1,52 @@
+@startuml
+title Biểu đồ trình tự: Quản lý Hồ sơ cá nhân (User Profile)
+actor "Người dùng (User)" as User
+boundary "ProfilePage" as UI
+control "UserService" as Ctrl
+entity "Database" as DB
+
+== Xem thông tin hồ sơ ==
+User -> UI: Truy cập trang Hồ sơ cá nhân
+activate UI
+
+UI -> Ctrl: Lấy thông tin user (GET /api/users/profile)
+activate Ctrl
+
+Ctrl -> DB: Truy vấn thông tin tài khoản
+activate DB
+DB --> Ctrl: Trả về dữ liệu User (Tên, SĐT, Avatar, Email)
+deactivate DB
+
+Ctrl --> UI: Trả về thông tin hồ sơ
+deactivate Ctrl
+
+UI -> UI: Hiển thị thông tin lên giao diện
+UI --> User: Hiển thị Hồ sơ cá nhân
+deactivate UI
+
+== Cập nhật thông tin hồ sơ ==
+User -> UI: Chỉnh sửa thông tin (Tên, Ảnh đại diện...) và nhấn "Lưu"
+activate UI
+
+UI -> UI: Validate dữ liệu đầu vào (Client-side)
+alt Dữ liệu không hợp lệ
+    UI --> User: Hiển thị thông báo lỗi
+else Dữ liệu hợp lệ
+    UI -> Ctrl: Gửi thông tin cập nhật (PUT /api/users/profile)
+    activate Ctrl
+
+    Ctrl -> Ctrl: Validate dữ liệu (Server-side)
+    
+    Ctrl -> DB: Cập nhật bản ghi tài khoản
+    activate DB
+    DB --> Ctrl: Xác nhận cập nhật thành công
+    deactivate DB
+
+    Ctrl --> UI: Trả về phản hồi thành công
+    deactivate Ctrl
+
+    UI -> UI: Cập nhật giao diện với dữ liệu mới
+    UI --> User: Thông báo "Cập nhật thành công"
+end
+deactivate UI
+@enduml

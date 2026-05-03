@@ -1,0 +1,42 @@
+@startuml
+title Biểu đồ trình tự: Chatbot AI Hỗ trợ (SmartPay AI)
+actor "Người dùng (User)" as User
+boundary "ChatbotComponent" as UI
+control "ChatbotService" as Ctrl
+entity "AI Service\n(ChatGPT/NLP)" as AI
+entity "ChatDatabase" as DB
+
+User -> UI: Mở cửa sổ Chatbot AI
+activate UI
+UI --> User: Hiển thị giao diện Chatbot
+
+User -> UI: Gửi tin nhắn (Vd: "Hỗ trợ tôi nạp tiền")
+
+UI -> UI: Hiển thị trạng thái "Đang phản hồi..."
+
+UI -> Ctrl: Gửi nội dung tin nhắn (POST /api/chatbot)
+activate Ctrl
+
+Ctrl -> DB: Lấy lịch sử hội thoại
+activate DB
+DB --> Ctrl: Trả về ngữ cảnh (Context) hội thoại
+deactivate DB
+
+Ctrl -> AI: Gửi truy vấn + Ngữ cảnh (Prompt)
+activate AI
+AI -> AI: Xử lý ngôn ngữ tự nhiên (NLP) / Trí tuệ nhân tạo
+AI --> Ctrl: Trả về câu trả lời tự động / Hành động đề xuất
+deactivate AI
+
+Ctrl -> DB: Lưu tin nhắn User & AI vào DB
+activate DB
+DB --> Ctrl: Xác nhận lưu thành công
+deactivate DB
+
+Ctrl --> UI: Trả về câu trả lời (Response)
+deactivate Ctrl
+
+UI -> UI: Xóa trạng thái "Đang phản hồi"
+UI --> User: Hiển thị câu trả lời từ AI trên cửa sổ chat
+deactivate UI
+@enduml

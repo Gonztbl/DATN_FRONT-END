@@ -1,32 +1,59 @@
 @startuml UC77_AdminQuanLyShipper
-actor Admin
+title Admin quản lý Shipper
+
+autonumber "<b>[00]</b>"
+skinparam sequenceArrowThickness 2
+skinparam roundcorner 10
+skinparam defaultFontSize 20
+skinparam titleFontSize 26
+skinparam sequenceFontSize 19
+skinparam sequenceMessageFontSize 20
+skinparam sequenceActorFontSize 20
+skinparam sequenceParticipantFontSize 20
+skinparam noteFontSize 18
+skinparam sequenceArrowFontSize 20
+skinparam sequence {
+    ParticipantPadding 30
+    LifeLinePadding 20
+    MessagePadding 10
+}
+
+actor "Admin" as Admin
 boundary ":ShipperManagementUI" as UI
 control ":ShipperController" as CTRL
 entity ":Shipper" as ENT
-entity ":CSDL" as DB
+database ":CSDL" as DB
 
-Admin -> UI : 1: Truy cập "Shipper Management"
+Admin -> UI : Truy cập quản lý Shipper
 activate UI
 
-UI -> CTRL : 2: getAllShippers()
+UI -> CTRL : getAllShippers()
 activate CTRL
-CTRL -> DB : 3: GET /api/admin/shippers
+CTRL -> ENT : GET /api/admin/shippers
+activate ENT
+ENT -> DB : Truy vấn danh sách Shipper
 activate DB
-DB --> CTRL : 4: 200 OK {shippers: [...]}
+DB --> ENT : Danh sách Shipper[]
 deactivate DB
-CTRL --> UI : 5: Hiển thị danh sách shipper
+ENT --> CTRL : Trả về dữ liệu
+deactivate ENT
+CTRL --> UI : Hiển thị danh sách shipper
 deactivate CTRL
 
-== Kiểm tra hồ sơ & Phương tiện ==
-Admin -> UI : 6: Nhấn "View Details"
-UI -> CTRL : 7: getShipperDetail(id)
+Admin -> UI : Nhấn "View Details" tại một Shipper
+UI -> CTRL : getShipperDetail(id)
 activate CTRL
-CTRL -> DB : 8: GET /api/admin/shippers/{id}
+CTRL -> ENT : GET /api/admin/shippers/{id}
+activate ENT
+ENT -> DB : Truy vấn hồ sơ & phương tiện
 activate DB
-DB --> CTRL : 9: 200 OK {profile, vehicleInfo}
+DB --> ENT : Profile, VehicleInfo
 deactivate DB
-CTRL --> UI : 10: Hiển thị Modal/Page chi tiết
+ENT --> CTRL : Trả về chi tiết
+deactivate ENT
+CTRL --> UI : Hiển thị chi tiết Shipper
 deactivate CTRL
+UI --> Admin : Xem hồ sơ & Thông tin phương tiện
 
 deactivate UI
 @enduml

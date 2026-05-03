@@ -1,21 +1,46 @@
 @startuml UC79_AdminTaiChinh
-actor Admin
-boundary ":AdminWalletUI" as UI
-control ":WalletController" as CTRL
-entity ":CSDL" as DB
+title Admin xem Dashboard tài chính
 
-Admin -> UI : 1: Xem Dashboard Tài chính
+autonumber "<b>[00]</b>"
+skinparam sequenceArrowThickness 2
+skinparam roundcorner 10
+skinparam defaultFontSize 20
+skinparam titleFontSize 26
+skinparam sequenceFontSize 19
+skinparam sequenceMessageFontSize 20
+skinparam sequenceActorFontSize 20
+skinparam sequenceParticipantFontSize 20
+skinparam noteFontSize 18
+skinparam sequenceArrowFontSize 20
+skinparam sequence {
+    ParticipantPadding 30
+    LifeLinePadding 20
+    MessagePadding 10
+}
+
+actor "Admin" as Admin
+boundary ":AdminFinanceUI" as UI
+control ":FinanceController" as CTRL
+entity ":Finance" as ENT
+database ":CSDL" as DB
+
+Admin -> UI : Xem Dashboard Tài chính
 activate UI
 
-UI -> CTRL : 2: getSystemFinancialSummary()
+UI -> CTRL : getSystemFinancialSummary()
 activate CTRL
-CTRL -> DB : 3: GET /api/admin/finance/summary
+CTRL -> ENT : GET /api/admin/finance/summary
+activate ENT
+ENT -> DB : Truy vấn tổng hợp tài chính
 activate DB
-DB --> CTRL : 4: 200 OK {totalBalance, totalTransactions, revenue}
+DB --> ENT : {totalBalance, totalTransactions, revenue}
 deactivate DB
-CTRL --> UI : 5: Hiển thị biểu đồ và con số
+ENT --> CTRL : Trả về dữ liệu tài chính
+deactivate ENT
+CTRL --> UI : Hiển thị biểu đồ và con số
 deactivate CTRL
 
-UI --> Admin : 6: Xem báo cáo doanh thu toàn hệ thống
+UI --> Admin : Xem báo cáo doanh thu toàn hệ thống
+
 deactivate UI
 @enduml

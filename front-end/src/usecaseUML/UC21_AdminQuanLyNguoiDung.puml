@@ -1,5 +1,5 @@
 @startuml UC21_AdminQuanLyNguoiDung
-title UC21 - Admin quản lý người dùng
+title Admin quản lý người dùng
 
 autonumber "<b>[00]</b>"
 skinparam sequenceArrowThickness 2
@@ -27,7 +27,7 @@ database ":CSDL" as DB
 Admin -> UI : Truy cập quản lý người dùng
 activate UI
 
-UI -> CTRL : Tải toàn bộ danh sách users
+UI -> CTRL : getAllUsers()
 activate CTRL
 CTRL -> ENT : GET /api/userManager/all
 activate ENT
@@ -40,11 +40,13 @@ deactivate ENT
 CTRL --> UI : Hiển thị bảng người dùng
 deactivate CTRL
 
-Admin -> UI : Nhấn "Khóa/Mở khóa" tài khoản
-UI -> UI : Hiển thị xác nhận thay đổi trạng thái
-Admin -> UI : Xác nhận (Khóa/Mở)
+Admin -> UI : Lọc theo từ khóa / Trạng thái / Vai trò
+UI -> UI : filter() mảng users & phân trang Client-side
+UI --> Admin : Hiển thị danh sách kết quả phù hợp
 
-UI -> CTRL : Gửi yêu cầu thay đổi trạng thái
+Admin -> UI : Nhấn Toggle "Khóa/Mở khóa" tài khoản
+
+UI -> CTRL : handleToggleLock(user)
 activate CTRL
 CTRL -> ENT : PUT /api/userManager/lock/{id} hoặc /unlock/{id}
 activate ENT
@@ -54,22 +56,14 @@ DB --> ENT : Thành công
 deactivate DB
 ENT --> CTRL : Updated
 deactivate ENT
-CTRL --> UI : Cập nhật lại UI linh hoạt
+CTRL --> UI : Cập nhật lại UI (setUsers cục bộ)
 deactivate CTRL
 
-Admin -> UI : Nhấn "Xóa người dùng"
-UI -> CTRL : DELETE /api/admin/users/{id}
-activate CTRL
-CTRL -> ENT : Gửi lệnh xóa (Soft or Hard Delete)
-activate ENT
-ENT -> DB : Thực hiện xóa dữ liệu
-activate DB
-DB --> ENT : OK
-deactivate DB
-ENT --> CTRL : Deleted
-deactivate ENT
-CTRL --> UI : Reload danh sách
-deactivate CTRL
+Admin -> UI : Click vào dòng người dùng
+UI --> Admin : Chuyển hướng navigate('/admin/users/{id}')
+
+Admin -> UI : Nhấn "Tạo người dùng"
+UI --> Admin : Chuyển hướng navigate('/admin/users/create')
 
 deactivate UI
 

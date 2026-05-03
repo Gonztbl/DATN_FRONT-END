@@ -1,0 +1,60 @@
+@startuml
+title Biểu đồ trình tự: Bảng điều khiển ví (Wallet Dashboard)
+actor "Người dùng (User)" as User
+boundary "DashboardPage" as UI
+control "WalletService" as WalletCtrl
+control "TransactionService" as TransCtrl
+entity "Database" as DB
+
+User -> UI: Truy cập trang Bảng điều khiển ví (Dashboard)
+activate UI
+
+note over UI: Tải dữ liệu song song (Parallel Requests)
+
+par Tải Tổng số dư & Trạng thái ví
+    UI -> WalletCtrl: Lấy thông tin ví (GET /api/wallet/info)
+    activate WalletCtrl
+    WalletCtrl -> DB: Truy vấn Wallet
+    activate DB
+    DB --> WalletCtrl: Số dư, Trạng thái, Hạn mức
+    deactivate DB
+    WalletCtrl --> UI: Trả về thông tin tổng quan ví
+    deactivate WalletCtrl
+else Tải Thẻ liên kết
+    UI -> WalletCtrl: Lấy danh sách thẻ (GET /api/wallet/cards)
+    activate WalletCtrl
+    WalletCtrl -> DB: Truy vấn danh sách thẻ liên kết
+    activate DB
+    DB --> WalletCtrl: Trả về ngân hàng liên kết
+    deactivate DB
+    WalletCtrl --> UI: Dữ liệu thẻ ngân hàng
+    deactivate WalletCtrl
+else Tải Giao dịch gần đây
+    UI -> TransCtrl: Lấy giao dịch (GET /api/transactions/recent)
+    activate TransCtrl
+    TransCtrl -> DB: Truy vấn 5-10 giao dịch mới nhất
+    activate DB
+    DB --> TransCtrl: Danh sách giao dịch
+    deactivate DB
+    TransCtrl --> UI: Dữ liệu lịch sử giao dịch
+    deactivate TransCtrl
+else Tải Thống kê nợ/vay/chi tiêu
+    UI -> TransCtrl: Lấy thống kê (GET /api/transactions/stats)
+    activate TransCtrl
+    TransCtrl -> DB: Tổng kết tài chính (Thu/Chi/Khoản vay)
+    activate DB
+    DB --> TransCtrl: Dữ liệu biểu đồ thống kê
+    deactivate DB
+    TransCtrl --> UI: Trả về số liệu đồ thị
+    deactivate TransCtrl
+end
+
+UI -> UI: Xử lý và Render giao diện (Số dư, QR Nhận tiền, Quick Actions, Biểu đồ, Lịch sử)
+UI --> User: Hiển thị Bảng điều khiển ví
+deactivate UI
+
+User -> UI: Tương tác tính năng nhanh (Nạp, Rút, Chuyển, Quét QR...)
+activate UI
+UI --> User: Điều hướng sang chức năng tương ứng
+deactivate UI
+@enduml

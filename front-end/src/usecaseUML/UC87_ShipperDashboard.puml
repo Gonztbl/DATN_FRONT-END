@@ -1,0 +1,42 @@
+@startuml
+title Biểu đồ trình tự: Bảng điều khiển tài xế (Shipper Dashboard)
+actor "Tài xế (Shipper)" as Shipper
+boundary "ShipperDashboardPage" as UI
+control "ShipperService" as Ctrl
+control "OrderService" as OrderCtrl
+entity "Database" as DB
+
+Shipper -> UI: Truy cập trang Bảng điều khiển tài xế
+activate UI
+
+note right of UI: Tải dữ liệu vận hành và thống kê song song
+
+par Lấy thông tin & thống kê tài xế
+    UI -> Ctrl: Yêu cầu thu nhập & KPI (GET /api/shipper/stats)
+    activate Ctrl
+    Ctrl -> DB: Truy vấn số đơn hoàn thành, thu nhập trong ngày/tuần
+    activate DB
+    DB --> Ctrl: Trả về dữ liệu thống kê
+    deactivate DB
+    Ctrl --> UI: Thông tin thu nhập và hiệu suất
+    deactivate Ctrl
+else Lấy danh sách đơn hàng có thể nhận (Gợi ý)
+    UI -> OrderCtrl: Yêu cầu đơn hàng quanh đây (GET /api/shipper/orders/nearby)
+    activate OrderCtrl
+    OrderCtrl -> DB: Truy vấn đơn hàng PENDING theo vị trí GPS
+    activate DB
+    DB --> OrderCtrl: Danh sách các chuyến xe/Đơn hàng
+    deactivate DB
+    OrderCtrl --> UI: Dữ liệu đơn hàng lân cận
+    deactivate OrderCtrl
+end
+
+UI -> UI: Render giao diện: Số dư ví tài xế, Thẻ thu nhập, Bản đồ/Danh sách đơn
+UI --> Shipper: Hiển thị Bảng điều khiển tài xế
+deactivate UI
+
+Shipper -> UI: Lựa chọn một đơn hàng cụ thể
+activate UI
+UI --> Shipper: Chuyển hướng sang màn hình Chi tiết nhận đơn
+deactivate UI
+@enduml

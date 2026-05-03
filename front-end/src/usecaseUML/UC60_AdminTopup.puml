@@ -1,42 +1,51 @@
 @startuml UC60_AdminTopup
-actor Admin
+title Admin nạp tiền vào ví
+
+autonumber "<b>[00]</b>"
+skinparam sequenceArrowThickness 2
+skinparam roundcorner 10
+skinparam defaultFontSize 20
+skinparam titleFontSize 26
+skinparam sequenceFontSize 19
+skinparam sequenceMessageFontSize 20
+skinparam sequenceActorFontSize 20
+skinparam sequenceParticipantFontSize 20
+skinparam noteFontSize 18
+skinparam sequenceArrowFontSize 20
+skinparam sequence {
+    ParticipantPadding 30
+    LifeLinePadding 20
+    MessagePadding 10
+}
+
+actor "Admin" as Admin
 boundary ":AdminWalletUI" as UI
 control ":WalletController" as CTRL
 entity ":Transaction" as ENT
-entity ":CSDL" as DB
+database ":CSDL" as DB
 
-Admin -> UI : 1: Chọn ví, nhấn "Topup"
+Admin -> UI : Chọn ví, nhấn "Topup"
 activate UI
 
-UI --> Admin : 2: Hiển thị Modal Topup
-Admin -> UI : 3: Nhập số tiền (amount), nhấn "Confirm"
+UI --> Admin : Hiển thị Modal Topup
+Admin -> UI : Nhập số tiền (amount), nhấn "Confirm"
 
-UI -> UI : 4: Validate (amount > 0)
+UI -> UI : Validate (amount > 0)
 
-UI -> CTRL : 5: adminTopup({walletId, amount})
+UI -> CTRL : adminTopup({walletId, amount})
 activate CTRL
-
-CTRL -> DB : 6: POST /api/admin/wallets/topup
+CTRL -> ENT : POST /api/admin/wallets/topup
+activate ENT
+ENT -> DB : Cộng tiền vào ví & Tạo Transaction (ADMIN_TOPUP)
 activate DB
+DB --> ENT : 200 OK {success: true, newBalance}
+deactivate DB
+ENT --> CTRL : Đã tạo giao dịch
+deactivate ENT
+CTRL --> UI : Thành công
+deactivate CTRL
 
-alt Topup thất bại
-    DB --> CTRL : 6.1: 4xx/5xx Error
-    CTRL --> UI : 6.2: Trả về lỗi
-    UI --> Admin : 6.3: Hiển thị thông báo lỗi
-else Thành công
-    DB --> CTRL : 7.1: 200 OK {success: true, newBalance}
-    deactivate DB
-
-    CTRL -> ENT : 7.2: Tạo Transaction (ADMIN_TOPUP)
-    activate ENT
-    ENT --> CTRL : 7.3: Đã tạo
-    deactivate ENT
-
-    CTRL --> UI : 7.4: Thành công
-    deactivate CTRL
-
-    UI --> Admin : 8: Hiển thị "Nạp tiền thành công", refresh danh sách
-end
+UI --> Admin : Hiển thị "Nạp tiền thành công", refresh danh sách
 
 deactivate UI
 @enduml

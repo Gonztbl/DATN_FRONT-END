@@ -1,0 +1,45 @@
+@startuml
+title Biểu đồ trình tự: Chi tiết đơn hàng (Merchant - Order Details)
+actor "Chủ cửa hàng (Merchant)" as Merchant
+boundary "OrderDetailModal" as UI
+control "OrderService" as Ctrl
+entity "Database" as DB
+
+Merchant -> UI: Nhấn xem chi tiết đơn hàng (ID: #123)
+activate UI
+
+UI -> Ctrl: Yêu cầu thông tin đơn hàng (GET /api/merchant/orders/123)
+activate Ctrl
+
+Ctrl -> DB: Truy vấn chi tiết đơn (Món ăn, Người mua, Shipper, Giá)
+activate DB
+DB --> Ctrl: Trả về dữ liệu chi tiết
+deactivate DB
+
+Ctrl --> UI: Thông tin chi tiết đơn hàng
+deactivate Ctrl
+
+UI -> UI: Render danh sách món, ghi chú, và trạng thái đơn
+UI --> Merchant: Hiển thị giao diện Chi tiết đơn hàng
+deactivate UI
+
+opt Nhà hàng thao tác xử lý đơn
+    Merchant -> UI: Nhấn nút hành động ("Xác nhận", "Chuẩn bị xong", "Từ chối")
+    activate UI
+    
+    UI -> Ctrl: Yêu cầu cập nhật trạng thái (PUT /api/orders/123/status)
+    activate Ctrl
+    
+    Ctrl -> DB: Cập nhật trạng thái mới cho đơn hàng
+    activate DB
+    DB --> Ctrl: Xác nhận thay đổi thành công
+    deactivate DB
+    
+    Ctrl --> UI: Trả về kết quả thành công
+    deactivate Ctrl
+    
+    UI -> UI: Refresh giao diện hiển thị trạng thái mới
+    UI --> Merchant: Thông báo "Cập nhật thành công" & Đóng/Cập nhật Modal
+    deactivate UI
+end
+@enduml

@@ -1,36 +1,46 @@
 @startuml UC61_AdminKhoaMoKhoaVi
-actor Admin
+title Admin khóa/mở khóa ví
+
+autonumber "<b>[00]</b>"
+skinparam sequenceArrowThickness 2
+skinparam roundcorner 10
+skinparam defaultFontSize 20
+skinparam titleFontSize 26
+skinparam sequenceFontSize 19
+skinparam sequenceMessageFontSize 20
+skinparam sequenceActorFontSize 20
+skinparam sequenceParticipantFontSize 20
+skinparam noteFontSize 18
+skinparam sequenceArrowFontSize 20
+skinparam sequence {
+    ParticipantPadding 30
+    LifeLinePadding 20
+    MessagePadding 10
+}
+
+actor "Admin" as Admin
 boundary ":AdminWalletUI" as UI
 control ":WalletController" as CTRL
 entity ":Wallet" as ENT
-entity ":CSDL" as DB
+database ":CSDL" as DB
 
-Admin -> UI : 1: Nhấn Toggle khóa/mở khóa ví
+Admin -> UI : Nhấn Toggle khóa/mở khóa ví
 activate UI
 
-UI -> CTRL : 2: toggleWalletStatus(walletId)
+UI -> CTRL : toggleWalletStatus(walletId)
 activate CTRL
-
-alt Ví đang ACTIVE -> Khóa
-    CTRL -> DB : 3a: PUT /api/admin/wallets/lock/{id}
-    activate DB
-    DB --> CTRL : 4a: 200 OK
-    deactivate DB
-else Ví đang LOCKED -> Mở khóa
-    CTRL -> DB : 3b: PUT /api/admin/wallets/unlock/{id}
-    activate DB
-    DB --> CTRL : 4b: 200 OK
-    deactivate DB
-end
-
-CTRL -> ENT : 5: Cập nhật trạng thái ví
+CTRL -> ENT : PUT /api/admin/wallets/lock/{id} hoặc /unlock/{id}
 activate ENT
-ENT --> CTRL : 6: Đã cập nhật
+ENT -> DB : Cập nhật trạng thái ví (ACTIVE <-> LOCKED)
+activate DB
+DB --> ENT : 200 OK
+deactivate DB
+ENT --> CTRL : Đã cập nhật
 deactivate ENT
-
-CTRL --> UI : 7: Thành công
+CTRL --> UI : Thành công
 deactivate CTRL
 
-UI --> Admin : 8: Cập nhật UI trạng thái mới
+UI --> Admin : Cập nhật UI trạng thái mới
+
 deactivate UI
 @enduml

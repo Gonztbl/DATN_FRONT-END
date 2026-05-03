@@ -1,51 +1,88 @@
 @startuml UC73_AdminChiTietUser
-actor Admin
-boundary ":UserDetailUI" as UI
-control ":AdminController" as CTRL
-entity ":UserAccount" as ENT
-entity ":CSDL" as DB
+title Admin xem chi tiết hồ sơ người dùng
 
-Admin -> UI : 1: Chọn một người dùng từ danh sách
+autonumber "<b>[00]</b>"
+skinparam sequenceArrowThickness 2
+skinparam roundcorner 10
+skinparam defaultFontSize 20
+skinparam titleFontSize 26
+skinparam sequenceFontSize 19
+skinparam sequenceMessageFontSize 20
+skinparam sequenceActorFontSize 20
+skinparam sequenceParticipantFontSize 20
+skinparam noteFontSize 18
+skinparam sequenceArrowFontSize 20
+skinparam sequence {
+    ParticipantPadding 30
+    LifeLinePadding 20
+    MessagePadding 10
+}
+
+actor "Admin" as Admin
+boundary ":UserDetailUI" as UI
+control ":UserDetailController" as CTRL
+entity ":Account" as ENT
+database ":CSDL" as DB
+
+Admin -> UI : Truy cập chi tiết người dùng
 activate UI
 
-UI -> CTRL : 2: getUserFullDetail(id)
+UI -> CTRL : Tải dữ liệu User, Embeddings, Wallets, Transactions
 activate CTRL
-CTRL -> DB : 3: GET /api/admin/users/{id}/full
+CTRL -> ENT : GET /api/userManager/all & GET /api/face/list/{userId} & GET /api/admin/wallets & GET /api/admin/transactions
+activate ENT
+ENT -> DB : Truy vấn dữ liệu liên quan theo userId
 activate DB
-DB --> CTRL : 4: 200 OK {profile, wallets, biometrics, logs}
+DB --> ENT : User, Embeddings[], Wallets[], Transactions[]
 deactivate DB
-CTRL --> UI : 5: Data tổng hợp
+ENT --> CTRL : Trả về dữ liệu tổng hợp
+deactivate ENT
+CTRL --> UI : Cập nhật states
 deactivate CTRL
 
-UI --> Admin : 6: Hiển thị các Tab: General, Wallet, Face, Activity
+UI --> Admin : Hiển thị Chi tiết (Thông tin chung, Ví, Giao dịch)
 
-== Chỉnh sửa ==
-Admin -> UI : 7: Nhấn "Edit Profile"
-UI --> Admin : 8: Mở modal chỉnh sửa
-Admin -> UI : 9: Thay đổi thông tin, nhấn "Save"
-UI -> CTRL : 10: updateProfile(data)
-activate CTRL
-CTRL -> DB : 11: PUT /api/admin/users/{id}
-activate DB
-DB --> CTRL : 12: 200 OK
-deactivate DB
-CTRL --> UI : 13: Thành công
-deactivate CTRL
-UI --> Admin : 14: Cập nhật thông tin trên trang
+Admin -> UI : Nhấn "Chỉnh sửa hồ sơ"
+UI --> Admin : Mở Modal chỉnh sửa
+Admin -> UI : Thay đổi dữ liệu & Submit
 
-== Xóa tài khoản ==
-Admin -> UI : 15: Nhấn "Delete User"
-UI --> Admin : 16: Hộp thoại xác nhận
-Admin -> UI : 17: Đồng ý xóa
-UI -> CTRL : 18: deleteUser(id)
+UI -> CTRL : updateUser(id, payload)
 activate CTRL
-CTRL -> DB : 19: DELETE /api/admin/users/{id}
+CTRL -> ENT : PUT /api/userManager/update/{id}
+activate ENT
+ENT -> DB : Cập nhật thông tin Account
 activate DB
-DB --> CTRL : 20: 200 OK
+DB --> ENT : Thành công
 deactivate DB
-CTRL --> UI : 21: Thành công
+ENT --> CTRL : Updated
+deactivate ENT
+CTRL --> UI : Cập nhật state & Đóng Modal
 deactivate CTRL
-UI -> UI : 22: Redirect về danh sách người dùng
+UI --> Admin : Thông báo thành công
+
+Admin -> UI : Nhấn "Xóa người dùng"
+UI -> UI : Hiển thị xác nhận
+Admin -> UI : Xác nhận xóa
+
+UI -> CTRL : deleteUser(id)
+activate CTRL
+CTRL -> ENT : DELETE /api/admin/users/{id}
+activate ENT
+ENT -> DB : Xóa tài khoản
+activate DB
+DB --> ENT : OK
+deactivate DB
+ENT --> CTRL : Deleted
+deactivate ENT
+CTRL --> UI : OK
+deactivate CTRL
+UI --> Admin : Chuyển hướng về danh sách người dùng
+
+Admin -> UI : Nhấn "Thêm khuôn mặt mới"
+UI --> Admin : Chuyển hướng /admin/users/{id}/register-face
+
+Admin -> UI : Nhấn "Kiểm tra xác thực"
+UI --> Admin : Chuyển hướng /admin/users/{id}/verify-face
 
 deactivate UI
 @enduml

@@ -148,7 +148,7 @@ const HistoryOrderByUser = () => {
     };
 
     return (
-        <div className="bg-slate-50 dark:bg-slate-900 font-display text-slate-900 dark:text-slate-100 min-h-screen">
+        <div className="bg-slate-50 dark:bg-slate-900 font-display text-slate-900 dark:text-slate-100 min-h-screen flex flex-col">
             {/* Top Navigation Bar */}
             <header className="sticky top-0 z-50 w-full border-b border-slate-200 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-900/80 backdrop-blur-md">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -198,7 +198,7 @@ const HistoryOrderByUser = () => {
                 </div>
             </header>
 
-            <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1">
                 {/* Status Tabs */}
                 <div className="mb-8 border-b border-slate-200 dark:border-slate-800 overflow-x-auto">
                     <nav className="flex gap-8 min-w-max">
@@ -395,9 +395,9 @@ const HistoryOrderByUser = () => {
                 )}
             </main>
 
-            <footer className="mt-20 border-t border-slate-200 dark:border-slate-800 py-12 bg-slate-100 dark:bg-slate-950/50">
+            <footer className="mt-auto border-t border-slate-200 dark:border-slate-800 py-4 bg-slate-100 dark:bg-slate-950/50">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="flex flex-col md:flex-row justify-between items-center gap-8">
+                    <div className="flex flex-col md:flex-row justify-between items-center gap-4">
                         <div className="flex items-center gap-2">
                             <span className="material-symbols-outlined text-primary font-bold text-3xl">payments</span>
                             <span className="text-xl font-bold tracking-tight">SmartPay</span>

@@ -1,0 +1,77 @@
+@startuml UC80_AdminChiTietDonHang
+title Admin xem chi tiết và điều phối đơn hàng
+
+autonumber "<b>[00]</b>"
+skinparam sequenceArrowThickness 2
+skinparam roundcorner 10
+skinparam defaultFontSize 20
+skinparam titleFontSize 26
+skinparam sequenceFontSize 19
+skinparam sequenceMessageFontSize 20
+skinparam sequenceActorFontSize 20
+skinparam sequenceParticipantFontSize 20
+skinparam noteFontSize 18
+skinparam sequenceArrowFontSize 20
+skinparam sequence {
+    ParticipantPadding 30
+    LifeLinePadding 20
+    MessagePadding 10
+}
+
+actor "Admin" as Admin
+boundary ":ViewOrderAdminUI" as UI
+control ":OrderController" as CTRL
+entity ":Order" as ENT
+database ":CSDL" as DB
+
+Admin -> UI : Truy cập chi tiết đơn hàng
+activate UI
+
+UI -> CTRL : getOrderDetail(id)
+activate CTRL
+CTRL -> ENT : GET /api/admin/orders/{id}
+activate ENT
+ENT -> DB : Truy vấn đơn hàng & thông tin liên quan
+activate DB
+DB --> ENT : Order, Products, Restaurant, Shipper, Customer
+deactivate DB
+ENT --> CTRL : Trả về dữ liệu tổng hợp
+deactivate ENT
+CTRL --> UI : Hiển thị chi tiết đơn hàng
+deactivate CTRL
+
+UI --> Admin : Hiển thị (Khách hàng, Nhà hàng, Tài xế, Sản phẩm, Timeline)
+
+Admin -> UI : Chọn trạng thái mới & Nhấn "Lưu thay đổi"
+UI -> CTRL : updateOrderStatus(id, selectedStatus)
+activate CTRL
+CTRL -> ENT : PUT /api/admin/orders/{id}/status
+activate ENT
+ENT -> DB : Cập nhật trạng thái đơn hàng
+activate DB
+DB --> ENT : 200 OK
+deactivate DB
+ENT --> CTRL : Thành công
+deactivate ENT
+CTRL --> UI : Cập nhật thành công
+deactivate CTRL
+UI --> Admin : Báo cáo "Cập nhật thành công"
+
+Admin -> UI : Chọn lý do hủy & Nhấn "Xác nhận hủy đơn hàng"
+UI -> CTRL : cancelOrder(id, reason)
+activate CTRL
+CTRL -> ENT : PUT /api/admin/orders/{id}/cancel
+activate ENT
+ENT -> DB : Hủy đơn & Xử lý hoàn tiền (nếu có)
+activate DB
+DB --> ENT : OK {refundTransactionId}
+deactivate DB
+ENT --> CTRL : Hủy thành công
+deactivate ENT
+CTRL --> UI : Trả về Success
+deactivate CTRL
+
+UI --> Admin : Hiển thị "Hủy thành công" & Tải lại chi tiết
+
+deactivate UI
+@enduml

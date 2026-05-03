@@ -299,7 +299,7 @@ export default function VendorManagerPage() {
                                                     <td className="px-6 py-4 text-center text-slate-600 dark:text-slate-400 font-medium">{cat.orderIndex || 1}</td>
                                                     <td className="px-6 py-4 text-center">
                                                         <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-700">
-                                                            {cat.products_count || 0}
+                                                            {cat.productCount || 0}
                                                         </span>
                                                     </td>
                                                     <td className="px-6 py-4 text-right">

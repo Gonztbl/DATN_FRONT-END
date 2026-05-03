@@ -1,45 +1,89 @@
 @startuml UC74_AdminQuanLySanPham
-actor Admin
+title Admin quản lý sản phẩm
+
+autonumber "<b>[00]</b>"
+skinparam sequenceArrowThickness 2
+skinparam roundcorner 10
+skinparam defaultFontSize 20
+skinparam titleFontSize 26
+skinparam sequenceFontSize 19
+skinparam sequenceMessageFontSize 20
+skinparam sequenceActorFontSize 20
+skinparam sequenceParticipantFontSize 20
+skinparam noteFontSize 18
+skinparam sequenceArrowFontSize 20
+skinparam sequence {
+    ParticipantPadding 30
+    LifeLinePadding 20
+    MessagePadding 10
+}
+
+actor "Admin" as Admin
 boundary ":AdminProductUI" as UI
 control ":ProductController" as CTRL
 entity ":Product" as ENT
-entity ":CSDL" as DB
+database ":CSDL" as DB
 
-Admin -> UI : 1: Truy cập trang "Product Management"
+Admin -> UI : Truy cập quản lý sản phẩm
 activate UI
 
-UI -> CTRL : 2: getAllProducts(filters)
+UI -> CTRL : Tải Categories & Restaurants & Products
 activate CTRL
-CTRL -> DB : 3: GET /api/admin/products?...
+CTRL -> ENT : GET /api/admin/categories & /api/admin/restaurants & /api/admin/products
+activate ENT
+ENT -> DB : Truy vấn danh sách
 activate DB
-DB --> CTRL : 4: 200 OK {products: [...]}
+DB --> ENT : Categories[], Restaurants[], Products[] & Total
 deactivate DB
-CTRL --> UI : 5: Hiển thị danh sách sản phẩm
+ENT --> CTRL : Trả về dữ liệu
+deactivate ENT
+CTRL --> UI : Hiển thị bảng sản phẩm & Bộ lọc
 deactivate CTRL
 
-== Thêm món mới ==
-Admin -> UI : 6: Nhấn "Thêm món mới"
-UI --> Admin : 7: Mở form (Tên, Giá, Danh mục, Nhà hàng...)
-Admin -> UI : 8: Nhập thông tin, tải ảnh (Base64), nhấn "Save"
-UI -> CTRL : 9: createProduct(data)
-activate CTRL
-CTRL -> DB : 10: POST /api/admin/products
-activate DB
-DB --> CTRL : 11: 201 Created
-deactivate DB
-CTRL --> UI : 12: Thành công
-deactivate CTRL
-UI --> Admin : 13: Đóng modal, refresh danh sách
+Admin -> UI : Nhấn "Thêm món mới" hoặc "Chỉnh sửa"
+UI --> Admin : Hiển thị Modal Form
+Admin -> UI : Nhập Tên, Giá, Ảnh, Danh mục, Cửa hàng
+Admin -> UI : Nhấn "Lưu thay đổi"
 
-== Thay đổi trạng thái (Toggle) ==
-Admin -> UI : 14: Nhấn nút gạt Status (Available/Unavailable)
-UI -> CTRL : 15: toggleProductAvailability(id)
+UI -> CTRL : createProduct hoặc updateProduct
 activate CTRL
-CTRL -> DB : 16: PUT /api/admin/products/{id}/status
+CTRL -> ENT : POST /api/admin/products hoặc PUT /api/admin/products/{id}
+activate ENT
+ENT -> DB : Tạo mới hoặc Cập nhật sản phẩm
 activate DB
-DB --> CTRL : 17: 200 OK
+DB --> ENT : Thành công
 deactivate DB
-CTRL --> UI : 18: Thành công (Optimistic already updated)
+ENT --> CTRL : Trả về kết quả
+deactivate ENT
+CTRL --> UI : Thành công & Đóng Modal
+deactivate CTRL
+
+Admin -> UI : Nhấn Icon "Xem chi tiết" sản phẩm
+UI -> CTRL : getProductDetail(id)
+activate CTRL
+CTRL -> ENT : GET /api/admin/products/{id}
+activate ENT
+ENT -> DB : Truy vấn chi tiết sản phẩm
+activate DB
+DB --> ENT : Product Detail (ảnh, rating, nhà hàng)
+deactivate DB
+ENT --> CTRL : Trả về chi tiết
+deactivate ENT
+CTRL --> UI : Hiển thị Modal xem chi tiết
+deactivate CTRL
+
+Admin -> UI : Nhấn Toggle trạng thái (Bật/Tắt)
+UI -> CTRL : updateProductStatus(id, newStatus)
+activate CTRL
+CTRL -> ENT : PUT /api/admin/products/{id}/status
+activate ENT
+ENT -> DB : Cập nhật trạng thái available/unavailable
+activate DB
+DB --> ENT : Thành công
+deactivate DB
+ENT --> CTRL : Updated
+deactivate ENT
+CTRL --> UI : Cập nhật UI
 deactivate CTRL
 
 deactivate UI

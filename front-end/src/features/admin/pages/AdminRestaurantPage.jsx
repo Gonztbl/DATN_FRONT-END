@@ -323,8 +323,9 @@ export default function AdminRestaurantPage() {
                                 <thead>
                                     <tr className="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-800">
                                         <th className="px-6 py-4 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Tên nhà hàng</th>
+                                        <th className="px-6 py-4 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Chủ cửa hàng</th>
                                         <th className="px-6 py-4 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Địa chỉ</th>
-                                        <th className="px-6 py-4 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider text-center">Số món</th>
+                                        <th className="px-6 py-4 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider text-center">Số lượng SP</th>
                                         <th className="px-6 py-4 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Trạng thái</th>
                                         <th className="px-6 py-4 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider text-right">Thao tác</th>
                                     </tr>
@@ -332,11 +333,11 @@ export default function AdminRestaurantPage() {
                                 <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                                     {loading ? (
                                         <tr>
-                                            <td colSpan="5" className="px-6 py-8 text-center text-slate-500 dark:text-slate-400">Đang tải dữ liệu...</td>
+                                            <td colSpan="6" className="px-6 py-8 text-center text-slate-500 dark:text-slate-400">Đang tải dữ liệu...</td>
                                         </tr>
                                     ) : restaurants.length === 0 ? (
                                         <tr>
-                                            <td colSpan="5" className="px-6 py-8 text-center text-slate-500 dark:text-slate-400">Không tìm thấy nhà hàng nào.</td>
+                                            <td colSpan="6" className="px-6 py-8 text-center text-slate-500 dark:text-slate-400">Không tìm thấy nhà hàng nào.</td>
                                         </tr>
                                     ) : (
                                         restaurants.map(rs => (
@@ -346,13 +347,18 @@ export default function AdminRestaurantPage() {
                                                     <div className="text-xs text-slate-500">ID: {rs.id}</div>
                                                 </td>
                                                 <td className="px-6 py-4">
+                                                    <div className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                                                        {rs.ownerName || 'Chưa cập nhật'}
+                                                    </div>
+                                                </td>
+                                                <td className="px-6 py-4">
                                                     <div className="text-sm text-slate-600 dark:text-slate-400 max-w-[200px] xl:max-w-[300px] truncate" title={rs.address}>
                                                         {rs.address}
                                                     </div>
                                                 </td>
                                                 <td className="px-6 py-4 text-center">
                                                     <span className="text-sm font-semibold bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded-md text-slate-700 dark:text-slate-300">
-                                                        {rs.product_count || 0}
+                                                        {rs.productCount || 0}
                                                     </span>
                                                 </td>
                                                 <td className="px-6 py-4">

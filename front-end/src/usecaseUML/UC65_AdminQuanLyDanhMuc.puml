@@ -1,55 +1,106 @@
 @startuml UC65_AdminQuanLyDanhMuc
-actor Admin
+title Admin quản lý danh mục
+
+autonumber "<b>[00]</b>"
+skinparam sequenceArrowThickness 2
+skinparam roundcorner 10
+skinparam defaultFontSize 20
+skinparam titleFontSize 26
+skinparam sequenceFontSize 19
+skinparam sequenceMessageFontSize 20
+skinparam sequenceActorFontSize 20
+skinparam sequenceParticipantFontSize 20
+skinparam noteFontSize 18
+skinparam sequenceArrowFontSize 20
+skinparam sequence {
+    ParticipantPadding 30
+    LifeLinePadding 20
+    MessagePadding 10
+}
+
+actor "Admin" as Admin
 boundary ":AdminCategoryUI" as UI
 control ":CategoryController" as CTRL
 entity ":Category" as ENT
-entity ":CSDL" as DB
+database ":CSDL" as DB
 
-Admin -> UI : 1: Truy cập "Category Management"
+Admin -> UI : Truy cập quản lý danh mục
 activate UI
 
-UI -> CTRL : 2: getAllCategories()
+UI -> CTRL : getCategories(params)
 activate CTRL
-CTRL -> DB : 3: GET /api/admin/categories
+CTRL -> ENT : GET /api/admin/categories
+activate ENT
+ENT -> DB : Truy vấn danh sách danh mục
 activate DB
-DB --> CTRL : 4: 200 OK {categories: [...]}
+DB --> ENT : Danh sách Category[] & Total
 deactivate DB
-CTRL --> UI : 5: Hiển thị bảng danh mục
+ENT --> CTRL : Trả về dữ liệu
+deactivate ENT
+CTRL --> UI : Hiển thị bảng danh mục & Bộ lọc
 deactivate CTRL
 
-== Thêm/Sửa ==
-Admin -> UI : 6: Nhấn "Thêm danh mục" (hoặc Sửa)
-UI --> Admin : 7: Hiển thị Modal (Tên, Icon, Thứ tự)
-Admin -> UI : 8: Nhập thông tin, nhấn "Lưu"
-UI -> CTRL : 9: saveCategory(data)
+Admin -> UI : Nhấn "Xuất dữ liệu"
+UI -> CTRL : exportCategories()
 activate CTRL
-CTRL -> DB : 10: POST/PUT /api/admin/categories
+CTRL -> ENT : GET /api/admin/categories/export
+activate ENT
+ENT -> DB : Xuất dữ liệu
 activate DB
-DB --> CTRL : 11: 200/201 OK
+DB --> ENT : Blob File Export
 deactivate DB
-CTRL --> UI : 12: Thành công
+ENT --> CTRL : Trả về file
+deactivate ENT
+CTRL --> UI : Tạo URL & Tải file
 deactivate CTRL
-UI --> Admin : 13: Cập nhật danh sách hiển thị
+UI --> Admin : Tải file về máy tính
 
-== Xóa ==
-Admin -> UI : 14: Nhấn "Xóa"
-UI --> Admin : 15: Xác nhận
-Admin -> UI : 16: Đồng ý
-UI -> CTRL : 17: deleteCategory(id)
+Admin -> UI : Nhấn "Thêm/Chỉnh sửa danh mục"
+UI --> Admin : Hiển thị Modal Form
+Admin -> UI : Nhập thông tin & Nhấn "Lưu"
+
+UI -> CTRL : checkCategoryName(name)
 activate CTRL
-CTRL -> DB : 18: DELETE /api/admin/categories/{id}
+CTRL -> ENT : GET /api/admin/categories/check-name?name=...
+activate ENT
+ENT -> DB : Kiểm tra trùng tên danh mục
 activate DB
-alt Có sản phẩm liên kết
-    DB --> CTRL : 18.1: 400 Bad Request
-    CTRL --> UI : 18.2: Báo lỗi ngăn chặn
-    UI --> Admin : 18.3: Thông báo cho Admin
-else Thành công
-    DB --> CTRL : 19.1: 200 OK
-    deactivate DB
-    CTRL --> UI : 19.2: Thành công
-    deactivate CTRL
-    UI --> Admin : 20: Xóa khỏi danh sách
-end
+DB --> ENT : {exists: true/false}
+deactivate DB
+ENT --> CTRL : Trả về kết quả
+deactivate ENT
+CTRL --> UI : Tên hợp lệ
+deactivate CTRL
+
+UI -> CTRL : createCategory hoặc updateCategory
+activate CTRL
+CTRL -> ENT : POST /api/admin/categories hoặc PUT /api/admin/categories/{id}
+activate ENT
+ENT -> DB : Tạo mới hoặc Cập nhật danh mục
+activate DB
+DB --> ENT : Thành công
+deactivate DB
+ENT --> CTRL : Trả về kết quả
+deactivate ENT
+CTRL --> UI : Thành công & Đóng Modal
+deactivate CTRL
+
+Admin -> UI : Nhấn "Xóa danh mục"
+UI -> UI : Hiển thị Confirm
+Admin -> UI : Xác nhận xóa
+
+UI -> CTRL : deleteCategory(id)
+activate CTRL
+CTRL -> ENT : DELETE /api/admin/categories/{id}
+activate ENT
+ENT -> DB : Xóa danh mục
+activate DB
+DB --> ENT : Success
+deactivate DB
+ENT --> CTRL : Deleted
+deactivate ENT
+CTRL --> UI : Reload danh sách
+deactivate CTRL
 
 deactivate UI
 @enduml

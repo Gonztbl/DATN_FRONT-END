@@ -1,61 +1,106 @@
 @startuml UC64_AdminQuanLyNhaHang
-actor Admin
+title Admin quản lý nhà hàng
+
+autonumber "<b>[00]</b>"
+skinparam sequenceArrowThickness 2
+skinparam roundcorner 10
+skinparam defaultFontSize 20
+skinparam titleFontSize 26
+skinparam sequenceFontSize 19
+skinparam sequenceMessageFontSize 20
+skinparam sequenceActorFontSize 20
+skinparam sequenceParticipantFontSize 20
+skinparam noteFontSize 18
+skinparam sequenceArrowFontSize 20
+skinparam sequence {
+    ParticipantPadding 30
+    LifeLinePadding 20
+    MessagePadding 10
+}
+
+actor "Admin" as Admin
 boundary ":AdminRestaurantUI" as UI
 control ":RestaurantController" as CTRL
 entity ":Restaurant" as ENT
-entity ":CSDL" as DB
+database ":CSDL" as DB
 
-== Xem và Lọc ==
-Admin -> UI : 1: Truy cập "Restaurant Management"
+Admin -> UI : Truy cập quản lý nhà hàng
 activate UI
-UI -> CTRL : 2: getAllRestaurants(filters)
+
+UI -> CTRL : Tải danh sách Owners & Restaurants
 activate CTRL
-CTRL -> DB : 3: GET /api/admin/restaurants?...
+CTRL -> ENT : GET /api/userManager/all & GET /api/admin/restaurants
+activate ENT
+ENT -> DB : Truy vấn dữ liệu
 activate DB
-DB --> CTRL : 4: 200 OK {list}
+DB --> ENT : Danh sách Owners[] & Restaurant[]
 deactivate DB
-CTRL --> UI : 5: Hiển thị danh sách
+ENT --> CTRL : Trả về dữ liệu
+deactivate ENT
+CTRL --> UI : Hiển thị bảng nhà hàng & Bộ lọc
 deactivate CTRL
 
-== Thêm mới ==
-Admin -> UI : 6: Nhấn "Thêm nhà hàng"
-UI --> Admin : 7: Hiển thị Form (Tên, SĐT, Chủ nhà hàng...)
-Admin -> UI : 8: Nhập thông tin, nhấn "Lưu"
-UI -> CTRL : 9: createRestaurant(data)
+Admin -> UI : Nhấn "Xuất dữ liệu"
+UI -> CTRL : exportRestaurants(params)
 activate CTRL
-CTRL -> DB : 10: POST /api/admin/restaurants
+CTRL -> ENT : GET /api/admin/restaurants/export
+activate ENT
+ENT -> DB : Xuất dữ liệu
 activate DB
-alt Trùng tên
-    DB --> CTRL : 10.1: 409 Conflict
-    CTRL --> UI : 10.2: Báo lỗi trùng tên
-    UI --> Admin : 10.3: Hiển thị lỗi
-else Thành công
-    DB --> CTRL : 11.1: 201 Created
-    deactivate DB
-    CTRL --> UI : 11.2: Thành công
-    deactivate CTRL
-    UI --> Admin : 12: Đóng form, refresh danh sách
-end
+DB --> ENT : Blob File
+deactivate DB
+ENT --> CTRL : Trả về file
+deactivate ENT
+CTRL --> UI : Tạo URL & Tải file
+deactivate CTRL
+UI --> Admin : Tải file về máy tính
 
-== Xóa ==
-Admin -> UI : 13: Nhấn "Xóa" tại 1 nhà hàng
-UI --> Admin : 14: Hiển thị xác nhận
-Admin -> UI : 15: Xác nhận xóa
-UI -> CTRL : 16: deleteRestaurant(id)
+Admin -> UI : Nhấn "Thêm nhà hàng" hoặc "Chỉnh sửa"
+UI --> Admin : Hiển thị Modal Form
+Admin -> UI : Nhập thông tin & Nhấn "Lưu"
+
+UI -> CTRL : checkRestaurantName(name)
 activate CTRL
-CTRL -> DB : 17: DELETE /api/admin/restaurants/{id}
+CTRL -> ENT : GET /api/admin/restaurants/check-name?name=...
+activate ENT
+ENT -> DB : Kiểm tra trùng tên
 activate DB
-alt Đang có sản phẩm
-    DB --> CTRL : 17.1: 400 Bad Request
-    CTRL --> UI : 17.2: Báo lỗi "Không thể xóa"
-    UI --> Admin : 17.3: Hiển thị thông báo
-else Thành công
-    DB --> CTRL : 18.1: 200 OK
-    deactivate DB
-    CTRL --> UI : 18.2: Thành công
-    deactivate CTRL
-    UI --> Admin : 19: Xóa hàng khỏi bảng
-end
+DB --> ENT : {exists: true/false}
+deactivate DB
+ENT --> CTRL : Trả về kết quả
+deactivate ENT
+CTRL --> UI : Tên hợp lệ
+deactivate CTRL
+
+UI -> CTRL : createRestaurant hoặc updateRestaurant
+activate CTRL
+CTRL -> ENT : POST /api/admin/restaurants hoặc PUT /api/admin/restaurants/{id}
+activate ENT
+ENT -> DB : Tạo mới hoặc Cập nhật
+activate DB
+DB --> ENT : Thành công
+deactivate DB
+ENT --> CTRL : Trả về kết quả
+deactivate ENT
+CTRL --> UI : Thành công & Đóng Modal
+deactivate CTRL
+
+Admin -> UI : Nhấn "Xóa nhà hàng"
+UI -> UI : Hiển thị Confirm
+Admin -> UI : Xác nhận xóa
+
+UI -> CTRL : deleteRestaurant(id)
+activate CTRL
+CTRL -> ENT : DELETE /api/admin/restaurants/{id}
+activate ENT
+ENT -> DB : Xóa nhà hàng
+activate DB
+DB --> ENT : Success
+deactivate DB
+ENT --> CTRL : Deleted
+deactivate ENT
+CTRL --> UI : Reload danh sách
+deactivate CTRL
 
 deactivate UI
 @enduml

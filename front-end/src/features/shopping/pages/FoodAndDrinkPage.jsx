@@ -25,6 +25,8 @@ const FoodAndDrinkPage = () => {
 
     // State quản lý danh sách
     const [categories, setCategories] = useState([]);
+    const [categoryPage, setCategoryPage] = useState(1);
+    const [categoryPageData, setCategoryPageData] = useState({ first: true, last: true, totalPages: 1, pageNumber: 1 });
     const [products, setProducts] = useState([]);
     const [userProfile, setUserProfile] = useState(null);
     const [balance, setBalance] = useState(0);
@@ -35,7 +37,7 @@ const FoodAndDrinkPage = () => {
     const [searchQuery, setSearchQuery] = useState('');
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
-    const [limit] = useState(8);
+    const [limit] = useState(12);
 
     // State cho Modal (Chi tiết sản phẩm)
     const [showModal, setShowModal] = useState(false);
@@ -58,7 +60,7 @@ const FoodAndDrinkPage = () => {
                 await Promise.all([
                     fetchUserProfile(),
                     fetchBalance(),
-                    fetchCategories()
+                    fetchCategories(1)
                 ]);
             } catch (error) {
                 console.error("Lỗi khi load dữ liệu ban đầu:", error);
@@ -81,6 +83,15 @@ const FoodAndDrinkPage = () => {
         }, 500);
         return () => clearTimeout(timeoutId);
     }, [selectedCategory, searchQuery, page]);
+
+    // Lắng nghe phím ESC để đóng modal
+    useEffect(() => {
+        const handleEsc = (event) => {
+            if (event.key === 'Escape') handleCloseModal();
+        };
+        window.addEventListener('keydown', handleEsc);
+        return () => window.removeEventListener('keydown', handleEsc);
+    }, []);
 
     const fetchUserProfile = async () => {
         try {
@@ -105,38 +116,68 @@ const FoodAndDrinkPage = () => {
         }
     };
 
-    const fetchCategories = async () => {
+    const fetchCategories = async (pageIdx = 1) => {
         try {
-            const data = await vendorService.getCategories({ limit: 100 });
+            const data = await vendorService.getCategories({ page: pageIdx, limit: 12 });
             const list = Array.isArray(data) ? data : (data?.content || data?.data || []);
+
+            if (data && !Array.isArray(data)) {
+                setCategoryPageData({
+                    first: data.first ?? true,
+                    last: data.last ?? true,
+                    totalPages: data.totalPages ?? 1,
+                    pageNumber: data.pageNumber ?? 1
+                });
+            }
+
             if (list.length > 0) {
-                setCategories([{ id: null, name: "Tất cả", icon: "grid_view" }, ...list.filter(c => c.name !== "Tất cả")]);
+                const filtered = list.filter(c => c.name !== "Tất cả");
+                if (pageIdx === 1) {
+                    setCategories([{ id: null, name: "Tất cả", icon: "grid_view" }, ...filtered]);
+                } else {
+                    setCategories(filtered);
+                }
             } else {
-                setCategories([
-                    { id: null, name: "Tất cả", icon: "grid_view" },
-                    { id: 1, name: "Bữa sáng", icon: "bakery_dining" },
-                    { id: 2, name: "Bữa trưa", icon: "lunch_dining" },
-                    { id: 3, name: "Đồ uống", icon: "local_cafe" },
-                    { id: 4, name: "Ăn vặt", icon: "cookie" }
-                ]);
+                if (pageIdx === 1) {
+                    setCategories([
+                        { id: null, name: "Tất cả", icon: "grid_view" },
+                        { id: 1, name: "Bữa sáng", icon: "bakery_dining" },
+                        { id: 2, name: "Bữa trưa", icon: "lunch_dining" },
+                        { id: 3, name: "Đồ uống", icon: "local_cafe" },
+                        { id: 4, name: "Ăn vặt", icon: "cookie" }
+                    ]);
+                } else {
+                    setCategories([]);
+                }
             }
         } catch (error) {
             console.error("Không thể load danh mục", error);
-            setCategories([
-                { id: null, name: "Tất cả", icon: "grid_view" },
-                { id: 1, name: "Bữa sáng", icon: "bakery_dining" },
-                { id: 2, name: "Bữa trưa", icon: "lunch_dining" }
-            ]);
+            if (pageIdx === 1) {
+                setCategories([
+                    { id: null, name: "Tất cả", icon: "grid_view" },
+                    { id: 1, name: "Bữa sáng", icon: "bakery_dining" },
+                    { id: 2, name: "Bữa trưa", icon: "lunch_dining" }
+                ]);
+            }
         }
+    };
+
+    const handleCategoryPageChange = (newPage) => {
+        setCategoryPage(newPage);
+        fetchCategories(newPage);
     };
 
     const fetchProducts = async () => {
         try {
             const params = {
-                page: page - 1,
-                size: limit
+                page: page,
+                size: limit,
+                limit: limit
             };
-            if (selectedCategory) params.category_id = selectedCategory;
+            if (selectedCategory) {
+                params.category_id = selectedCategory;
+                params.categoryId = selectedCategory;
+            }
             if (searchQuery.trim()) params.search = searchQuery;
 
             const data = await productService.getProducts(params);
@@ -310,14 +351,14 @@ const FoodAndDrinkPage = () => {
                         </div>
                         {/* Nav */}
                         <nav className="hidden lg:flex items-center gap-6">
-                            <a 
-                                onClick={() => navigate('/dashboard')} 
+                            <a
+                                onClick={() => navigate('/dashboard')}
                                 className="text-slate-600 dark:text-slate-400 text-sm font-bold hover:text-primary transition-all cursor-pointer"
                             >
                                 Trang Chủ
                             </a>
-                            <a 
-                                onClick={() => navigate('/shopping/order-history')} 
+                            <a
+                                onClick={() => navigate('/shopping/order-history')}
                                 className="text-slate-500 dark:text-slate-400 text-sm font-semibold hover:text-primary transition-all cursor-pointer"
                             >
                                 Lịch sử mua
@@ -364,25 +405,69 @@ const FoodAndDrinkPage = () => {
                     {loading && categories.length === 0 ? (
                         <CategorySkeleton />
                     ) : (
-                        <div className="flex gap-3 overflow-x-auto pb-2" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
-                            {categories.map((category) => (
-                                <button
-                                    key={category.id || 'all'}
-                                    onClick={() => setSelectedCategory(category.id)}
-                                    className={`flex items-center gap-2 px-6 py-3 rounded-full font-semibold whitespace-nowrap transition-all text-sm ${selectedCategory === category.id
-                                        ? 'bg-primary text-white shadow-lg shadow-primary/20 ring-2 ring-primary/20 font-bold'
-                                        : 'bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 shadow-sm'
-                                        }`}
-                                >
-                                    <span className={`material-symbols-outlined text-[20px] ${selectedCategory === category.id
-                                        ? 'text-white'
-                                        : iconColors[category.icon] || 'text-slate-400'
-                                        }`}>
-                                        {category.icon || 'restaurant'}
-                                    </span>
-                                    {category.name}
-                                </button>
-                            ))}
+                        <div className="flex flex-col gap-3">
+                            <div className="flex gap-3 overflow-x-auto pb-2" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+                                {categories.map((category) => (
+                                    <button
+                                        key={category.id || 'all'}
+                                        onClick={() => setSelectedCategory(category.id)}
+                                        className={`flex items-center gap-2 px-6 py-3 rounded-full font-semibold whitespace-nowrap transition-all text-sm ${selectedCategory === category.id
+                                            ? 'bg-primary text-white shadow-lg shadow-primary/20 ring-2 ring-primary/20 font-bold'
+                                            : 'bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 shadow-sm'
+                                            }`}
+                                    >
+                                        <span className={`material-symbols-outlined text-[20px] ${selectedCategory === category.id
+                                            ? 'text-white'
+                                            : iconColors[category.icon] || 'text-slate-400'
+                                            }`}>
+                                            {category.icon || 'restaurant'}
+                                        </span>
+                                        <div className="flex items-center gap-1.5">
+                                            <span>{category.name}</span>
+                                            {category.id && (
+                                                <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${selectedCategory === category.id
+                                                    ? 'bg-white/20 text-white'
+                                                    : 'bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400'
+                                                    }`}>
+                                                    {category.productCount || 0}
+                                                </span>
+                                            )}
+                                        </div>
+                                    </button>
+                                ))}
+                            </div>
+
+                            {/* Category Pagination */}
+                            {categoryPageData.totalPages > 1 && (
+                                <div className="flex items-center justify-end gap-1.5 px-2">
+                                    <button
+                                        onClick={() => handleCategoryPageChange(categoryPage - 1)}
+                                        disabled={categoryPageData.first}
+                                        className="size-8 flex items-center justify-center rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 disabled:opacity-50 hover:border-primary hover:text-primary transition-all shadow-sm"
+                                    >
+                                        <span className="material-symbols-outlined text-sm">chevron_left</span>
+                                    </button>
+                                    {[...Array(categoryPageData.totalPages)].map((_, i) => (
+                                        <button
+                                            key={i}
+                                            onClick={() => handleCategoryPageChange(i + 1)}
+                                            className={`size-8 flex items-center justify-center rounded-lg font-bold text-xs transition-all shadow-sm ${categoryPage === i + 1
+                                                ? 'bg-primary text-white border-transparent'
+                                                : 'bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:border-primary'
+                                                }`}
+                                        >
+                                            {i + 1}
+                                        </button>
+                                    ))}
+                                    <button
+                                        onClick={() => handleCategoryPageChange(categoryPage + 1)}
+                                        disabled={categoryPageData.last}
+                                        className="size-8 flex items-center justify-center rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 disabled:opacity-50 hover:border-primary hover:text-primary transition-all shadow-sm"
+                                    >
+                                        <span className="material-symbols-outlined text-sm">chevron_right</span>
+                                    </button>
+                                </div>
+                            )}
                         </div>
                     )}
                 </div>
@@ -421,10 +506,25 @@ const FoodAndDrinkPage = () => {
                                 </div>
                                 {/* Info */}
                                 <div className="p-5 flex-1 flex flex-col">
-                                    <span className="text-[11px] font-black text-primary uppercase tracking-[0.1em]">
-                                        {product.category?.name || "Món ngon"}
-                                    </span>
-                                    <h3 className="text-slate-900 dark:text-white text-lg font-bold mt-1 line-clamp-1">{product.name}</h3>
+                                    <div className="flex items-center justify-between mb-1">
+                                        <span className="text-[10px] font-black text-primary uppercase tracking-[0.1em]">
+                                            {product.category?.name || "Món ngon"}
+                                        </span>
+                                        {product.restaurant?.name && (
+                                            <span className="text-[10px] text-slate-400 font-bold uppercase truncate max-w-[100px]">
+                                                {product.restaurant.name}
+                                            </span>
+                                        )}
+                                    </div>
+                                    <h3 className="text-slate-900 dark:text-white text-lg font-bold line-clamp-1">{product.name}</h3>
+                                    {product.restaurant?.address && (
+                                        <div className="flex items-center gap-1 mt-1 text-slate-500 dark:text-slate-400">
+                                            <span className="material-symbols-outlined text-[14px]">location_on</span>
+                                            <p className="text-[11px] font-medium line-clamp-1">
+                                                {product.restaurant.address}
+                                            </p>
+                                        </div>
+                                    )}
                                     <p className="text-slate-400 dark:text-slate-500 text-xs mt-2 line-clamp-2">
                                         {product.description || 'Món ăn hấp dẫn với hương vị đặc trưng.'}
                                     </p>
@@ -489,11 +589,22 @@ const FoodAndDrinkPage = () => {
 
             {/* ═══════════════ MODAL ═══════════════ */}
             {showModal && selectedProduct && (
-                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-10 bg-slate-900/60 backdrop-blur-md">
+                <div
+                    className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-10 bg-slate-900/60 backdrop-blur-md cursor-pointer"
+                    onClick={handleCloseModal}
+                >
                     <div
-                        className="bg-white dark:bg-slate-900 w-full max-w-6xl max-h-full rounded-3xl overflow-hidden shadow-2xl flex flex-col md:flex-row border border-slate-200 dark:border-slate-800"
+                        className="relative bg-white dark:bg-slate-900 w-full max-w-6xl max-h-full rounded-3xl overflow-hidden shadow-2xl flex flex-col md:flex-row border border-slate-200 dark:border-slate-800 cursor-default"
+                        onClick={(e) => e.stopPropagation()}
                         style={{ animation: 'fadeIn 0.3s ease-out' }}
                     >
+                        {/* Nút X đóng nhanh ở góc trên bên phải (Dành cho Mobile/Desktop) */}
+                        <button
+                            className="absolute top-4 right-4 z-[110] size-10 bg-slate-100 dark:bg-slate-800 hover:bg-red-500 hover:text-white rounded-full flex items-center justify-center transition-all shadow-md group"
+                            onClick={handleCloseModal}
+                        >
+                            <span className="material-symbols-outlined text-xl group-hover:rotate-90 transition-transform">close</span>
+                        </button>
                         {/* ── Left: Product Detail ── */}
                         <div className="w-full md:w-1/2 overflow-y-auto border-r border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900" style={{ scrollbarWidth: 'none' }}>
                             {/* Image */}
@@ -603,22 +714,12 @@ const FoodAndDrinkPage = () => {
                             </h3>
 
                             <div className="space-y-6 flex-1">
-                                {/* GPS Option */}
-                                <button className="w-full flex items-center gap-4 p-5 rounded-2xl border-2 border-primary bg-white dark:bg-slate-700 text-left shadow-sm shadow-primary/5 transition-all">
-                                    <div className="size-12 rounded-full bg-primary flex items-center justify-center text-white shadow-lg shadow-primary/20">
-                                        <span className="material-symbols-outlined font-bold">my_location</span>
-                                    </div>
-                                    <div className="flex-1">
-                                        <p className="font-bold text-slate-900 dark:text-white text-lg leading-tight">Vị trí hiện tại</p>
-                                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">Sử dụng định vị GPS</p>
-                                    </div>
-                                    <span className="material-symbols-outlined text-primary text-3xl font-bold">check_circle</span>
-                                </button>
+
 
                                 {/* Divider */}
                                 <div className="relative flex items-center py-2">
                                     <div className="flex-grow border-t border-slate-200"></div>
-                                    <span className="flex-shrink mx-4 text-[10px] text-slate-400 font-black uppercase tracking-[0.2em]">Thông tin người nhận</span>
+                                    <span className="flex-shrink mx-4 text-[20px] text-slate-400 font-black uppercase tracking-[0.2em]">Thông tin người nhận</span>
                                     <div className="flex-grow border-t border-slate-200"></div>
                                 </div>
 

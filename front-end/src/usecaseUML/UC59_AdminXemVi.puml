@@ -1,29 +1,81 @@
 @startuml UC59_AdminXemVi
-actor Admin
+title Admin quản lý ví điện tử
+
+autonumber "<b>[00]</b>"
+skinparam sequenceArrowThickness 2
+skinparam roundcorner 10
+skinparam defaultFontSize 20
+skinparam titleFontSize 26
+skinparam sequenceFontSize 19
+skinparam sequenceMessageFontSize 20
+skinparam sequenceActorFontSize 20
+skinparam sequenceParticipantFontSize 20
+skinparam noteFontSize 18
+skinparam sequenceArrowFontSize 20
+skinparam sequence {
+    ParticipantPadding 30
+    LifeLinePadding 20
+    MessagePadding 10
+}
+
+actor "Admin" as Admin
 boundary ":AdminWalletUI" as UI
 control ":WalletController" as CTRL
 entity ":Wallet" as ENT
-entity ":CSDL" as DB
+database ":CSDL" as DB
 
-Admin -> UI : 1: Truy cập trang Quản lý Ví
+Admin -> UI : Truy cập quản lý ví điện tử
 activate UI
 
-UI -> CTRL : 2: getAllWallets()
+UI -> CTRL : getAllWallets()
 activate CTRL
-
-CTRL -> DB : 3: GET /api/admin/wallets
-activate DB
-DB --> CTRL : 4: 200 OK {wallets: [...]}
-deactivate DB
-
-CTRL -> ENT : 5: Mapping danh sách Wallet
+CTRL -> ENT : GET /api/admin/wallets?page=0&size=1000
 activate ENT
-ENT --> CTRL : 6: Trả về list
+ENT -> DB : Truy vấn toàn bộ ví từ bảng Wallet
+activate DB
+DB --> ENT : Danh sách Wallet[] (ID, Balance, Status)
+deactivate DB
+ENT --> CTRL : Trả về dữ liệu
 deactivate ENT
-
-CTRL --> UI : 7: Danh sách ví hiển thị
+CTRL --> UI : Hiển thị bảng danh sách ví
 deactivate CTRL
 
-UI --> Admin : 8: Hiển thị bảng danh sách ví (ID, Balance, Status...)
+Admin -> UI : Lọc theo từ khóa / Trạng thái
+UI -> UI : filter() & phân trang Client-side
+UI --> Admin : Hiển thị danh sách ví phù hợp
+
+Admin -> UI : Nhấn "Nạp tiền" tại 1 ví
+UI --> Admin : Hiển thị modal Nạp tiền
+Admin -> UI : Nhập số tiền & Xác nhận
+
+UI -> CTRL : adminTopupWallet(payload)
+activate CTRL
+CTRL -> ENT : POST /api/admin/wallets/topup
+activate ENT
+ENT -> DB : Cập nhật số dư ví
+activate DB
+DB --> ENT : Thành công
+deactivate DB
+ENT --> CTRL : Kết quả giao dịch
+deactivate ENT
+CTRL --> UI : Nạp tiền thành công
+deactivate CTRL
+UI --> Admin : Hiển thị thông báo thành công & Reload danh sách
+
+Admin -> UI : Nhấn Toggle khóa/mở khóa ví
+UI -> CTRL : handleLockUnlock(wallet)
+activate CTRL
+CTRL -> ENT : PUT /api/admin/wallets/lock/{id} hoặc /api/admin/wallets/unlock/{id}
+activate ENT
+ENT -> DB : Cập nhật trạng thái ví
+activate DB
+DB --> ENT : Thành công
+deactivate DB
+ENT --> CTRL : Updated
+deactivate ENT
+CTRL --> UI : Cập nhật thành công
+deactivate CTRL
+UI --> Admin : Hiển thị trạng thái mới trên bảng
+
 deactivate UI
 @enduml

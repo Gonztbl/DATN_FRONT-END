@@ -1,0 +1,25 @@
+@startuml
+title Biểu đồ trình tự: Xem Landing Page (Landing Page)
+actor "Khách (Guest)" as User
+boundary "LandingPage" as UI
+control "LandingService" as Ctrl
+
+User -> UI: Truy cập URL Landing Page (/)
+activate UI
+
+UI -> Ctrl: Yêu cầu dữ liệu cấu hình Landing
+activate Ctrl
+
+Ctrl -> Ctrl: Trích xuất nội dung tĩnh\n(Banner, Features, Reviews)
+Ctrl --> UI: Trả về dữ liệu cấu hình
+deactivate Ctrl
+
+UI -> UI: Render giao diện (Header, Banner,\nFeatures, App Downlaod, Footer)
+UI --> User: Hiển thị Landing Page
+deactivate UI
+
+User -> UI: Cuộn hoặc chọn cài đặt ứng dụng
+activate UI
+UI --> User: Điều hướng / Hiển thị liên kết tải app
+deactivate UI
+@enduml

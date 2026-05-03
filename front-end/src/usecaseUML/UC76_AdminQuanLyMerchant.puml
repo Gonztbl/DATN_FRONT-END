@@ -1,33 +1,59 @@
 @startuml UC76_AdminQuanLyMerchant
-actor Admin
+title Admin quản lý Merchant
+
+autonumber "<b>[00]</b>"
+skinparam sequenceArrowThickness 2
+skinparam roundcorner 10
+skinparam defaultFontSize 20
+skinparam titleFontSize 26
+skinparam sequenceFontSize 19
+skinparam sequenceMessageFontSize 20
+skinparam sequenceActorFontSize 20
+skinparam sequenceParticipantFontSize 20
+skinparam noteFontSize 18
+skinparam sequenceArrowFontSize 20
+skinparam sequence {
+    ParticipantPadding 30
+    LifeLinePadding 20
+    MessagePadding 10
+}
+
+actor "Admin" as Admin
 boundary ":MerchantManagementUI" as UI
 control ":MerchantController" as CTRL
 entity ":Merchant" as ENT
-entity ":CSDL" as DB
+database ":CSDL" as DB
 
-Admin -> UI : 1: Truy cập "Merchant Management"
+Admin -> UI : Truy cập quản lý Merchant
 activate UI
 
-UI -> CTRL : 2: getAllMerchants()
+UI -> CTRL : getRestaurantOwners(params)
 activate CTRL
-CTRL -> DB : 3: GET /api/admin/merchants
+CTRL -> ENT : GET /api/admin/restaurant-owners
+activate ENT
+ENT -> DB : Truy vấn danh sách Merchant
 activate DB
-DB --> CTRL : 4: 200 OK {merchants: [...]}
+DB --> ENT : Danh sách Merchant[]
 deactivate DB
-CTRL --> UI : 5: Hiển thị danh sách nhà hàng đối tác
+ENT --> CTRL : Trả về dữ liệu
+deactivate ENT
+CTRL --> UI : Hiển thị danh sách nhà hàng đối tác
 deactivate CTRL
 
-== Phê duyệt/Khóa Merchant ==
-Admin -> UI : 6: Nhấn toggle trạng thái Merchant
-UI -> CTRL : 7: updateMerchantStatus(id, status)
+Admin -> UI : Nhấn toggle trạng thái Merchant
+UI -> CTRL : updateMerchantStatus(id, status)
 activate CTRL
-CTRL -> DB : 8: PUT /api/admin/merchants/{id}/status
+CTRL -> ENT : PUT /api/admin/merchants/{id}/status
+activate ENT
+ENT -> DB : Cập nhật trạng thái Merchant
 activate DB
-DB --> CTRL : 9: 200 OK
+DB --> ENT : 200 OK
 deactivate DB
-CTRL --> UI : 10: Thành công
+ENT --> CTRL : Thành công
+deactivate ENT
+CTRL --> UI : Cập nhật thành công
 deactivate CTRL
-UI --> Admin : 11: Cập nhật UI
+UI --> Admin : Cập nhật UI trạng thái mới
 
 deactivate UI
 @enduml
