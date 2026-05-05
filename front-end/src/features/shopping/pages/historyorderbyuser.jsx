@@ -39,7 +39,7 @@ const HistoryOrderByUser = () => {
                 status: status === 'ALL' ? undefined : status,
                 sort: 'createdAt,desc'
             };
-            
+
             const response = await orderService.getOrders(params);
             const data = response.data;
 
@@ -84,12 +84,12 @@ const HistoryOrderByUser = () => {
     const formatDate = (dateString) => {
         if (!dateString) return '';
         const date = new Date(dateString);
-        return date.toLocaleString('vi-VN', { 
-            day: '2-digit', 
-            month: 'short', 
-            year: 'numeric', 
-            hour: '2-digit', 
-            minute: '2-digit' 
+        return date.toLocaleString('vi-VN', {
+            day: '2-digit',
+            month: 'short',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
         });
     };
 
@@ -97,52 +97,52 @@ const HistoryOrderByUser = () => {
     const getStatusStyle = (status) => {
         switch (status) {
             case 'PENDING':
-                return { 
-                    bg: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400', 
-                    icon: 'schedule', 
-                    label: 'Chờ duyệt' 
+                return {
+                    bg: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400',
+                    icon: 'schedule',
+                    label: 'Chờ duyệt'
                 };
             case 'CONFIRMED':
-                return { 
-                    bg: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400', 
-                    icon: 'verified', 
-                    label: 'Đã xác nhận' 
+                return {
+                    bg: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400',
+                    icon: 'verified',
+                    label: 'Đã xác nhận'
                 };
             case 'PREPARING':
-                return { 
-                    bg: 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400', 
-                    icon: 'restaurant_menu', 
-                    label: 'Đang chuẩn bị' 
+                return {
+                    bg: 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400',
+                    icon: 'restaurant_menu',
+                    label: 'Đang chuẩn bị'
                 };
             case 'READY_FOR_PICKUP':
-                return { 
-                    bg: 'bg-pink-100 text-pink-700 dark:bg-pink-900/30 dark:text-pink-400', 
-                    icon: 'shopping_basket', 
-                    label: 'Chờ lấy hàng' 
+                return {
+                    bg: 'bg-pink-100 text-pink-700 dark:bg-pink-900/30 dark:text-pink-400',
+                    icon: 'shopping_basket',
+                    label: 'Chờ lấy hàng'
                 };
             case 'DELIVERING':
-                return { 
-                    bg: 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400', 
-                    icon: 'local_shipping', 
-                    label: 'Đang giao' 
+                return {
+                    bg: 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400',
+                    icon: 'local_shipping',
+                    label: 'Đang giao'
                 };
             case 'COMPLETED':
-                return { 
-                    bg: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400', 
-                    icon: 'check_circle', 
-                    label: 'Hoàn thành' 
+                return {
+                    bg: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400',
+                    icon: 'check_circle',
+                    label: 'Hoàn thành'
                 };
             case 'CANCELLED':
-                return { 
-                    bg: 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400', 
-                    icon: 'cancel', 
-                    label: 'Đã hủy' 
+                return {
+                    bg: 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400',
+                    icon: 'cancel',
+                    label: 'Đã hủy'
                 };
             default:
-                return { 
-                    bg: 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-400', 
-                    icon: 'help_outline', 
-                    label: status 
+                return {
+                    bg: 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-400',
+                    icon: 'help_outline',
+                    label: status
                 };
         }
     };
@@ -154,7 +154,7 @@ const HistoryOrderByUser = () => {
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex h-16 items-center justify-between">
                         <div className="flex items-center gap-4">
-                            <button 
+                            <button
                                 onClick={() => navigate('/shopping/food-drink')}
                                 className="p-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors flex items-center justify-center shrink-0"
                                 title="Quay lại"
@@ -171,9 +171,9 @@ const HistoryOrderByUser = () => {
                         <div className="hidden md:flex items-center gap-4 flex-1 max-w-md ml-8">
                             <div className="relative w-full">
                                 <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xl">search</span>
-                                <input 
-                                    className="w-full bg-slate-100 dark:bg-slate-800 border-none rounded-xl py-2 pl-10 pr-4 focus:ring-2 focus:ring-primary text-sm transition-all text-slate-900 dark:text-slate-100" 
-                                    placeholder="Tìm kiếm đơn hàng..." 
+                                <input
+                                    className="w-full bg-slate-100 dark:bg-slate-800 border-none rounded-xl py-2 pl-10 pr-4 focus:ring-2 focus:ring-primary text-sm transition-all text-slate-900 dark:text-slate-100"
+                                    placeholder="Tìm kiếm đơn hàng..."
                                     type="text"
                                     value={searchQuery}
                                     onChange={(e) => setSearchQuery(e.target.value)}
@@ -190,9 +190,7 @@ const HistoryOrderByUser = () => {
                                     {isDarkMode ? "light_mode" : "dark_mode"}
                                 </span>
                             </button>
-                            <div className="size-10 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold border-2 border-primary/10">
-                                JS
-                            </div>
+
                         </div>
                     </div>
                 </div>
@@ -206,11 +204,10 @@ const HistoryOrderByUser = () => {
                             <button
                                 key={tab.value}
                                 onClick={() => setStatusFilter(tab.value)}
-                                className={`px-1 pb-4 text-sm font-semibold transition-all flex items-center gap-2 border-b-2 ${
-                                    statusFilter === tab.value 
-                                        ? 'border-primary text-primary' 
-                                        : 'border-transparent text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200'
-                                }`}
+                                className={`px-1 pb-4 text-sm font-semibold transition-all flex items-center gap-2 border-b-2 ${statusFilter === tab.value
+                                    ? 'border-primary text-primary'
+                                    : 'border-transparent text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200'
+                                    }`}
                             >
                                 {tab.label}
                                 {tab.value === 'ALL' && totalElements > 0 && (
@@ -225,9 +222,9 @@ const HistoryOrderByUser = () => {
                 <div className="md:hidden mb-6">
                     <div className="relative w-full">
                         <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xl">search</span>
-                        <input 
-                            className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl py-3 pl-10 pr-4 focus:ring-2 focus:ring-primary text-sm shadow-sm" 
-                            placeholder="Tìm kiếm đơn hàng..." 
+                        <input
+                            className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl py-3 pl-10 pr-4 focus:ring-2 focus:ring-primary text-sm shadow-sm"
+                            placeholder="Tìm kiếm đơn hàng..."
                             type="text"
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
@@ -258,7 +255,7 @@ const HistoryOrderByUser = () => {
                                 const searchLower = searchQuery.toLowerCase();
                                 const orderItems = order.items || order.orderItems || [];
                                 return (
-                                    order.id.toString().toLowerCase().includes(searchLower) || 
+                                    order.id.toString().toLowerCase().includes(searchLower) ||
                                     (order.recipientName || '').toLowerCase().includes(searchLower) ||
                                     (order.restaurantName || '').toLowerCase().includes(searchLower) ||
                                     (order.restaurantId || '').toString().toLowerCase().includes(searchLower) ||
@@ -271,10 +268,10 @@ const HistoryOrderByUser = () => {
                                 const totalItems = orderItems.length;
                                 // We'll show up to 3 items in a compact gallery
                                 const displayItems = orderItems.slice(0, 3);
-                                
+
                                 return (
-                                    <div 
-                                        key={order.id} 
+                                    <div
+                                        key={order.id}
                                         className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 group cursor-pointer mb-4"
                                         onClick={() => navigate(`/shopping/view-order/${order.id}`)}
                                     >
@@ -312,13 +309,13 @@ const HistoryOrderByUser = () => {
                                                 <div className="flex items-center gap-2">
                                                     <span className="material-symbols-outlined text-sm text-primary">storefront</span>
                                                     <p className="text-sm font-bold text-slate-700 dark:text-slate-300 truncate">
-                                                        {order.restaurantName || 
-                                                         order.restaurant_name || 
-                                                         order.restaurant?.name || 
-                                                         order.merchantName ||
-                                                         order.storeName ||
-                                                         (orderItems[0]?.restaurantName) ||
-                                                         (order.restaurantId ? `Nhà hàng #${order.restaurantId}` : 'Chưa rõ nhà hàng')}
+                                                        {order.restaurantName ||
+                                                            order.restaurant_name ||
+                                                            order.restaurant?.name ||
+                                                            order.merchantName ||
+                                                            order.storeName ||
+                                                            (orderItems[0]?.restaurantName) ||
+                                                            (order.restaurantId ? `Nhà hàng #${order.restaurantId}` : 'Chưa rõ nhà hàng')}
                                                     </p>
                                                     <span className="text-slate-300 dark:text-slate-600">•</span>
                                                     <p className="text-xs font-medium text-slate-500">
@@ -337,7 +334,7 @@ const HistoryOrderByUser = () => {
                                                     <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-0.5">Tổng cộng</p>
                                                     <p className="text-2xl font-black text-primary leading-none">{formatCurrency(order.totalAmount)}</p>
                                                 </div>
-                                                <button 
+                                                <button
                                                     className="bg-primary hover:bg-primary-dark text-white font-black py-2 px-5 rounded-xl transition-all shadow-lg shadow-primary/20 hover:shadow-primary/40 active:scale-95 text-xs uppercase tracking-widest flex items-center gap-2"
                                                     onClick={(e) => {
                                                         e.stopPropagation();
@@ -360,11 +357,11 @@ const HistoryOrderByUser = () => {
                             </div>
                             <h2 className="text-2xl font-bold mb-2 text-slate-900 dark:text-slate-100">Không tìm thấy đơn hàng nào</h2>
                             <p className="text-slate-500 dark:text-slate-400 max-w-xs mx-auto mb-8">
-                                {statusFilter === 'ALL' 
-                                    ? "Có vẻ như bạn chưa đặt món nào. Hãy khám phá các nhà hàng của chúng tôi ngay!" 
+                                {statusFilter === 'ALL'
+                                    ? "Có vẻ như bạn chưa đặt món nào. Hãy khám phá các nhà hàng của chúng tôi ngay!"
                                     : `Bạn hiện không có đơn hàng nào ở trạng thái ${statusFilter.toLowerCase()}.`}
                             </p>
-                            <button 
+                            <button
                                 onClick={() => navigate('/shopping/food-drink')}
                                 className="bg-primary hover:bg-primary/90 text-white px-8 py-3 rounded-xl font-bold text-lg transition-all shadow-lg shadow-primary/20 active:scale-95"
                             >
@@ -377,7 +374,7 @@ const HistoryOrderByUser = () => {
                 {/* Load More */}
                 {!loading && page + 1 < totalPages && (
                     <div className="mt-12 flex justify-center">
-                        <button 
+                        <button
                             onClick={handleLoadMore}
                             className="flex items-center gap-2 text-primary font-bold hover:gap-3 transition-all p-3 rounded-xl hover:bg-primary/5 active:scale-95"
                         >
@@ -395,7 +392,7 @@ const HistoryOrderByUser = () => {
                 )}
             </main>
 
-            <footer className="mt-auto border-t border-slate-200 dark:border-slate-800 py-4 bg-slate-100 dark:bg-slate-950/50">
+            <footer className="mt-auto border-t border-slate-200 dark:border-slate-800 py-4 bg-slate-100 dark:bg-slate-950">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex flex-col md:flex-row justify-between items-center gap-4">
                         <div className="flex items-center gap-2">

@@ -572,13 +572,29 @@ const LandingPage = () => {
                 </div>
             </footer>
 
-            {/* Chatbot Button */}
-            <button
+            {/* ===== GIF CHAT BUTTON ===== */}
+            <div
                 onClick={() => setIsChatOpen(true)}
-                className={`fixed bottom-6 right-6 w-14 h-14 bg-primary text-white rounded-full shadow-lg shadow-primary/30 flex items-center justify-center hover:scale-110 transition-transform z-50 ${isChatOpen ? 'hidden' : 'block'}`}
+                className={`fixed bottom-6 right-6 z-50 cursor-pointer group ${isChatOpen ? 'hidden' : 'flex'} items-center justify-center`}
+                title="Chat với chúng tôi"
             >
-                <span className="material-symbols-outlined text-3xl">chat</span>
-            </button>
+
+                {/* GIF avatar button */}
+                <div className="relative w-20 h-20 rounded-full overflow-hidden border-2 border-primary shadow-lg shadow-primary/30 hover:scale-110 transition-transform duration-200">
+                    <img
+                        src="/chatBot.gif"
+                        alt="Chat với chúng tôi"
+                        className="w-full h-full object-cover"
+                    />
+                </div>
+
+                {/* Tooltip */}
+                <span className="absolute right-20 bottom-1/2 translate-y-1/2 bg-slate-800 text-white text-xs font-semibold px-3 py-1.5 rounded-lg shadow-lg whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none">
+                    Chat với chúng tôi
+                    <span className="absolute right-[-6px] top-1/2 -translate-y-1/2 border-4 border-transparent border-l-slate-800"></span>
+                </span>
+            </div>
+
 
             {/* Chatbot Window */}
             <div className={`fixed bottom-6 right-6 w-[350px] bg-white rounded-2xl shadow-2xl border border-green-100 z-50 overflow-hidden flex-col transition-all duration-300 origin-bottom-right ${isChatOpen ? 'scale-100 opacity-100 flex' : 'scale-0 opacity-0 hidden'}`}>

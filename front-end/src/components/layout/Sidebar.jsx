@@ -5,7 +5,7 @@ import userService from "../../features/profile/api/userService";
 
 export default function Sidebar({ activeRoute = "dashboard" }) {
     const navigate = useNavigate();
-    const { user, logout } = useAuth(); // 🔥 LẤY USER ĐANG LOGIN
+    const { user } = useAuth(); // LẤY USER ĐANG LOGIN
     const [profile, setProfile] = useState(null);
 
 
@@ -46,56 +46,56 @@ export default function Sidebar({ activeRoute = "dashboard" }) {
         { id: "profile", icon: "person", label: "Hồ sơ", path: "/profile" },
         { id: "security", icon: "shield_person", label: "Bảo mật", path: "/security/face" },
         { id: "shopping", icon: "shopping_bag", label: "Mua sắm", path: "/shopping/food-drink" },
+        { id: "loans", icon: "payments", label: "Đăng ký vay", path: "/loans/apply" },
+        { id: "loans_history", icon: "history", label: "Lịch sử vay", path: "/loans/history" },
     ];
 
-    console.log(user.avatar);
-    console.log("AUTH USER:", user);
+
 
 
     return (
-        <aside className="hidden md:flex flex-col w-72 h-full bg-white dark:bg-slate-800 border-r border-gray-100 dark:border-slate-800 p-6 justify-between">
-            <div className="flex flex-col gap-8">
+        <aside className="hidden md:flex flex-col w-72 h-full bg-white dark:bg-slate-800 border-r border-gray-100 dark:border-slate-800 px-4 py-3 overflow-hidden">
+            {/* Top scrollable section */}
+            <div className="flex flex-col flex-1 min-h-0 overflow-y-auto gap-3 pb-2 scrollbar-hide">
                 {/* User Profile */}
-                <div className="flex items-center gap-4 px-2">
+                <div className="flex items-center gap-3 px-2 flex-shrink-0">
                     {/* Avatar */}
-                    <div className="relative">
+                    <div className="relative flex-shrink-0">
                         <img
                             src={resolveAvatarSrc(profile?.avatarUrl || profile?.avatar || user?.avatar)}
                             alt="Ảnh đại diện"
-                            className="w-16 h-16 rounded-full object-cover border"
+                            className="w-12 h-12 rounded-full object-cover border"
                         />
-
                     </div>
 
                     {/* User Info */}
-                    <div className="flex flex-col gap-1">
-                        <h1 className="text-sm font-semibold text-text-main dark:text-white leading-tight">
+                    <div className="flex flex-col gap-1 min-w-0">
+                        <h1 className="text-sm font-semibold text-text-main dark:text-white leading-tight truncate">
                             {user?.fullName}
                         </h1>
 
                         {/* Membership badge */}
-                        <span className="inline-flex w-fit items-center px-2.5 py-0.5 rounded-full text-xs font-medium
-            bg-purple-100 text-purple-700
-            dark:bg-purple-500/20 dark:text-purple-300">
+                        <span className="inline-flex w-fit items-center px-2 py-0.5 rounded-full text-xs font-medium
+                            bg-purple-100 text-purple-700
+                            dark:bg-purple-500/20 dark:text-purple-300">
                             {user?.membership || "Miễn phí"}
                         </span>
                     </div>
                 </div>
 
-
                 {/* Navigation */}
-                <nav className="flex flex-col gap-2">
+                <nav className="flex flex-col gap-1">
                     {navItems.map((item) => (
                         <button
                             key={item.id}
                             onClick={() => handleNavigation(item.path)}
-                            className={`flex items-center gap-3 px-4 py-3 rounded-full transition-all w-full text-left ${activeRoute === item.id
+                            className={`flex items-center gap-3 px-4 py-2 rounded-full transition-all w-full text-left ${activeRoute === item.id
                                 ? 'bg-primary text-text-main shadow-md shadow-primary/20'
                                 : 'text-text-sub dark:text-slate-400 hover:bg-gray-50 dark:hover:bg-slate-700'
                                 }`}
                         >
                             <span
-                                className="material-symbols-outlined"
+                                className="material-symbols-outlined text-[20px]"
                                 style={activeRoute === item.id && item.filled ? { fontVariationSettings: "'FILL' 1" } : {}}
                             >
                                 {item.icon}
@@ -106,32 +106,12 @@ export default function Sidebar({ activeRoute = "dashboard" }) {
                 </nav>
             </div>
 
-            {/* Bottom Section */}
-            <div className="flex flex-col gap-4">
-                <button
-                    onClick={() => handleNavigation('/loans/apply')}
-                    className={`flex items-center gap-3 px-4 py-3 rounded-full transition-all w-full text-left ${activeRoute === 'loans'
-                        ? 'bg-primary text-text-main shadow-md shadow-primary/20'
-                        : 'text-text-sub dark:text-slate-400 hover:bg-gray-50 dark:hover:bg-slate-700'
-                        }`}
-                >
-                    <span className="material-symbols-outlined">payments</span>
-                    <span className="text-sm font-medium">Đăng ký vay</span>
-                </button>
-                <button
-                    onClick={() => handleNavigation('/loans/history')}
-                    className={`flex items-center gap-3 px-4 py-3 rounded-full transition-all w-full text-left ${activeRoute === 'loans_history'
-                        ? 'bg-primary text-text-main shadow-md shadow-primary/20'
-                        : 'text-text-sub dark:text-slate-400 hover:bg-gray-50 dark:hover:bg-slate-700'
-                        }`}
-                >
-                    <span className="material-symbols-outlined">history</span>
-                    <span className="text-sm font-medium">Lịch sử vay</span>
-                </button>
-                <div className="bg-gradient-to-br from-primary/20 to-primary/5 dark:from-primary/10 dark:to-primary/5 rounded-xl p-6 border border-primary/20">
-                    <h3 className="text-sm font-semibold mb-2 text-text-main dark:text-white">Nâng cấp Pro</h3>
-                    <p className="text-xs text-text-sub dark:text-slate-400 mb-4">Truy cập không giới hạn mọi tính năng</p>
-                    <button className="w-full bg-primary text-text-main text-sm font-medium py-2 px-4 rounded-full hover:bg-primary/90 transition-colors">
+            {/* Bottom Section — chỉ card Nâng cấp Pro pin cố định */}
+            <div className="flex-shrink-0 pt-3 border-t border-gray-100 dark:border-slate-700">
+                <div className="bg-gradient-to-br from-primary/20 to-primary/5 dark:from-primary/10 dark:to-primary/5 rounded-xl p-4 border border-primary/20">
+                    <h3 className="text-sm font-semibold mb-1 text-text-main dark:text-white">Nâng cấp Pro</h3>
+                    <p className="text-xs text-text-sub dark:text-slate-400 mb-3">Truy cập không giới hạn mọi tính năng</p>
+                    <button className="w-full bg-primary text-text-main text-sm font-medium py-1.5 px-4 rounded-full hover:bg-primary/90 transition-colors">
                         Nâng cấp ngay
                     </button>
                 </div>
