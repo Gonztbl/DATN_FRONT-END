@@ -143,7 +143,7 @@ const ViewOrderByAdmin = () => {
 
     if (loading) {
         return (
-            <div className="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 min-h-screen flex font-display">
+            <div className="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 h-screen flex font-display">
                 <SidebarAdmin />
                 <main className="flex-1 flex flex-col items-center justify-center bg-slate-50 dark:bg-slate-950 h-screen w-full">
                     <div className="size-12 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
@@ -167,10 +167,10 @@ const ViewOrderByAdmin = () => {
     }
 
     return (
-        <div className="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 min-h-screen flex font-display">
+        <div className="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 h-screen flex font-display">
             <SidebarAdmin />
 
-            <main className="flex-1 flex flex-col min-w-0 bg-slate-50 dark:bg-slate-950 h-screen overflow-y-auto w-full">
+            <main className="flex-1 flex flex-col min-w-0 bg-slate-50 dark:bg-slate-950 overflow-y-auto w-full">
                 <HeaderAdmin title={`Chi tiết đơn hàng #${order.id}`} />
 
                 <div className="p-4 md:p-8 max-w-7xl mx-auto w-full">

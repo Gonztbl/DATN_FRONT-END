@@ -272,9 +272,9 @@ export default function AdminProductPage() {
     const totalPages = Math.ceil(total / limit) || 1;
 
     return (
-        <div className="flex bg-white dark:bg-slate-950 font-display text-slate-900 dark:text-slate-100 min-h-screen transition-colors duration-300">
+        <div className="flex bg-white dark:bg-slate-950 font-display text-slate-900 dark:text-slate-100 h-screen transition-colors duration-300">
             <SidebarAdmin />
-            <main className="flex-1 flex flex-col min-w-0 bg-slate-50 dark:bg-slate-950 h-screen overflow-y-auto w-full">
+            <main className="flex-1 flex flex-col min-w-0 bg-slate-50 dark:bg-slate-950 overflow-y-auto w-full">
                 <HeaderAdmin title="Quản lý món ăn" />
 
                 <div className="p-6 lg:p-8">

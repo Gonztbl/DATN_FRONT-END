@@ -201,10 +201,10 @@ export default function VendorManagerPage() {
     const totalPages = Math.ceil(total / limit) || 1;
 
     return (
-        <div className="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 min-h-screen flex font-display">
+        <div className="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 h-screen flex font-display">
             <SidebarAdmin />
 
-            <main className="flex-1 flex flex-col min-w-0 bg-slate-50 dark:bg-slate-950 h-screen overflow-y-auto w-full">
+            <main className="flex-1 flex flex-col min-w-0 bg-slate-50 dark:bg-slate-950 overflow-y-auto w-full">
                 <HeaderAdmin title="Quản lý danh mục" />
 
                 <div className="p-6 lg:p-8">

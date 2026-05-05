@@ -284,7 +284,7 @@ const ListOrderAdmin = () => {
         <div className="bg-white dark:bg-slate-900 text-slate-900 dark:text-white h-screen flex font-display transition-colors duration-300">
             <SidebarAdmin />
 
-            <main className="flex-1 flex flex-col min-w-0 bg-slate-50 dark:bg-slate-950 h-screen overflow-y-auto w-full">
+            <main className="flex-1 flex flex-col min-w-0 bg-slate-50 dark:bg-slate-950 overflow-y-auto w-full">
                 <HeaderAdmin title="Quản lý đơn hàng" />
 
                 <div className="p-6 lg:p-8">

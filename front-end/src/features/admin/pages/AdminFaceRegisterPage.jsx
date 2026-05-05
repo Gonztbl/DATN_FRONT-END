@@ -130,9 +130,9 @@ export default function AdminFaceRegisterPage() {
     };
 
     return (
-        <div className="flex min-h-screen bg-slate-50 dark:bg-slate-950 font-display">
+        <div className="flex h-screen bg-slate-50 dark:bg-slate-950 font-display">
             <SidebarAdmin />
-            <main className="flex-1 flex flex-col min-w-0 bg-slate-50 dark:bg-slate-950 h-screen overflow-y-auto w-full">
+            <main className="flex-1 flex flex-col min-w-0 bg-slate-50 dark:bg-slate-950 overflow-y-auto w-full">
                 <HeaderAdmin title="Quản lý người dùng" />
 
                 <div className="p-6 lg:p-8">

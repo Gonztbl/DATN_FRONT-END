@@ -242,10 +242,10 @@ export default function UserDetailPage() {
   const isUserActive = user.active ?? user.isActive;
 
   return (
-    <div className="flex min-h-screen bg-background-light dark:bg-background-dark">
+    <div className="flex h-screen bg-background-light dark:bg-background-dark">
       <SidebarAdmin />
 
-      <main className="flex-1 flex flex-col min-w-0 bg-slate-50 dark:bg-slate-950 h-screen overflow-y-auto w-full">
+      <main className="flex-1 flex flex-col min-w-0 bg-slate-50 dark:bg-slate-950 overflow-y-auto w-full">
         <HeaderAdmin title="Quản lý người dùng" />
         
         <div className="p-6 lg:p-8">

@@ -184,10 +184,10 @@ export default function AdminWalletPage() {
     };
 
     return (
-        <div className="bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 min-h-screen flex font-display transition-colors duration-300">
+        <div className="bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 h-screen flex font-display transition-colors duration-300">
             <SidebarAdmin />
 
-            <main className="flex-1 flex flex-col min-w-0 bg-slate-50 dark:bg-slate-950 h-screen overflow-y-auto w-full">
+            <main className="flex-1 flex flex-col min-w-0 bg-slate-50 dark:bg-slate-950 overflow-y-auto w-full">
                 <HeaderAdmin title="Quản lý ví" />
 
                 <div className="p-6 lg:p-8">

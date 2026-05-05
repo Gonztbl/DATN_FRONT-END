@@ -593,10 +593,10 @@ export default function AdminAllLoans() {
     const totalAll = Object.values(counts).reduce((a, b) => a + b, 0);
 
     return (
-        <div className="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 min-h-screen flex">
+        <div className="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 h-screen flex">
             <style>{`@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap'); .font-manrope{font-family:'Manrope',sans-serif}`}</style>
             <SidebarAdmin />
-            <main className="flex-1 flex flex-col min-w-0 h-screen overflow-y-auto">
+            <main className="flex-1 flex flex-col min-w-0 overflow-y-auto">
                 <HeaderAdmin title="Tất cả đơn vay" />
                 <div className="p-6 lg:p-8">
                     <div className="max-w-[1400px] mx-auto flex flex-col gap-6">

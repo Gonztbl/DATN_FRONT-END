@@ -42,6 +42,7 @@ import LoanHistoryUser from "../features/wallet/pages/loans_historyuser";
 import AdminListLoans from "../features/admin/pages/AdminListLoans";
 import AdminAllLoans from "../features/admin/pages/AdminAllLoans";
 import AdminFraudAlertPage from "../features/admin/pages/AdminFraudAlertPage";
+import AdminLayout from "../features/admin/AdminLayout";
 
 function AppRoutes() {
   return (
@@ -125,7 +126,7 @@ function AppRoutes() {
         path="/admin/loans"
         element={
           <ProtectedRoute allowedRoles={['ADMIN']}>
-            <AdminListLoans />
+            <AdminLayout><AdminListLoans /></AdminLayout>
           </ProtectedRoute>
         }
       />
@@ -133,7 +134,7 @@ function AppRoutes() {
         path="/admin/loans/all"
         element={
           <ProtectedRoute allowedRoles={['ADMIN']}>
-            <AdminAllLoans />
+            <AdminLayout><AdminAllLoans /></AdminLayout>
           </ProtectedRoute>
         }
       />
@@ -141,7 +142,7 @@ function AppRoutes() {
         path="/admin/transactions"
         element={
           <ProtectedRoute allowedRoles={['ADMIN']}>
-            <AdminTransactionHistoryPage />
+            <AdminLayout><AdminTransactionHistoryPage /></AdminLayout>
           </ProtectedRoute>
         }
       />
@@ -149,7 +150,7 @@ function AppRoutes() {
         path="/admin/fraud-alerts"
         element={
           <ProtectedRoute allowedRoles={['ADMIN']}>
-            <AdminFraudAlertPage />
+            <AdminLayout><AdminFraudAlertPage /></AdminLayout>
           </ProtectedRoute>
         }
       />
@@ -157,7 +158,7 @@ function AppRoutes() {
         path="/user-manager"
         element={
           <ProtectedRoute allowedRoles={['ADMIN']}>
-            <UserManagement />
+            <AdminLayout><UserManagement /></AdminLayout>
           </ProtectedRoute>
         }
       />
@@ -165,7 +166,7 @@ function AppRoutes() {
         path="/admin/users/create"
         element={
           <ProtectedRoute allowedRoles={['ADMIN']}>
-            <AdminUserCreatePage />
+            <AdminLayout><AdminUserCreatePage /></AdminLayout>
           </ProtectedRoute>
         }
       />
@@ -173,7 +174,7 @@ function AppRoutes() {
         path="/admin/users/:id"
         element={
           <ProtectedRoute allowedRoles={['ADMIN']}>
-            <UserDetailPage />
+            <AdminLayout><UserDetailPage /></AdminLayout>
           </ProtectedRoute>
         }
       />
@@ -181,7 +182,7 @@ function AppRoutes() {
         path="/admin/users/:id/verify-face"
         element={
           <ProtectedRoute allowedRoles={['ADMIN']}>
-            <AdminVerifyFacePage />
+            <AdminLayout><AdminVerifyFacePage /></AdminLayout>
           </ProtectedRoute>
         }
       />
@@ -189,7 +190,7 @@ function AppRoutes() {
         path="/admin/users/:id/register-face"
         element={
           <ProtectedRoute allowedRoles={['ADMIN']}>
-            <AdminFaceRegisterPage />
+            <AdminLayout><AdminFaceRegisterPage /></AdminLayout>
           </ProtectedRoute>
         }
       />
@@ -197,7 +198,7 @@ function AppRoutes() {
         path="/admin/wallets"
         element={
           <ProtectedRoute allowedRoles={['ADMIN']}>
-            <AdminWalletPage />
+            <AdminLayout><AdminWalletPage /></AdminLayout>
           </ProtectedRoute>
         }
       />
@@ -229,7 +230,7 @@ function AppRoutes() {
         path="/admin/vendor-manager"
         element={
           <ProtectedRoute allowedRoles={['ADMIN']}>
-            <VendorManagerPage />
+            <AdminLayout><VendorManagerPage /></AdminLayout>
           </ProtectedRoute>
         }
       />
@@ -237,7 +238,7 @@ function AppRoutes() {
         path="/admin/orders"
         element={
           <ProtectedRoute allowedRoles={['ADMIN']}>
-            <ListOrderAdmin />
+            <AdminLayout><ListOrderAdmin /></AdminLayout>
           </ProtectedRoute>
         }
       />
@@ -245,7 +246,7 @@ function AppRoutes() {
         path="/admin/orders/:id"
         element={
           <ProtectedRoute allowedRoles={['ADMIN']}>
-            <ViewOrderByAdmin />
+            <AdminLayout><ViewOrderByAdmin /></AdminLayout>
           </ProtectedRoute>
         }
       />
@@ -253,7 +254,7 @@ function AppRoutes() {
         path="/admin/restaurant-manager"
         element={
           <ProtectedRoute allowedRoles={['ADMIN']}>
-            <AdminRestaurantPage />
+            <AdminLayout><AdminRestaurantPage /></AdminLayout>
           </ProtectedRoute>
         }
       />
@@ -261,7 +262,7 @@ function AppRoutes() {
         path="/admin/product-manager"
         element={
           <ProtectedRoute allowedRoles={['ADMIN']}>
-            <AdminProductPage />
+            <AdminLayout><AdminProductPage /></AdminLayout>
           </ProtectedRoute>
         }
       />

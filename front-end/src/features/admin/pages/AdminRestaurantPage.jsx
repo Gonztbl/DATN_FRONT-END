@@ -250,10 +250,10 @@ export default function AdminRestaurantPage() {
     const totalPages = Math.ceil(total / limit) || 1;
 
     return (
-        <div className="relative flex h-auto min-h-screen w-full flex-col font-display bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 overflow-x-hidden md:flex-row transition-colors duration-300">
+        <div className="relative flex h-screen w-full flex-col font-display bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 overflow-hidden md:flex-row transition-colors duration-300">
             <SidebarAdmin />
 
-            <main className="flex-1 flex flex-col min-w-0 bg-slate-50 dark:bg-slate-950 h-screen overflow-y-auto w-full">
+            <main className="flex-1 flex flex-col min-w-0 bg-slate-50 dark:bg-slate-950 overflow-y-auto w-full">
                 <HeaderAdmin title="Quản lý nhà hàng" />
 
                 <div className="p-6 lg:p-8">

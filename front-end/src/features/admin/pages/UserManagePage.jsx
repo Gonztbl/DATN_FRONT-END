@@ -94,7 +94,7 @@ export default function UserManagement() {
     <div className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 h-screen flex font-display">
       <SidebarAdmin />
 
-      <main className="flex-1 flex flex-col min-w-0 bg-slate-50 dark:bg-slate-950 h-screen overflow-y-auto w-full">
+      <main className="flex-1 flex flex-col min-w-0 bg-slate-50 dark:bg-slate-950 overflow-y-auto w-full">
         <HeaderAdmin title="Quản lý người dùng" />
 
         <div className="p-6 lg:p-8">

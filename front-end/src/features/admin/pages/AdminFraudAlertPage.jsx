@@ -158,9 +158,9 @@ export default function AdminFraudAlertPage() {
     useEffect(() => { fetchAlerts(); }, [fetchAlerts]);
 
     return (
-        <div className="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 min-h-screen flex">
+        <div className="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 h-screen flex">
             <SidebarAdmin />
-            <main className="flex-1 flex flex-col min-w-0 h-screen overflow-y-auto">
+            <main className="flex-1 flex flex-col min-w-0 overflow-y-auto">
                 <HeaderAdmin title="Cảnh báo Gian lận (AI Fraud)" />
                 <div className="p-6 lg:p-8">
                     <div className="max-w-[1400px] mx-auto flex flex-col gap-6">

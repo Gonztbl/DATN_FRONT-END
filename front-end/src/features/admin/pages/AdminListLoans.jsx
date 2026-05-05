@@ -511,7 +511,7 @@ export default function AdminListLoans() {
     const highRiskPct = Math.round(((stats?.highRiskCount ?? 0) / total) * 100);
 
     return (
-        <div className="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 min-h-screen flex font-display">
+        <div className="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 h-screen flex font-display">
             <style>{`
                 @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap');
                 .font-manrope { font-family: 'Manrope', sans-serif; }
@@ -519,7 +519,7 @@ export default function AdminListLoans() {
 
             <SidebarAdmin />
 
-            <main className="flex-1 flex flex-col min-w-0 bg-slate-50 dark:bg-slate-950 h-screen overflow-y-auto w-full">
+            <main className="flex-1 flex flex-col min-w-0 bg-slate-50 dark:bg-slate-950 overflow-y-auto w-full">
                 <HeaderAdmin title="Đơn vay vốn" />
 
                 <div className="p-6 lg:p-8">
