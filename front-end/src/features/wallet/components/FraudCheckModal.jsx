@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import faceService from "../../auth/services/faceService";
 import { useAuth } from "../../auth/context/AuthContext";
-import { showSuccess } from "../../../utils/swalUtils";
+import { showSuccess, showError } from "../../../utils/swalUtils";
 
 export default function FraudCheckModal({ isOpen, fraudResult, onConfirm, onCancel }) {
     const { user } = useAuth();
@@ -9,6 +9,7 @@ export default function FraudCheckModal({ isOpen, fraudResult, onConfirm, onCanc
     const [faceVerified, setFaceVerified] = useState(false);
     const [cameraActive, setCameraActive] = useState(false);
     const [errorMsg, setErrorMsg] = useState("");
+    const [failedCount, setFailedCount] = useState(0);
     
     const videoRef = useRef(null);
     const canvasRef = useRef(null);
@@ -20,6 +21,7 @@ export default function FraudCheckModal({ isOpen, fraudResult, onConfirm, onCanc
             setFaceVerified(false);
             setCameraActive(false);
             setErrorMsg("");
+            setFailedCount(0);
         } else {
             stopCamera();
         }
@@ -36,7 +38,13 @@ export default function FraudCheckModal({ isOpen, fraudResult, onConfirm, onCanc
 
     const startCamera = async () => {
         try {
-            const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+            const stream = await navigator.mediaDevices.getUserMedia({ 
+                video: { 
+                    facingMode: "user",
+                    width: { ideal: 1280 },
+                    height: { ideal: 720 }
+                } 
+            });
             if (videoRef.current) {
                 videoRef.current.srcObject = stream;
             }
@@ -62,20 +70,30 @@ export default function FraudCheckModal({ isOpen, fraudResult, onConfirm, onCanc
 
         try {
             const canvas = canvasRef.current;
-            // Use native video resolution to avoid blurriness from resizing
-            const width = video.videoWidth;
-            const height = video.videoHeight;
-            
-            canvas.width = width;
-            canvas.height = height;
+            const targetSize = 640;
+            canvas.width = targetSize;
+            canvas.height = targetSize;
             const ctx = canvas.getContext("2d");
+            ctx.imageSmoothingEnabled = true;
+
+            const videoAspect = video.videoWidth / video.videoHeight;
+            let drawWidth = targetSize;
+            let drawHeight = targetSize;
+            let offsetX = 0;
+            let offsetY = 0;
+
+            if (videoAspect > 1) {
+                drawHeight = targetSize / videoAspect;
+                offsetY = (targetSize - drawHeight) / 2;
+            } else {
+                drawWidth = targetSize * videoAspect;
+                offsetX = (targetSize - drawWidth) / 2;
+            }
+
+            ctx.drawImage(video, 0, 0, video.videoWidth, video.videoHeight, offsetX, offsetY, drawWidth, drawHeight);
             
-            // Draw the full frame without any cropping or complex logic
-            // This ensures the Backend receives the highest quality raw image
-            ctx.drawImage(video, 0, 0, width, height);
-            
-            // Get base64 with high quality
-            const base64 = canvas.toDataURL("image/jpeg", 0.95);
+            // Get base64 with quality 0.92 like register
+            const base64 = canvas.toDataURL("image/jpeg", 0.92);
 
             const blob = await fetch(base64).then(r => r.blob());
             const file = new File([blob], "verify.jpg", { type: "image/jpeg" });
@@ -96,11 +114,32 @@ export default function FraudCheckModal({ isOpen, fraudResult, onConfirm, onCanc
                 showSuccess("Xác thực thành công", "Vui lòng nhấn Xác nhận để hoàn tất giao dịch.");
                 stopCamera();
                 setCameraActive(false);
+                setFailedCount(0);
             } else {
-                setErrorMsg(result.message || "Xác thực khuôn mặt không khớp. Vui lòng thử lại.");
+                const newCount = failedCount + 1;
+                setFailedCount(newCount);
+                if (newCount >= 3) {
+                    showError("Thất bại", "Xác thực khuôn mặt sai quá 3 lần. Giao dịch bị hủy.");
+                    stopCamera();
+                    setCameraActive(false);
+                    onCancel();
+                } else {
+                    const baseMsg = result.message || "Xác thực khuôn mặt không khớp.";
+                    setErrorMsg(`${baseMsg} (Còn ${3 - newCount} lần thử)`);
+                }
             }
         } catch (err) {
-            setErrorMsg(err.message || "Lỗi xác thực.");
+            const newCount = failedCount + 1;
+            setFailedCount(newCount);
+            if (newCount >= 3) {
+                showError("Thất bại", "Lỗi xác thực quá 3 lần. Giao dịch bị hủy.");
+                stopCamera();
+                setCameraActive(false);
+                onCancel();
+            } else {
+                const baseMsg = err.message || "Lỗi xác thực.";
+                setErrorMsg(`${baseMsg} (Còn ${3 - newCount} lần thử)`);
+            }
         } finally {
             setVerifying(false);
         }
