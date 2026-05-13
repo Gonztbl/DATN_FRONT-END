@@ -17,11 +17,8 @@ const getZ = (k) => ZONE_CFG[k] ?? { label: k ?? '—', dot: 'bg-slate-400', tex
 
 const fmtTxnId = (id) => {
     if (!id) return null;
-    const n = Number(id);
-    if (isNaN(n)) return id;
-    const minus = n % 2 === 0 ? n : n - 1;
-    const plus = minus + 1;
-    return `TXN-${minus}+${plus}`;
+    if (typeof id === 'string' && id.startsWith('TXN-')) return id;
+    return `TXN-${id}`;
 };
 
 function InfoRow({ label, value, isCode }) {
@@ -79,7 +76,7 @@ function FraudAlertDetailModal({ id, onClose }) {
                                 <div className="bg-slate-50 dark:bg-slate-800/50 rounded-xl p-4 space-y-3">
                                     <p className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-3">Thông tin chung</p>
                                     <InfoRow label="ID Người dùng" value={detail.userId} />
-                                    <InfoRow label="ID Giao dịch" value={fmtTxnId(detail.transactionId) ?? 'N/A'} />
+                                    <InfoRow label="ID Giao dịch" value={detail.displayTransactionId || fmtTxnId(detail.transactionId) || 'N/A'} />
                                     <InfoRow label="Họ tên (Username)" value={detail.userName} />
                                     <InfoRow label="Số tiền yêu cầu" value={fmt(detail.amount)} />
                                     <InfoRow label="Tài khoản nhận" value={detail.toAccountNumber} />
@@ -294,7 +291,7 @@ export default function AdminFraudAlertPage() {
                                                 <tr key={item.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50">
                                                     <td className="px-4 py-4 text-sm font-bold opacity-60">#{item.id}</td>
                                                     <td className="px-4 py-4 text-sm font-semibold text-blue-600 dark:text-blue-400 whitespace-nowrap">
-                                                        {fmtTxnId(item.transactionId) ?? '—'}
+                                                        {item.displayTransactionId || fmtTxnId(item.transactionId) || '—'}
                                                     </td>
                                                     <td className="px-4 py-4">
                                                         <p className="text-sm font-semibold">{item.userName}</p>
