@@ -60,11 +60,24 @@ const transactionService = {
     },
 
     /**
-     * Get all transactions for admin
+     * Get all transactions for admin (paginated + filters)
      * Endpoint: GET /api/admin/transactions
+     * @param {object} params - { userId, status, type, direction, keyword, fromDate, toDate, page, size }
      */
-    getAllAdminTransactions: async () => {
-        const response = await apiClient.get('/api/admin/transactions');
+    getAllAdminTransactions: async (params = {}) => {
+        const response = await apiClient.get('/api/admin/transactions', { params });
+        // Backend trả về Page object { content, totalPages, totalElements, ... }
+        const data = response.data;
+        return data;
+    },
+
+    /**
+     * Get transaction detail for admin
+     * Endpoint: GET /api/admin/transactions/{id}
+     * @param {number} id - Transaction ID (numeric, without TXN- prefix)
+     */
+    getAdminTransactionDetail: async (id) => {
+        const response = await apiClient.get(`/api/admin/transactions/${id}`);
         return response.data;
     }
 };

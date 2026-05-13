@@ -80,7 +80,7 @@ export default function DashboardPage() {
 
             // First fetch user and wallet info to get robust wallet ID
             const [currentUser, walletInfo] = await Promise.all([
-                userService.getCurrentUser(),
+                userService.getProfile(),
                 walletService.getWalletInfo().catch(() => null)
             ]);
 
@@ -279,15 +279,29 @@ export default function DashboardPage() {
                 }
             }
 
+            return currentUser;
         } catch (error) {
             console.error("Critical error in refreshData:", error);
+            return null;
         }
     };
 
     useEffect(() => {
         const init = async () => {
-            await refreshData();
+            const currentUser = await refreshData();
             setLoading(false);
+
+            // Check if user has registered face biometric
+            if (currentUser && currentUser.verified === false) {
+                const alertShown = sessionStorage.getItem("face_auth_alert_shown");
+                if (!alertShown) {
+                    showWarning(
+                        "Tài khoản của bạn chưa được xác thực khuôn mặt. Vui lòng đăng ký khuôn mặt trong phần Bảo mật để đảm bảo an toàn cho các giao dịch.",
+                        "Yêu cầu bảo mật"
+                    );
+                    sessionStorage.setItem("face_auth_alert_shown", "true");
+                }
+            }
         };
         init();
     }, []);
@@ -370,13 +384,12 @@ export default function DashboardPage() {
         }
     };
 
-    const handleConfirmTransfer = async (sessionToken, faceVerified) => {
+    const handleConfirmTransfer = async (sessionToken) => {
         try {
             setShowFraudModal(false);
 
             const result = await TransferService.confirmTransfer({
-                sessionToken,
-                faceVerified
+                sessionToken
             });
 
             // The confirmAPI returns result directly because it doesn't have data wrapper sometimes
@@ -592,44 +605,8 @@ export default function DashboardPage() {
     };
 
     return (
-        <div className="min-h-screen bg-background-light dark:bg-slate-900 font-display text-text-main dark:text-white overflow-hidden">
-            {/* Tailwind CDN + Config */}
-            <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-            <script
-                dangerouslySetInnerHTML={{
-                    __html: `
-            tailwind.config = {
-              darkMode: "class",
-              theme: {
-                extend: {
-                  colors: {
-                    primary: "#36e27b",
-                    "background-light": "#f6f8f7",
-                    "background-dark": "#112217",
-                    "text-main": "#111714",
-                    "text-sub": "#648772",
-                  },
-                  fontFamily: {
-                    display: ["Spline Sans", "sans-serif"]
-                  },
-                  borderRadius: {
-                    DEFAULT: "1rem",
-                    lg: "2rem",
-                    xl: "3rem",
-                    full: "9999px"
-                  }
-                }
-              }
-            }
-          `,
-                }}
-            />
-            <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet" />
-            <link href="https://fonts.googleapis.com/css2?family=Spline+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
-
-            <div className="flex h-screen w-full">
-                {/* Sidebar */}
-                <Sidebar activeRoute="dashboard" />
+        <div className="flex h-screen w-full bg-[#f6f8f7] dark:bg-slate-900 font-display text-[#111714] dark:text-white transition-colors duration-300 overflow-hidden">
+            <Sidebar activeRoute="dashboard" />
 
                 {/* Main Content */}
                 <FraudCheckModal 
@@ -1194,7 +1171,6 @@ export default function DashboardPage() {
                         </div>
                     </div>
                 </main>
-            </div>
             {/* Modals */}
             {showAddCardModal && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">

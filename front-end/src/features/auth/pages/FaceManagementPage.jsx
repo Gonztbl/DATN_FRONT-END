@@ -74,11 +74,11 @@ export default function FaceManagementPage() {
     if (loading) return <div className="flex items-center justify-center min-h-screen">Đang tải...</div>;
 
     return (
-        <div className="relative flex min-h-screen w-full flex-col bg-[#f6f8f7] dark:bg-slate-900 font-display text-[#111714] dark:text-white transition-colors duration-300">
-            <div className="flex flex-1 overflow-hidden">
-                <Sidebar activeRoute="security" />
+        <div className="flex h-screen w-full bg-[#f6f8f7] dark:bg-slate-900 font-display text-[#111714] dark:text-white transition-colors duration-300 overflow-hidden">
+            <Sidebar activeRoute="security" />
 
-                <main className="flex-1 py-8 px-4 md:px-10 overflow-y-auto">
+            <main className="flex-1 flex flex-col h-full overflow-y-auto">
+                <div className="flex-1 py-8 px-4 md:px-10">
                     <div className="max-w-[1024px] mx-auto flex flex-col gap-6">
                         {/* Title & Actions */}
                         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-2">
@@ -241,20 +241,20 @@ export default function FaceManagementPage() {
                             </div>
                         </div>
                     </div>
-                </main>
-            </div>
-
-            {/* Footer */}
-            <footer className="border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 py-6 px-10">
-                <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-slate-500 dark:text-slate-400 max-w-[1024px] mx-auto">
-                    <p>© 2024 SmartPay Sinh trắc học. Đã đăng ký bản quyền.</p>
-                    <div className="flex gap-6">
-                        <a className="hover:text-primary transition-colors" href="#">Chính sách Bảo mật</a>
-                        <a className="hover:text-primary transition-colors" href="#">Điều khoản Dịch vụ</a>
-                        <a className="hover:text-primary transition-colors" href="#">Liên hệ Hỗ trợ</a>
-                    </div>
                 </div>
-            </footer>
+
+                {/* Footer */}
+                <footer className="mt-auto border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 py-6 px-10">
+                    <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-slate-500 dark:text-slate-400 max-w-[1024px] mx-auto">
+                        <p>© 2024 SmartPay Sinh trắc học. Đã đăng ký bản quyền.</p>
+                        <div className="flex gap-6">
+                            <a className="hover:text-primary transition-colors" href="#">Chính sách Bảo mật</a>
+                            <a className="hover:text-primary transition-colors" href="#">Điều khoản Dịch vụ</a>
+                            <a className="hover:text-primary transition-colors" href="#">Liên hệ Hỗ trợ</a>
+                        </div>
+                    </div>
+                </footer>
+            </main>
         </div>
     );
 }

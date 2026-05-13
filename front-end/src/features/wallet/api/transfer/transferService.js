@@ -15,8 +15,8 @@ const TransferService = {
     return apiClient.post("/api/v1/transfer/check-fraud", { toAccountNumber, amount, note });
   },
 
-  confirmTransfer({ sessionToken, faceVerified }) {
-    return apiClient.post("/api/v1/transfer/confirm", { sessionToken, faceVerified });
+  confirmTransfer({ sessionToken }) {
+    return apiClient.post("/api/v1/transfer/confirm", { sessionToken });
   },
 
   getTransferHistory(walletId, params = {}) {

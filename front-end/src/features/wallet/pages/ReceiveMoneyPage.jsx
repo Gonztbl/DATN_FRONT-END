@@ -197,47 +197,10 @@ export default function ReceiveMoneyPage() {
     }
 
     return (
-        <div className="min-h-screen bg-background-light dark:bg-slate-900 font-display text-text-main dark:text-white overflow-hidden">
-            {/* Tailwind CDN + Config */}
-            <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-            <script
-                dangerouslySetInnerHTML={{
-                    __html: `
-            tailwind.config = {
-              darkMode: "class",
-              theme: {
-                extend: {
-                  colors: {
-                    primary: "#36e27b",
-                    "background-light": "#f6f8f7",
-                    "background-dark": "#112217",
-                    "text-main": "#111714",
-                    "text-sub": "#648772",
-                  },
-                  fontFamily: {
-                    display: ["Manrope", "sans-serif"]
-                  },
-                  borderRadius: {
-                    DEFAULT: "0.25rem",
-                    lg: "0.5rem",
-                    xl: "0.75rem",
-                    full: "9999px"
-                  }
-                }
-              }
-            }
-          `,
-                }}
-            />
-            <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet" />
-            <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+        <div className="flex h-screen w-full bg-[#f6f8f7] dark:bg-slate-900 font-display text-[#111714] dark:text-white transition-colors duration-300 overflow-hidden">
+            <Sidebar activeRoute="receive" />
 
-            <div className="flex h-screen w-full">
-                {/* Sidebar */}
-                <Sidebar activeRoute="receive" />
-
-                {/* Main Content */}
-                <main className="flex-1 flex flex-col h-full overflow-y-auto bg-background-light dark:bg-slate-900">
+            <main className="flex-1 flex flex-col h-full overflow-y-auto">
                     {/* Mobile Header */}
                     <div className="lg:hidden flex items-center justify-between p-4 bg-white dark:bg-slate-800 border-b border-[#e6ece9] dark:border-slate-800">
                         <div className="flex items-center gap-2">
@@ -303,7 +266,7 @@ export default function ReceiveMoneyPage() {
                                         </div>
 
                                         {/* QR Area */}
-                                        <div className="relative bg-white p-4 rounded-xl shadow-sm border border-gray-100 mb-6 group-hover:scale-[1.02] transition-transform duration-300 ease-out">
+                                        <div className="relative bg-white dark:bg-slate-700 p-4 rounded-xl shadow-sm border border-gray-100 dark:border-slate-600 mb-6 group-hover:scale-[1.02] transition-transform duration-300 ease-out">
                                             {qrCode ? (
                                                 <img
                                                     alt="Personal QR Code"
@@ -326,7 +289,7 @@ export default function ReceiveMoneyPage() {
                                             <label className="block text-xs font-bold text-[#648772] dark:text-slate-400 mb-1.5 ml-1 uppercase tracking-wider">
                                                 Số tài khoản
                                             </label>
-                                            <div className="flex items-center justify-between gap-3 p-3 bg-[#f6f8f7] dark:bg-slate-800 rounded-xl border border-transparent hover:border-primary/30 transition-colors">
+                                            <div className="flex items-center justify-between gap-3 p-3 bg-[#f6f8f7] dark:bg-slate-700 rounded-xl border border-transparent dark:border-slate-600 hover:border-primary/30 transition-colors">
                                                 <div className="flex items-center gap-3 overflow-hidden">
                                                     <div className="bg-primary/10 p-2 rounded-lg text-primary shrink-0">
                                                         <span className="material-symbols-outlined text-[20px]">wallet</span>
@@ -430,7 +393,7 @@ export default function ReceiveMoneyPage() {
                                 {/* Help / Tip Widget */}
                                 <div className="relative overflow-hidden bg-gradient-to-br from-primary/10 to-blue-500/5 dark:from-primary/10 dark:to-blue-500/5 rounded-2xl p-6 border border-primary/20">
                                     <div className="relative z-10 flex gap-4">
-                                        <div className="bg-white dark:bg-slate-800 p-2.5 rounded-xl text-primary shadow-sm h-fit">
+                                        <div className="bg-white dark:bg-slate-700 p-2.5 rounded-xl text-primary shadow-sm h-fit">
                                             <span className="material-symbols-outlined text-[24px]">contact_support</span>
                                         </div>
                                         <div className="flex flex-col gap-2">
@@ -450,8 +413,6 @@ export default function ReceiveMoneyPage() {
                         </div>
                     </div>
                 </main>
-            </div>
-
             {/* Set Amount Modal */}
             {showAmountModal && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">

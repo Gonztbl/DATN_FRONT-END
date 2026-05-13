@@ -150,11 +150,11 @@ export default function RegisterPage() {
   };
 
   const inputClass = (field) =>
-    `w-full px-5 py-3 h-14 text-lg rounded-xl border outline-none transition ${errors[field] ? "border-red-500" : "border-gray-300"
+    `w-full px-5 py-3 h-14 text-lg rounded-xl border outline-none transition dark:bg-gray-800 dark:text-white ${errors[field] ? "border-red-500" : "border-gray-300 dark:border-gray-700"
     }`;
 
   return (
-    <div className="h-screen flex flex-col md:flex-row w-full overflow-hidden bg-background-light dark:bg-background-dark text-text-dark dark:text-text-light font-display antialiased">
+    <div className="h-screen flex flex-col md:flex-row w-full overflow-hidden bg-background-light dark:bg-slate-900 text-text-dark dark:text-white font-display antialiased">
       {/* Left Side */}
       <div className="flex-1 flex flex-col justify-center items-center p-6 md:p-12 lg:p-16 relative z-10 overflow-y-auto">
         <div className="w-full max-w-lg space-y-6">
@@ -169,13 +169,13 @@ export default function RegisterPage() {
                   />
                 </svg>
               </div>
-              <h2 className="text-3xl font-bold">E-Wallet</h2>
+              <h2 className="text-3xl font-bold dark:text-white">E-Wallet</h2>
             </div>
           </div>
 
           {/* Header */}
           <div className="space-y-2">
-            <h1 className="text-3xl lg:text-4xl font-black">Tạo tài khoản</h1>
+            <h1 className="text-3xl lg:text-4xl font-black dark:text-white">Tạo tài khoản</h1>
           </div>
 
           {/* Form */}
@@ -294,9 +294,9 @@ export default function RegisterPage() {
             </button>
           </form>
 
-          <p className="text-center text-sm text-gray-500">
+          <p className="text-center text-sm text-gray-500 dark:text-slate-400">
             Đã có tài khoản?{" "}
-            <a href="/Login" className="font-bold hover:text-primary">
+            <a href="/Login" className="font-bold hover:text-primary dark:text-primary">
               Đăng nhập
             </a>
           </p>

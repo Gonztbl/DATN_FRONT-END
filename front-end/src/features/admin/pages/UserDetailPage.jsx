@@ -47,9 +47,9 @@ export default function UserDetailPage() {
           const walletList = Array.isArray(allWallets) ? allWallets : (allWallets.content || []);
           setWallets(walletList.filter(w => String(w.userId) === String(id)));
 
-          const allTxns = await transactionService.getAllAdminTransactions();
-          const txnList = Array.isArray(allTxns) ? allTxns : [];
-          setTransactions(txnList.filter(t => String(t.userId) === String(id)));
+          const allTxns = await transactionService.getAllAdminTransactions({ userId: id, page: 0, size: 1000 });
+          const txnList = Array.isArray(allTxns) ? allTxns : (Array.isArray(allTxns?.content) ? allTxns.content : []);
+          setTransactions(txnList);
 
         } catch (err) {
           console.error("Load related data error:", err);
@@ -74,9 +74,9 @@ export default function UserDetailPage() {
         const walletList = Array.isArray(allWallets) ? allWallets : (allWallets.content || []);
         setWallets(walletList.filter(w => String(w.userId) === String(id)));
 
-        const allTxns = await transactionService.getAllAdminTransactions();
-        const txnList = Array.isArray(allTxns) ? allTxns : [];
-        setTransactions(txnList.filter(t => String(t.userId) === String(id)));
+        const allTxns = await transactionService.getAllAdminTransactions({ userId: id, page: 0, size: 1000 });
+        const txnList = Array.isArray(allTxns) ? allTxns : (Array.isArray(allTxns?.content) ? allTxns.content : []);
+        setTransactions(txnList);
 
       } catch (err) {
         console.error("Load user data error:", err);

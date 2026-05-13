@@ -263,14 +263,13 @@ export default function TransferHistoryPage() {
         }
     };
 
-    const handleConfirmTransfer = async (sessionToken, faceVerified) => {
+    const handleConfirmTransfer = async (sessionToken) => {
         try {
             setShowFraudModal(false);
             setSending(true);
 
             const result = await TransferService.confirmTransfer({
                 sessionToken,
-                faceVerified,
             });
 
             const responseData = result.data || result;
@@ -304,20 +303,17 @@ export default function TransferHistoryPage() {
     };
 
     return (
-        <div className="min-h-screen bg-[#f6f8f7] dark:bg-slate-900 font-display text-[#111714] dark:text-white overflow-hidden">
-            <div className="flex h-screen w-full">
-                {/* Sidebar */}
-                <Sidebar activeRoute="transactions" />
+        <div className="flex h-screen w-full bg-[#f6f8f7] dark:bg-slate-900 font-display text-[#111714] dark:text-white transition-colors duration-300 overflow-hidden">
+            <Sidebar activeRoute="transactions" />
 
-                <FraudCheckModal 
-                    isOpen={showFraudModal} 
-                    fraudResult={fraudResult} 
-                    onConfirm={handleConfirmTransfer} 
-                    onCancel={() => setShowFraudModal(false)} 
-                />
-                
-                {/* Main Content */}
-                <main className="flex-1 flex flex-col h-full overflow-y-auto bg-[#f6f8f7] dark:bg-slate-900">
+            <FraudCheckModal 
+                isOpen={showFraudModal} 
+                fraudResult={fraudResult} 
+                onConfirm={handleConfirmTransfer} 
+                onCancel={() => setShowFraudModal(false)} 
+            />
+            
+            <main className="flex-1 flex flex-col h-full overflow-y-auto">
                 {/* Mobile Header */}
                 <div className="lg:hidden flex items-center justify-between p-4 bg-white dark:bg-slate-800 border-b border-gray-200 dark:border-slate-800">
                     <div className="flex items-center gap-2">
@@ -404,12 +400,12 @@ export default function TransferHistoryPage() {
                                 </button>
                             </div>
                             {selectedWallet && (
-                                <div className="flex items-center justify-between p-3 rounded-xl border bg-green-50">
+                                <div className="flex items-center justify-between p-3 rounded-xl border bg-green-50 dark:bg-green-900/20 dark:border-green-800/30">
                                     <div>
-                                        <div className="text-sm font-medium text-black">
+                                        <div className="text-sm font-medium text-black dark:text-white">
                                             Người nhận: {selectedWallet.fullName}
                                         </div>
-                                        <div className="text-xs text-gray-600">
+                                        <div className="text-xs text-gray-600 dark:text-slate-400">
                                             Ví: **** {selectedWallet.accountNumber.slice(-4)}
                                         </div>
                                     </div>
@@ -429,17 +425,17 @@ export default function TransferHistoryPage() {
                             )}
 
                             {targetWallets.length > 0 && (
-                                <div className="border rounded-xl mt-2 bg-white shadow">
+                                <div className="border border-gray-100 dark:border-slate-700 rounded-xl mt-2 bg-white dark:bg-slate-800 shadow">
                                     {targetWallets.map(w => (
                                         <div
                                             key={w.walletId}
                                             className="p-3 hover:bg-gray-100 cursor-pointer"
                                             onClick={() => handleSelectWallet(w)}
                                         >
-                                            <div className="font-medium text-black">
+                                            <div className="font-medium text-black dark:text-white">
                                                 {w.fullName}
                                             </div>
-                                            <div className="text-sm text-gray-500">
+                                            <div className="text-sm text-gray-500 dark:text-slate-400">
                                                 **** {w.accountNumber.slice(-4)}
                                             </div>
                                         </div>
@@ -512,11 +508,11 @@ export default function TransferHistoryPage() {
 
                     {/* RECEIVE MONEY PANEL */}
                     <div className="lg:col-span-5 flex justify-center">
-                        <div className="group relative flex flex-col items-center w-full max-w-[420px] bg-white rounded-2xl shadow-[0_8px_30px_rgba(0,0,0,0.04)] border border-[#e6ece9] overflow-hidden">
+                        <div className="group relative flex flex-col items-center w-full max-w-[420px] bg-white dark:bg-slate-800 rounded-2xl shadow-[0_8px_30px_rgba(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgba(0,0,0,0.2)] border border-[#e6ece9] dark:border-slate-800 overflow-hidden">
 
 
                             {/* Card Decoration */}
-                            <div className="absolute top-0 w-full h-32 bg-gradient-to-b from-[#f0fdf4] to-transparent opacity-80 z-0" />
+                            <div className="absolute top-0 w-full h-32 bg-gradient-to-b from-[#f0fdf4] to-transparent dark:from-slate-900 dark:to-transparent opacity-80 z-0" />
 
 
                             <div className="relative z-10 flex flex-col items-center w-full p-8 pb-10">
@@ -531,10 +527,10 @@ export default function TransferHistoryPage() {
                                     />
 
                                     <div className="text-center">
-                                        <h3 className="text-xl font-bold text-[#111714]">
+                                        <h3 className="text-xl font-bold text-[#111714] dark:text-white">
                                             {wallet?.accountName || profile?.fullName || "User"}
                                         </h3>
-                                        <p className="text-sm text-[#648772]">
+                                        <p className="text-sm text-[#648772] dark:text-slate-400">
                                             ID Ví: {wallet?.walletId || wallet?.id || "—"}
                                         </p>
                                     </div>
@@ -542,7 +538,7 @@ export default function TransferHistoryPage() {
 
 
                                 {/* QR */}
-                                <div className="relative bg-white p-4 rounded-xl shadow-sm border border-gray-100 mb-6 group-hover:scale-[1.02] transition-transform">
+                                <div className="relative bg-white dark:bg-slate-800 p-4 rounded-xl shadow-sm border border-gray-100 dark:border-slate-700 mb-6 group-hover:scale-[1.02] transition-transform">
                                     {qrCode ? (
                                         <img
                                             className="size-52"
@@ -571,14 +567,14 @@ export default function TransferHistoryPage() {
                                     <label className="block text-xs font-bold text-[#648772] mb-1.5 ml-1 uppercase tracking-wider">
                                         Số tài khoản
                                     </label>
-                                    <div className="flex items-center justify-between gap-3 p-3 bg-[#f6f8f7] rounded-xl border hover:border-primary/30 transition-colors">
+                                    <div className="flex items-center justify-between gap-3 p-3 bg-[#f6f8f7] dark:bg-slate-700 rounded-xl border dark:border-slate-600 hover:border-primary/30 transition-colors">
                                         <div className="flex items-center gap-3 overflow-hidden">
                                             <div className="bg-primary/10 p-2 rounded-lg text-primary shrink-0">
                                                 <span className="material-symbols-outlined text-[20px]">
                                                     wallet
                                                 </span>
                                             </div>
-                                            <span className="font-mono text-sm truncate text-[#111714]">
+                                            <span className="font-mono text-sm truncate text-[#111714] dark:text-white">
                                                 {wallet?.accountNumber || 'N/A'}
                                             </span>
 
@@ -586,7 +582,7 @@ export default function TransferHistoryPage() {
                                         </div>
                                         <button
                                             onClick={handleCopyAddress}
-                                            className="p-2 text-[#648772] hover:text-[#111714] hover:bg-white rounded-lg transition-all"
+                                            className="p-2 text-[#648772] dark:text-slate-400 hover:text-[#111714] dark:hover:text-white hover:bg-white dark:hover:bg-slate-600 rounded-lg transition-all"
                                             title="Sao chép địa chỉ"
                                         >
                                             <span className="material-symbols-outlined text-[20px]">
@@ -815,7 +811,6 @@ export default function TransferHistoryPage() {
                 </div>
                 </div>
                 </main>
-            </div>
         </div>
     );
 }

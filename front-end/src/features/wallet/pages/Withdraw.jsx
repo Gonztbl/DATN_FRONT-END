@@ -215,13 +215,10 @@ export default function Withdraw() {
 
   return (
     <>
-      <div className="min-h-screen bg-[#f6f8f7] dark:bg-slate-900 font-display text-[#111714] dark:text-white overflow-hidden">
-      <div className="flex h-screen w-full">
-        {/* Sidebar */}
+      <div className="flex h-screen w-full bg-[#f6f8f7] dark:bg-slate-900 font-display text-[#111714] dark:text-white overflow-hidden transition-colors duration-300">
         <Sidebar activeRoute="withdraw" />
 
-        {/* Main Content */}
-        <main className="flex-1 flex flex-col h-full overflow-y-auto bg-[#f6f8f7] dark:bg-slate-900">
+        <main className="flex-1 flex flex-col h-full overflow-y-auto">
           {/* Mobile Header */}
           <div className="lg:hidden flex items-center justify-between p-4 bg-white dark:bg-slate-800 border-b border-gray-200 dark:border-slate-800">
             <div className="flex items-center gap-2">
@@ -286,7 +283,7 @@ export default function Withdraw() {
                         >
                           <input className="peer sr-only" name="account" type="radio" />
                           <div className="p-4 rounded-lg border border-gray-200 dark:border-slate-800 flex items-center gap-4 transition-all hover:bg-[#f6f8f7] dark:hover:bg-slate-700 peer-checked:border-primary peer-checked:bg-primary/5 dark:peer-checked:bg-primary/10">
-                            <div className="size-10 rounded-full bg-white flex items-center justify-center shadow-sm text-blue-800">
+                            <div className="size-10 rounded-full bg-white dark:bg-slate-600 flex items-center justify-center shadow-sm text-blue-800 dark:text-blue-300">
                               <span className="material-symbols-outlined">payments</span>
                             </div>
                             <div className="flex flex-col">
@@ -571,7 +568,6 @@ export default function Withdraw() {
           </div>
         </main>
       </div>
-    </div>
     
       {/* ADD CARD MODAL */}
       {showAddCardModal && (

@@ -83,10 +83,10 @@ export default function LoanUserApply() {
     };
 
     return (
-        <div className="flex h-screen bg-white dark:bg-slate-950 font-body selection:bg-emerald-100 selection:text-emerald-900 overflow-hidden text-slate-900 dark:text-slate-100">
+        <div className="flex h-screen w-full bg-[#f6f8f7] dark:bg-slate-900 font-display text-[#111714] dark:text-white transition-colors duration-300 overflow-hidden">
             <Sidebar activeRoute="loans" />
             
-            <main className="flex-1 flex flex-col md:flex-row h-full">
+            <main className="flex-1 flex flex-col md:flex-row h-full overflow-y-auto">
                 {/* Left Section (Visual + Branding) */}
                 <section className="hidden md:flex md:w-[40%] h-full relative overflow-hidden bg-emerald-900">
                     <img 

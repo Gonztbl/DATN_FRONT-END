@@ -104,12 +104,11 @@ export default function LoanHistoryUser() {
     };
 
     return (
-        <div className="bg-surface dark:bg-slate-950 text-on-surface dark:text-slate-100 font-body min-h-screen flex">
+        <div className="flex h-screen w-full bg-[#f6f8f7] dark:bg-slate-900 font-display text-[#111714] dark:text-white transition-colors duration-300 overflow-hidden">
             <Sidebar activeRoute="loans_history" />
 
-            <div className="flex-1 flex flex-col h-screen overflow-y-auto">
-                {/* Main Content */}
-                <main className="pt-12 min-h-screen">
+            <main className="flex-1 flex flex-col h-full overflow-y-auto">
+                <div className="pt-12 min-h-screen">
                     <div className="max-w-6xl mx-auto px-8 py-12">
                         {/* Header Section */}
                         <div className="mb-12">
@@ -258,8 +257,8 @@ export default function LoanHistoryUser() {
                             </>
                         )}
                     </div>
-                </main>
-            </div>
+                </div>
+            </main>
 
             {/* Loan Details Modal */}
             {showModal && selectedLoan && (

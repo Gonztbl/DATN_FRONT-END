@@ -36,13 +36,12 @@ export default function AdminTransactionHistoryPage() {
     const fetchTransactions = async () => {
         try {
             setLoading(true);
-            const data = await transactionService.getAllAdminTransactions();
+            const data = await transactionService.getAllAdminTransactions({ page: 0, size: 1000 });
 
-            // Ensure data is an array
-            const txnList = Array.isArray(data) ? data : [];
+            // Backend trả về Page object { content: [...], totalPages, totalElements, ... }
+            const txnList = Array.isArray(data) ? data : (Array.isArray(data?.content) ? data.content : []);
 
             // Sort by Date DESC (newest first) if possible
-            // Assuming createdAt is ISO string
             txnList.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
             setTransactions(txnList);
@@ -453,6 +452,10 @@ export default function AdminTransactionHistoryPage() {
                                     <p className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">ID Người dùng</p>
                                     <p className="text-sm font-mono font-semibold text-slate-900 dark:text-white">{selectedTransaction.userId || 'N/A'}</p>
                                 </div>
+                                <div className="space-y-1 col-span-2">
+                                    <p className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Tên người dùng</p>
+                                    <p className="text-sm font-semibold text-slate-900 dark:text-white">{selectedTransaction.userName || 'N/A'}</p>
+                                </div>
                                 <div className="space-y-1">
                                     <p className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Loại giao dịch</p>
                                      <div className={`inline-flex items-center gap-2 text-sm font-medium ${getTypeColor(selectedTransaction.type, selectedTransaction.amount)}`}>
@@ -475,6 +478,31 @@ export default function AdminTransactionHistoryPage() {
                                     <p className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Tên đối tác</p>
                                     <p className="text-sm font-semibold text-slate-900 dark:text-white">{selectedTransaction.partnerName || 'N/A'}</p>
                                 </div>
+
+                                {/* Balance Before / After */}
+                                {(selectedTransaction.balanceBefore != null || selectedTransaction.balanceAfter != null) && (
+                                    <div className="col-span-2 bg-slate-50 dark:bg-slate-800/50 rounded-xl p-4 border border-slate-200 dark:border-slate-700">
+                                        <p className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-3">Biến động số dư</p>
+                                        <div className="flex items-center justify-between gap-4">
+                                            <div className="text-center flex-1">
+                                                <p className="text-xs text-slate-400 mb-1">Trước giao dịch</p>
+                                                <p className="text-lg font-extrabold text-slate-900 dark:text-white">
+                                                    {selectedTransaction.balanceBefore != null ? formatCurrency(selectedTransaction.balanceBefore) : '—'}
+                                                </p>
+                                            </div>
+                                            <span className={`material-symbols-outlined text-2xl ${selectedTransaction.direction === 'OUT' ? 'text-red-500' : 'text-green-500'}`}>
+                                                {selectedTransaction.direction === 'OUT' ? 'trending_down' : 'trending_up'}
+                                            </span>
+                                            <div className="text-center flex-1">
+                                                <p className="text-xs text-slate-400 mb-1">Sau giao dịch</p>
+                                                <p className="text-lg font-extrabold text-slate-900 dark:text-white">
+                                                    {selectedTransaction.balanceAfter != null ? formatCurrency(selectedTransaction.balanceAfter) : '—'}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+
                                 <div className="space-y-1 col-span-2">
                                     <p className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Ghi chú</p>
                                     <p className="text-sm text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-800 p-3 rounded-lg">

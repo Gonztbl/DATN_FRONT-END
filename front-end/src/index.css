@@ -31,8 +31,17 @@ html.dark body {
   border-bottom: 1px solid rgba(255, 255, 255, 0.5);
 }
 
+html.dark .glass-effect {
+  background: rgba(15, 23, 42, 0.8); /* slate-900 with opacity */
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
 .hero-gradient {
   background: linear-gradient(135deg, #ecfdf5 0%, #ffffff 50%, #d1fae5 100%);
+}
+
+html.dark .hero-gradient {
+  background: linear-gradient(135deg, #064e3b 0%, #0f172a 50%, #064e3b 100%);
 }
 
 .feature-card:hover {
@@ -48,10 +57,20 @@ html.dark body {
   opacity: 0.5;
 }
 
+html.dark .bg-pattern {
+  background-image: radial-gradient(#10b981 0.5px, transparent 0.5px), radial-gradient(#10b981 0.5px, #0f172a 0.5px);
+  background-color: #0f172a;
+}
+
 .bg-grid-green {
     background-size: 40px 40px;
     background-image: linear-gradient(to right, rgba(167, 243, 208, 0.4) 1px, transparent 1px),
                       linear-gradient(to bottom, rgba(167, 243, 208, 0.4) 1px, transparent 1px);
+}
+
+html.dark .bg-grid-green {
+    background-image: linear-gradient(to right, rgba(16, 185, 129, 0.1) 1px, transparent 1px),
+                      linear-gradient(to bottom, rgba(16, 185, 129, 0.1) 1px, transparent 1px);
 }
 
 .card-shine {

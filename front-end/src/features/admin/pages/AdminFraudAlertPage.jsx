@@ -15,11 +15,20 @@ const ZONE_CFG = {
 };
 const getZ = (k) => ZONE_CFG[k] ?? { label: k ?? '—', dot: 'bg-slate-400', text: 'text-slate-600 dark:text-slate-400', badge: 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400' };
 
-function InfoRow({ label, value }) {
+const fmtTxnId = (id) => {
+    if (!id) return null;
+    const n = Number(id);
+    if (isNaN(n)) return id;
+    const minus = n % 2 === 0 ? n : n - 1;
+    const plus = minus + 1;
+    return `TXN-${minus}+${plus}`;
+};
+
+function InfoRow({ label, value, isCode }) {
     return (
         <div className="flex justify-between items-start gap-2">
             <span className="text-xs text-slate-500 dark:text-slate-400 shrink-0">{label}</span>
-            <span className="text-xs font-semibold text-slate-900 dark:text-slate-200 text-right">{value ?? '—'}</span>
+            <span className={`text-xs font-semibold text-slate-900 dark:text-slate-200 text-right ${isCode ? 'break-all font-mono text-[10px]' : ''}`}>{value ?? '—'}</span>
         </div>
     );
 }
@@ -70,9 +79,12 @@ function FraudAlertDetailModal({ id, onClose }) {
                                 <div className="bg-slate-50 dark:bg-slate-800/50 rounded-xl p-4 space-y-3">
                                     <p className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-3">Thông tin chung</p>
                                     <InfoRow label="ID Người dùng" value={detail.userId} />
+                                    <InfoRow label="ID Giao dịch" value={fmtTxnId(detail.transactionId) ?? 'N/A'} />
                                     <InfoRow label="Họ tên (Username)" value={detail.userName} />
                                     <InfoRow label="Số tiền yêu cầu" value={fmt(detail.amount)} />
                                     <InfoRow label="Tài khoản nhận" value={detail.toAccountNumber} />
+                                    <InfoRow label="Mã Giao dịch" value={detail.referenceId} isCode={true} />
+                                    <InfoRow label="ID Phiên xử lý" value={detail.sessionToken} isCode={true} />
                                     <InfoRow label="Ngày tạo" value={fmtDate(detail.createdAt)} />
                                 </div>
                                 <div className="bg-slate-50 dark:bg-slate-800/50 rounded-xl p-4 space-y-3">
@@ -124,8 +136,18 @@ export default function AdminFraudAlertPage() {
     const [filterZone, setFilterZone] = useState('all');
     const [filterStatus, setFilterStatus] = useState('all');
     const [searchTerm, setSearchTerm] = useState('');
+    const [debouncedSearch, setDebouncedSearch] = useState('');
     const [selectedId, setSelectedId] = useState(null);
     const PAGE_SIZE = 10;
+
+    // Debounce search term
+    useEffect(() => {
+        const handler = setTimeout(() => {
+            setDebouncedSearch(searchTerm);
+            setPage(0);
+        }, 500);
+        return () => clearTimeout(handler);
+    }, [searchTerm]);
 
     useEffect(() => {
         setStatsLoading(true);
@@ -140,7 +162,7 @@ export default function AdminFraudAlertPage() {
         const params = { page, size: PAGE_SIZE };
         if (filterZone !== 'all') params.zone = filterZone;
         if (filterStatus !== 'all') params.finalStatus = filterStatus;
-        if (searchTerm.trim()) params.keyword = searchTerm.trim();
+        if (debouncedSearch.trim()) params.keyword = debouncedSearch.trim();
 
         fraudAdminService.getFraudAlerts(params)
             .then(res => {
@@ -153,7 +175,7 @@ export default function AdminFraudAlertPage() {
             })
             .catch(console.error)
             .finally(() => setLoading(false));
-    }, [page, filterZone, filterStatus, searchTerm]);
+    }, [page, filterZone, filterStatus, debouncedSearch]);
 
     useEffect(() => { fetchAlerts(); }, [fetchAlerts]);
 
@@ -204,7 +226,7 @@ export default function AdminFraudAlertPage() {
                                             <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">search</span>
                                             <input
                                                 type="text"
-                                                placeholder="Tìm User ID, Tên..."
+                                                placeholder="Tìm Mã giao dịch, ID..."
                                                 value={searchTerm}
                                                 onChange={e => { setSearchTerm(e.target.value); setPage(0); }}
                                                 className="pl-9 pr-4 py-2 bg-slate-50 dark:bg-slate-800 border-none rounded-lg text-sm focus:ring-2 focus:ring-primary w-64"
@@ -251,40 +273,44 @@ export default function AdminFraudAlertPage() {
                                 <table className="w-full text-left border-collapse">
                                     <thead>
                                         <tr className="text-[11px] uppercase tracking-widest text-slate-500 dark:text-slate-400 font-bold border-b border-slate-100 dark:border-slate-800">
-                                            <th className="px-6 py-4">Mã số</th>
-                                            <th className="px-6 py-4">Người dùng</th>
-                                            <th className="px-6 py-4">Số tiền</th>
-                                            <th className="px-6 py-4">Chỉ số rủi ro</th>
-                                            <th className="px-6 py-4">Hành động</th>
-                                            <th className="px-6 py-4">Trạng thái cuối</th>
-                                            <th className="px-6 py-4 text-right">Thao tác</th>
+                                            <th className="px-4 py-4 w-16">Mã số</th>
+                                            <th className="px-4 py-4 min-w-[220px]">ID Giao dịch</th>
+                                            <th className="px-4 py-4 w-40">Người dùng</th>
+                                            <th className="px-4 py-4 w-36 whitespace-nowrap">Số tiền</th>
+                                            <th className="px-4 py-4 w-28">Chỉ số rủi ro</th>
+                                            <th className="px-4 py-4 w-32 whitespace-nowrap">Hành động</th>
+                                            <th className="px-4 py-4 w-36 whitespace-nowrap">Trạng thái cuối</th>
+                                            <th className="px-4 py-4 text-right w-20">Thao tác</th>
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                                         {loading ? (
-                                            <tr><td colSpan="7" className="px-6 py-14 text-center">Đang tải...</td></tr>
+                                            <tr><td colSpan="8" className="px-6 py-14 text-center">Đang tải...</td></tr>
                                         ) : alerts.length === 0 ? (
-                                            <tr><td colSpan="7" className="px-6 py-14 text-center text-slate-400">Không có dữ liệu.</td></tr>
+                                            <tr><td colSpan="8" className="px-6 py-14 text-center text-slate-400">Không có dữ liệu.</td></tr>
                                         ) : alerts.map(item => {
                                             const zsc = getZ(item.fraudZone);
                                             return (
                                                 <tr key={item.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50">
-                                                    <td className="px-6 py-4 text-sm font-bold opacity-60">#{item.id}</td>
-                                                    <td className="px-6 py-4">
+                                                    <td className="px-4 py-4 text-sm font-bold opacity-60">#{item.id}</td>
+                                                    <td className="px-4 py-4 text-sm font-semibold text-blue-600 dark:text-blue-400 whitespace-nowrap">
+                                                        {fmtTxnId(item.transactionId) ?? '—'}
+                                                    </td>
+                                                    <td className="px-4 py-4">
                                                         <p className="text-sm font-semibold">{item.userName}</p>
                                                         <p className="text-xs text-slate-500">ID: {item.userId}</p>
                                                     </td>
-                                                    <td className="px-6 py-4 font-semibold">{fmt(item.amount)}</td>
-                                                    <td className="px-6 py-4">
+                                                    <td className="px-4 py-4 font-semibold whitespace-nowrap">{fmt(item.amount)}</td>
+                                                    <td className="px-4 py-4">
                                                         <span className={`font-black ${zsc.text}`}>{(item.fraudScore * 100).toFixed(1)}%</span>
                                                     </td>
-                                                    <td className="px-6 py-4">
+                                                    <td className="px-4 py-4 whitespace-nowrap">
                                                         <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wide ${zsc.badge}`}>{zsc.label}</span>
                                                     </td>
-                                                    <td className="px-6 py-4">
+                                                    <td className="px-4 py-4 whitespace-nowrap">
                                                         <span className="text-sm font-medium">{item.finalStatus}</span>
                                                     </td>
-                                                    <td className="px-6 py-4 text-right">
+                                                    <td className="px-4 py-4 text-right">
                                                         <button onClick={() => setSelectedId(item.id)} className="bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 px-3 py-1.5 rounded-lg text-sm font-bold transition">
                                                             Xem
                                                         </button>

@@ -54,7 +54,7 @@ export default function Sidebar({ activeRoute = "dashboard" }) {
 
 
     return (
-        <aside className="hidden md:flex flex-col w-72 h-full bg-white dark:bg-slate-800 border-r border-gray-100 dark:border-slate-800 px-4 py-3 overflow-hidden">
+        <aside className="hidden md:flex flex-col w-72 h-full bg-white dark:bg-slate-800 border-r border-gray-100 dark:border-slate-800 px-4 py-3 overflow-hidden flex-shrink-0">
             {/* Top scrollable section */}
             <div className="flex flex-col flex-1 min-h-0 overflow-y-auto gap-3 pb-2 scrollbar-hide">
                 {/* User Profile */}

@@ -104,6 +104,9 @@ export default function FraudCheckModal({ isOpen, fraudResult, onConfirm, onCanc
             if (user?.id || user?.userId) {
                 formData.append("userId", user.id || user.userId);
             }
+            if (fraudResult?.sessionToken) {
+                formData.append("sessionToken", fraudResult.sessionToken);
+            }
 
             // Call verify API (exactly like the registration flow uses FormData)
             const result = await faceService.verifyFace(formData);
@@ -234,7 +237,7 @@ export default function FraudCheckModal({ isOpen, fraudResult, onConfirm, onCanc
                         
                         {fraudZone !== 'REJECT' && (
                             <button 
-                                onClick={() => onConfirm(fraudResult.sessionToken, faceVerified)}
+                                onClick={() => onConfirm(fraudResult.sessionToken)}
                                 disabled={(fraudZone === 'REVIEW' && !faceVerified) || cameraActive}
                                 className={`flex-1 font-bold py-3 rounded-xl text-white transition ${
                                     (fraudZone === 'REVIEW' && !faceVerified) || cameraActive

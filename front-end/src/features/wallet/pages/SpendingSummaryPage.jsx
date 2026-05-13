@@ -5,11 +5,10 @@ export default function SpendingSummaryPage() {
     const { isDarkMode, toggleDarkMode } = useTheme();
 
     return (
-        <div className="flex min-h-screen bg-[#f6f8f7] dark:bg-slate-900">
+        <div className="flex h-screen w-full bg-[#f6f8f7] dark:bg-slate-900 font-display text-[#111714] dark:text-white transition-colors duration-300 overflow-hidden">
             <Sidebar />
 
-            {/* MAIN CONTENT */}
-            <main className="flex-1 flex flex-col overflow-hidden">
+            <main className="flex-1 flex flex-col h-full overflow-y-auto">
                 {/* PAGE HEADER */}
                 <div className="px-8 py-8 flex justify-between items-center border-b border-gray-100 dark:border-slate-800 bg-white dark:bg-slate-800">
                     <div>

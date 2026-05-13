@@ -126,7 +126,7 @@ export default function LoginPage() {
   const displayError = localError || authError;
 
   return (
-    <div className="relative flex h-screen w-full overflow-hidden bg-background-light dark:bg-background-dark font-display antialiased text-text-main">
+    <div className="relative flex h-screen w-full overflow-hidden bg-background-light dark:bg-slate-900 font-display antialiased text-text-main dark:text-white">
       {/* LEFT */}
       <div className="flex w-full lg:w-1/2 flex-col bg-white dark:bg-background-dark h-full overflow-y-auto">
         {/* Header */}
@@ -139,7 +139,7 @@ export default function LoginPage() {
               />
             </svg>
           </div>
-          <h2 className="text-xl font-bold">E-Wallet</h2>
+          <h2 className="text-xl font-bold dark:text-white">E-Wallet</h2>
         </div>
 
         {/* CONTENT */}
@@ -147,8 +147,8 @@ export default function LoginPage() {
           <div className="max-w-[480px] w-full mx-auto flex flex-col gap-8">
             {/* Title */}
             <div>
-              <h1 className="text-3xl lg:text-4xl font-bold">Chào mừng trở lại</h1>
-              <p className="text-base text-text-secondary mt-2">
+              <h1 className="text-3xl lg:text-4xl font-bold dark:text-white">Chào mừng trở lại</h1>
+              <p className="text-base text-text-secondary dark:text-slate-400 mt-2">
                 Đăng nhập an toàn vào ví để quản lý tài chính của bạn.
               </p>
             </div>
@@ -171,7 +171,7 @@ export default function LoginPage() {
             <form onSubmit={handleSubmit} className="flex flex-col gap-6">
               {/* Username */}
               <div>
-                <label className="text-base font-medium">Tên người dùng</label>
+                <label className="text-base font-medium dark:text-slate-200">Tên người dùng</label>
                 <div className="relative mt-2">
                   <input
                     name="username"
@@ -189,7 +189,7 @@ export default function LoginPage() {
 
               {/* Password */}
               <div>
-                <label className="text-base font-medium">Mật khẩu</label>
+                <label className="text-base font-medium dark:text-slate-200">Mật khẩu</label>
                 <div className="relative mt-2">
                   <input
                     type={showPassword ? "text" : "password"}
@@ -211,7 +211,7 @@ export default function LoginPage() {
 
               {/* Forgot */}
               <div className="flex justify-end">
-                <a className="text-sm font-bold hover:text-primary" href="#">
+                <a className="text-sm font-bold hover:text-primary dark:text-slate-300" href="#">
                   Quên mật khẩu?
                 </a>
               </div>
@@ -236,11 +236,11 @@ export default function LoginPage() {
 
               {/* Divider */}
               <div className="flex items-center gap-4">
-                <div className="flex-grow border-t border-border-color" />
-                <span className="text-sm text-text-secondary">
+                <div className="flex-grow border-t border-border-color dark:border-slate-700" />
+                <span className="text-sm text-text-secondary dark:text-slate-400">
                   hoặc tiếp tục với
                 </span>
-                <div className="flex-grow border-t border-border-color" />
+                <div className="flex-grow border-t border-border-color dark:border-slate-700" />
               </div>
 
               {/* Social */}
@@ -265,7 +265,7 @@ export default function LoginPage() {
             </form>
 
             {/* Signup */}
-            <p className="text-center text-sm text-text-secondary">
+            <p className="text-center text-sm text-text-secondary dark:text-slate-400">
               Chưa có tài khoản?
               <Link to="/register" className="ml-1 text-primary font-bold">
                 Đăng ký
