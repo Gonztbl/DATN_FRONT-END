@@ -206,13 +206,14 @@ export default function DashboardPage() {
                     }
                 });
 
-                // Kết hợp với summary từ API (nếu có) hoặc chỉ dùng calculatedSummary
+                // PRIORITIZE WALLET SUMMARY FROM API (it's more accurate than local calculation from limited history)
                 let finalSummary = calculatedSummary;
-
-                // Nếu muốn giữ summary từ API, comment dòng trên và sử dụng:
-                // if (summaryResult.status === 'fulfilled') {
-                //     finalSummary = summaryResult.value;
-                // }
+                if (summaryResult.status === 'fulfilled' && summaryResult.value) {
+                    finalSummary = summaryResult.value;
+                    console.log("Using Wallet Summary from API:", finalSummary);
+                } else {
+                    console.log("Using locally calculated Wallet Summary (API failed):", finalSummary);
+                }
 
                 setWalletSummary(finalSummary);
 
@@ -273,8 +274,8 @@ export default function DashboardPage() {
                 });
                 setSevenDaySummary(last7DaysSummary);
             } else {
-                // Nếu không có transfer history, vẫn xử lý summary từ API
-                if (summaryResult.status === 'fulfilled') {
+                // FALLBACK: If no transfer history, still try to use summary from API
+                if (summaryResult.status === 'fulfilled' && summaryResult.value) {
                     setWalletSummary(summaryResult.value);
                 }
             }
