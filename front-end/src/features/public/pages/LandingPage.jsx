@@ -21,6 +21,17 @@ const LandingPage = () => {
     const handleSendMessage = async () => {
         if (!inputText.trim()) return;
 
+        // Retrieve or generate guest_user_id for persistent multi-turn chatbot history
+        let currentUserId = localStorage.getItem('guest_user_id');
+        if (!currentUserId) {
+            currentUserId = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+                const r = Math.random() * 16 | 0;
+                const v = c === 'x' ? r : (r & 0x3 | 0x8);
+                return v.toString(16);
+            });
+            localStorage.setItem('guest_user_id', currentUserId);
+        }
+
         const userMessage = inputText;
         setInputText('');
         setMessages(prev => [...prev, { role: 'user', content: userMessage }]);
@@ -33,7 +44,10 @@ const LandingPage = () => {
                     'Content-Type': 'application/json',
                     'x-api-key': 'CHATBOT_SECRET_2026'
                 },
-                body: JSON.stringify({ message: userMessage })
+                body: JSON.stringify({
+                    userId: currentUserId,
+                    message: userMessage
+                })
             });
 
             if (!response.ok) {
